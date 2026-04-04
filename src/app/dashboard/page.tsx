@@ -1,11 +1,11 @@
 import { 
-  EllipsisHorizontalIcon,
-  FunnelIcon,
-  ChevronDownIcon,
-  CurrencyDollarIcon,
-  ReceiptPercentIcon,
-  FireIcon,
-  TruckIcon
+  MoreHorizontal,
+  Filter,
+  ChevronDown,
+  CircleDollarSign,
+  Receipt,
+  Flame,
+  Truck
 } from "lucide-react"
 import { createClient } from '@/utils/supabase/server'
 import { redirect } from 'next/navigation'
@@ -33,7 +33,7 @@ export default async function DashboardPage() {
       name: "Faturamento Vendas", 
       value: `R$ ${totalRevenue.toLocaleString('pt-BR')}`, 
       subtitle: `${projects?.length || 0} veículos vendidos`, 
-      icon: CurrencyDollarIcon, 
+      icon: CircleDollarSign, 
       iconBg: "bg-amber-100/60", 
       iconColor: "text-amber-700",
       gradientColor: "bg-amber-200" 
@@ -42,7 +42,7 @@ export default async function DashboardPage() {
       name: "Estoque Disponível", 
       value: "R$ 0k", 
       subtitle: "Funcionalidade futura", 
-      icon: TruckIcon, 
+      icon: Truck, 
       iconBg: "bg-indigo-100/60", 
       iconColor: "text-indigo-700",
       gradientColor: "bg-indigo-200" 
@@ -51,7 +51,7 @@ export default async function DashboardPage() {
       name: "Comissões (vendidos)", 
       value: "R$ 0", 
       subtitle: "Depende de relatórios financeiros", 
-      icon: ReceiptPercentIcon, 
+      icon: Receipt, 
       iconBg: "bg-emerald-100/60", 
       iconColor: "text-emerald-700",
       gradientColor: "bg-emerald-200" 
@@ -60,7 +60,7 @@ export default async function DashboardPage() {
       name: "Conversas Ativas (Leads)", 
       value: activeChatCount.toString(), 
       subtitle: `${activeChatCount} total no pipeline`, 
-      icon: FireIcon, 
+      icon: Flame, 
       iconBg: "bg-rose-100/60", 
       iconColor: "text-rose-700",
       gradientColor: "bg-rose-200" 
@@ -114,7 +114,7 @@ export default async function DashboardPage() {
                   <h3 className="text-slate-800 font-semibold">Crescimento de Receita</h3>
                   <div className="flex items-center gap-2 border border-slate-200 rounded-lg px-3 py-1.5 cursor-pointer hover:bg-slate-50">
                     <span className="text-xs font-semibold text-slate-600">Este Mês</span>
-                    <ChevronDownIcon className="w-3 h-3 text-slate-400" />
+                    <ChevronDown className="w-3 h-3 text-slate-400" />
                   </div>
                 </div>
                 <div className="flex-1 min-h-[160px] flex items-center justify-center">
@@ -127,7 +127,7 @@ export default async function DashboardPage() {
                   <h3 className="text-slate-800 font-semibold">Projetos Ativos</h3>
                   <div className="flex items-center gap-2">
                     <button className="flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-lg px-3 py-1.5 text-xs font-semibold transition-colors">
-                      <FunnelIcon className="w-3 h-3" /> Filter
+                      <Filter className="w-3 h-3" /> Filter
                     </button>
                   </div>
                 </div>
