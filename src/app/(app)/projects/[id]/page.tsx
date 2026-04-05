@@ -1,10 +1,11 @@
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
+import Image from 'next/image'
 import StageList from './StageList'
 import ProjectMaterials from './ProjectMaterials'
 import VehicleEntryForm from './VehicleEntryForm'
 import DocumentsSection from './DocumentsSection'
-import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield } from 'lucide-react'
+import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Palette, CheckCircle, FileWarning, MapPin } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -46,37 +47,110 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   const completedStages = stages?.filter(s => s.status === 'completed').length || 0
   const totalStages = stages?.length || 12
+  
+  // Dashboard Extractions
+  const currentStage = stages?.find(s => s.status === 'in_progress')?.stage_name || 'Nenhuma etapa em andamento'
+  const hasRejectedDocs = project.authorization_status === 'rejected' || project.declaration_status === 'rejected'
+  const docsApproved = project.authorization_status === 'approved' && project.declaration_status === 'approved'
+  const vehiclePhoto = project.entry_photos && Array.isArray(project.entry_photos) && project.entry_photos.length > 0 
+    ? project.entry_photos[0] 
+    : null
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      {/* Header */}
-      <div className="flex items-start gap-4 mb-8">
-        <Link href="/projects" className="w-9 h-9 rounded-lg bg-white border border-slate-200 flex items-center justify-center hover:bg-slate-50 transition-colors flex-shrink-0 mt-0.5">
-          <ArrowLeft className="w-4 h-4 text-slate-600" />
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      
+      {/* Back Button */}
+      <div>
+        <Link href="/projects" className="inline-flex items-center gap-2 text-sm text-slate-500 hover:text-slate-800 transition-colors">
+          <ArrowLeft className="w-4 h-4" /> Voltar para projetos
         </Link>
-        <div className="flex-1">
-          <div className="flex items-center gap-3 mb-1 flex-wrap">
-            <h1 className="text-2xl font-bold text-slate-800">{project.customer_name}</h1>
-            <span className={`stage-badge ${statusColors[project.status] || 'bg-slate-100 text-slate-600'}`}>
-              {statusLabels[project.status] || project.status}
-            </span>
+      </div>
+
+      {/* Hero Vehicle Dashboard (Inspired by Visual Reference) */}
+      <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-6">
+        <div className="flex flex-col md:flex-row">
+          
+          {/* Left: Full Height Image Block */}
+          <div className="w-full md:w-[35%] lg:w-[30%] relative min-h-[320px] bg-slate-100 flex items-center justify-center overflow-hidden">
+            {vehiclePhoto ? (
+               <Image 
+                src={vehiclePhoto} 
+                alt="Foto do Veículo" 
+                fill 
+                className="object-cover"
+              />
+            ) : (
+                <div className="text-center p-6 flex flex-col items-center">
+                  <Car className="w-16 h-16 text-slate-300 mb-3" />
+                  <p className="text-sm font-medium text-slate-400">Sem Foto</p>
+                </div>
+            )}
+            {/* Status Badge over the image like in reference "Top Pick" */}
+            <div className={`absolute top-4 left-4 px-2.5 py-1 rounded text-[11px] uppercase tracking-wider font-bold shadow-sm ${
+              project.status === 'producao' ? 'bg-indigo-600 text-white' : 'bg-slate-800 text-white'
+            }`}>
+              {statusLabels[project.status] || 'Ativo'}
+            </div>
           </div>
-          <div className="flex flex-wrap gap-4 text-sm text-slate-500">
-            {project.vehicle_model && (
-              <span className="flex items-center gap-1"><Car className="w-3.5 h-3.5" /> {project.vehicle_model}</span>
-            )}
-            {project.plate && (
-              <span className="flex items-center gap-1"><Hash className="w-3.5 h-3.5" /> {project.plate}</span>
-            )}
-            {project.odometer_entry && (
-              <span className="flex items-center gap-1"><Gauge className="w-3.5 h-3.5" /> {project.odometer_entry.toLocaleString('pt-BR')} km</span>
-            )}
-            {project.expected_delivery_date && (
-              <span className="flex items-center gap-1"><Calendar className="w-3.5 h-3.5" /> {new Date(project.expected_delivery_date).toLocaleDateString('pt-BR')}</span>
-            )}
-            {project.contract_value && (
-              <span className="flex items-center gap-1 font-semibold text-green-600"><DollarSign className="w-3.5 h-3.5" /> R$ {Number(project.contract_value).toLocaleString('pt-BR')}</span>
-            )}
+
+          {/* Right: Details Container */}
+          <div className="w-full md:w-[65%] lg:w-[70%] p-6 md:p-8 flex flex-col">
+            
+            {/* Top row: Title and Price */}
+            <div className="flex flex-col sm:flex-row justify-between items-start mb-6 pb-6 border-b border-slate-100 gap-4">
+              <div>
+                <h1 className="text-2xl lg:text-3xl font-extrabold text-slate-900 tracking-tight">
+                  {project.vehicle_model || 'Modelo não informado'}
+                </h1>
+                <p className="text-sm text-slate-500 font-medium mt-1">
+                  {project.customer_name} · <span className="text-indigo-600">Oficina Principal</span>
+                </p>
+              </div>
+              
+              <div className="sm:text-right">
+                <p className="text-[11px] font-bold text-indigo-500 mb-0.5 uppercase tracking-wider">
+                  Valor do Contrato
+                </p>
+                <p className="text-2xl font-bold text-slate-900">
+                  {project.contract_value ? `R$ ${Number(project.contract_value).toLocaleString('pt-BR')}` : 'Sob Consulta'}
+                </p>
+              </div>
+            </div>
+
+            {/* Middle row: Specs grid (like the 4 seats, manual icons in image) */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-5 gap-x-4 mb-8">
+              <div className="flex items-center gap-2.5 text-sm text-slate-600 font-medium">
+                <Hash className="w-4 h-4 text-slate-400 flex-shrink-0"/>
+                <span className="uppercase">{project.plate || 'Sem placa'}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-sm text-slate-600 font-medium">
+                <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0"/>
+                <span>{project.vehicle_year || 'Ano N/D'}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-sm text-slate-600 font-medium">
+                <Palette className="w-4 h-4 text-slate-400 flex-shrink-0"/>
+                <span className="capitalize">{project.vehicle_color || 'Cor N/D'}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-sm text-slate-600 font-medium">
+                <Gauge className="w-4 h-4 text-slate-400 flex-shrink-0"/>
+                <span>{project.odometer_entry ? `${project.odometer_entry.toLocaleString('pt-BR')} km` : 'KM N/D'}</span>
+              </div>
+              <div className="flex items-center gap-2.5 text-sm font-medium">
+                {hasRejectedDocs ? <FileWarning className="w-4 h-4 text-red-500 flex-shrink-0"/> : <CheckCircle className={`w-4 h-4 flex-shrink-0 ${docsApproved ? 'text-green-500' : 'text-slate-400'}`} />}
+                <span className={hasRejectedDocs ? 'text-red-600' : (docsApproved ? 'text-green-700' : 'text-slate-500')}>
+                  {hasRejectedDocs ? 'Docs Rejeitados' : (docsApproved ? 'Docs Aprovados' : 'Docs Pendentes')}
+                </span>
+              </div>
+            </div>
+
+            {/* Bottom row: Special badge (like "Winter tyres included") */}
+            <div className="mt-auto">
+              <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-lg bg-slate-50 border border-slate-200 text-sm font-medium text-slate-700">
+                 <Shield className="w-4 h-4 text-indigo-500" />
+                 Etapa Atual: <span className="font-bold">{currentStage}</span>
+              </div>
+            </div>
+
           </div>
         </div>
       </div>
