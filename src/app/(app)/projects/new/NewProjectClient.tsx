@@ -18,6 +18,13 @@ export default function NewProjectClient({ leads }: { leads: Lead[] }) {
   const router = useRouter()
   const supabase = createClient()
 
+  async function getOrgId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const { data } = await supabase.from('profiles').select('organization_id').eq('id', user.id).single()
+    return data?.organization_id ?? null
+  }
+
   function handleLeadSelect(e: React.ChangeEvent<HTMLSelectElement>) {
     const lead = leads.find(l => l.id === e.target.value)
     if (lead) {
@@ -37,6 +44,7 @@ export default function NewProjectClient({ leads }: { leads: Lead[] }) {
     setLoading(true)
     setError('')
 
+    const orgId = await getOrgId()
     const { data, error } = await supabase.from('projects').insert({
       customer_name: form.customer_name,
       plate: form.plate || null,
@@ -45,6 +53,7 @@ export default function NewProjectClient({ leads }: { leads: Lead[] }) {
       contract_value: form.contract_value ? Number(form.contract_value) : null,
       expected_delivery_date: form.expected_delivery_date || null,
       lead_id: form.lead_id || null,
+      organization_id: orgId,
     }).select().single()
 
     setLoading(false)

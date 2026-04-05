@@ -101,6 +101,13 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
   const [newLead, setNewLead] = useState({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: '' })
   const supabase = createClient()
 
+  async function getOrgId(): Promise<string | null> {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    const { data } = await supabase.from('profiles').select('organization_id').eq('id', user.id).single()
+    return data?.organization_id ?? null
+  }
+
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
@@ -129,11 +136,13 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
     if (newStage === 'contracted') {
       const movedLead = leads.find(l => l.id === active.id)
       if (movedLead && confirm(`Deseja criar um projeto de blindagem para ${movedLead.customer_name}?`)) {
+        const orgId = await getOrgId()
         await supabase.from('projects').insert({
           customer_name: movedLead.customer_name,
           vehicle_model: movedLead.vehicle_model,
           lead_id: movedLead.id,
           contract_value: movedLead.quoted_value,
+          organization_id: orgId,
         })
       }
     }
@@ -141,6 +150,7 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
 
   async function handleAddLead(e: React.FormEvent) {
     e.preventDefault()
+    const orgId = await getOrgId()
     const { data, error } = await supabase.from('leads').insert({
       customer_name: newLead.customer_name,
       customer_phone: newLead.customer_phone || null,
@@ -148,10 +158,11 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
       armor_type: newLead.armor_type || null,
       quoted_value: newLead.quoted_value ? Number(newLead.quoted_value) : null,
       pipeline_stage: 'new',
+      organization_id: orgId,
     }).select().single()
 
     if (!error && data) {
-      setLeads(prev => [data, ...prev])
+      setLeads(prev => [data as Lead, ...prev])
       setShowModal(false)
       setNewLead({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: '' })
     }
