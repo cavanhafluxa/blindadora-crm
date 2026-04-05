@@ -1,6 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import { notFound } from 'next/navigation'
 import StageList from './StageList'
+import ProjectMaterials from './ProjectMaterials'
 import { ArrowLeft, Car, Hash, Calendar, DollarSign } from 'lucide-react'
 import Link from 'next/link'
 
@@ -9,9 +10,16 @@ export const dynamic = 'force-dynamic'
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
 
-  const [{ data: project }, { data: stages }] = await Promise.all([
+  const [
+    { data: project }, 
+    { data: stages },
+    { data: projectMaterials },
+    { data: allMaterials }
+  ] = await Promise.all([
     supabase.from('projects').select('*').eq('id', params.id).single(),
     supabase.from('production_stages').select('*').eq('project_id', params.id).order('stage_order'),
+    supabase.from('project_materials').select('*, materials(name)').eq('project_id', params.id),
+    supabase.from('materials').select('id, name, quantity_in_stock').order('name'),
   ])
 
   if (!project) notFound()
@@ -67,10 +75,19 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         </p>
       </div>
 
-      {/* Production Stages */}
-      <div className="soft-card p-6">
-        <h2 className="font-semibold text-slate-800 mb-4">12 Etapas de Blindagem</h2>
-        <StageList stages={stages || []} projectId={project.id} />
+      {/* Production & Materials Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="soft-card p-6">
+          <h2 className="font-semibold text-slate-800 mb-4">12 Etapas de Blindagem</h2>
+          <StageList stages={stages || []} projectId={project.id} />
+        </div>
+        
+        {/* Materiais Consumidos */}
+        <ProjectMaterials 
+          projectId={project.id} 
+          initialProjectMaterials={projectMaterials as any || []}
+          allMaterials={allMaterials as any || []} 
+        />
       </div>
     </div>
   )
