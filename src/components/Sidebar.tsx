@@ -11,7 +11,9 @@ import {
   Wrench,
   Settings,
   ShieldCheck,
-  LogOut
+  LogOut,
+  FileText,
+  Users
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -20,11 +22,14 @@ const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/projects', label: 'Projetos', icon: Car },
+  { href: '/proposals', label: 'Propostas', icon: FileText },
   { href: '/materials', label: 'Estoque', icon: Package },
   { href: '/financial', label: 'Financeiro', icon: Wallet },
   { href: '/maintenance', label: 'Pós-Venda', icon: Wrench },
+  { href: '/suppliers', label: 'Fornecedores', icon: Users },
   { href: '/settings', label: 'Configurações', icon: Settings },
 ]
+
 
 export default function Sidebar() {
   const pathname = usePathname()

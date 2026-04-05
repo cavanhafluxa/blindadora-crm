@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation'
 import StageList from './StageList'
 import ProjectMaterials from './ProjectMaterials'
 import VehicleEntryForm from './VehicleEntryForm'
-import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge } from 'lucide-react'
+import DocumentsSection from './DocumentsSection'
+import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -101,19 +102,40 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
         entryCompleted={!!project.entry_completed_at}
       />
 
+      {/* Documents & Approvals */}
+      <DocumentsSection
+        projectId={project.id}
+        initialDocs={{
+          authorization_status: project.authorization_status || 'pending_docs',
+          authorization_notes: project.authorization_notes,
+          declaration_status: project.declaration_status || 'pending_docs',
+          declaration_notes: project.declaration_notes,
+        }}
+      />
+
+      {/* Warranty */}
+      {project.entry_completed_at && (
+        <div className="soft-card p-5 mb-6 flex items-center gap-3">
+          <Shield className="w-5 h-5 text-indigo-500 flex-shrink-0" />
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-slate-700">Garantia do Serviço</p>
+            <p className="text-xs text-slate-500">{project.warranty_months || 24} meses a partir da entrega</p>
+          </div>
+          {project.satisfaction_rating && (
+            <div className="text-right">
+              <p className="text-xs text-slate-500">Avaliação do cliente</p>
+              <p className="text-lg">{Array.from({ length: project.satisfaction_rating }).map(() => '⭐').join('')}</p>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Production Timeline + Materials Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Stages — 2/3 width */}
         <div className="lg:col-span-2 soft-card p-6">
           <h2 className="font-semibold text-slate-800 mb-6">12 Etapas de Blindagem</h2>
-          <StageList
-            stages={stages || []}
-            projectId={project.id}
-            teamMembers={teamMembers || []}
-          />
+          <StageList stages={stages || []} projectId={project.id} teamMembers={teamMembers || []} />
         </div>
-
-        {/* Materials — 1/3 width */}
         <div>
           <ProjectMaterials
             projectId={project.id}
