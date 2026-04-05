@@ -19,12 +19,14 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     { data: projectMaterials },
     { data: allMaterials },
     { data: teamMembers },
+    { data: documents },
   ] = await Promise.all([
     supabase.from('projects').select('*').eq('id', id).single(),
     supabase.from('production_stages').select('*').eq('project_id', id).order('stage_order'),
     supabase.from('project_materials').select('*, materials(name)').eq('project_id', id),
     supabase.from('materials').select('id, name, quantity_in_stock').order('name'),
     supabase.from('profiles').select('id, full_name').order('full_name'),
+    supabase.from('documents').select('*').eq('project_id', id).order('uploaded_at', { ascending: false }),
   ])
 
   if (!project) notFound()
@@ -107,6 +109,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       {/* Documents & Approvals */}
       <DocumentsSection
         projectId={project.id}
+        initialFiles={documents || []}
         initialDocs={{
           authorization_status: project.authorization_status || 'pending_docs',
           authorization_notes: project.authorization_notes,
