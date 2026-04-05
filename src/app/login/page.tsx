@@ -1,11 +1,13 @@
 import { login } from './actions'
 import { ShieldCheck } from 'lucide-react'
 
-export default function LoginPage({
+export default async function LoginPage({
   searchParams,
 }: {
-  searchParams: { error?: string }
+  searchParams: Promise<{ error?: string }>
 }) {
+  const resolvedParams = await searchParams
+
   return (
     <div className="min-h-screen flex">
       {/* Lado Esquerdo - Marca */}
@@ -86,9 +88,9 @@ export default function LoginPage({
                 />
               </div>
 
-              {searchParams?.error && (
+              {resolvedParams?.error && (
                 <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium border border-red-100">
-                  {searchParams.error}
+                  {resolvedParams.error}
                 </div>
               )}
 
