@@ -9,8 +9,9 @@ import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
 
-export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default async function ProjectDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const supabase = await createClient()
+  const { id } = await params
 
   const [
     { data: project },
@@ -19,14 +20,15 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     { data: allMaterials },
     { data: teamMembers },
   ] = await Promise.all([
-    supabase.from('projects').select('*').eq('id', params.id).single(),
-    supabase.from('production_stages').select('*').eq('project_id', params.id).order('stage_order'),
-    supabase.from('project_materials').select('*, materials(name)').eq('project_id', params.id),
+    supabase.from('projects').select('*').eq('id', id).single(),
+    supabase.from('production_stages').select('*').eq('project_id', id).order('stage_order'),
+    supabase.from('project_materials').select('*, materials(name)').eq('project_id', id),
     supabase.from('materials').select('id, name, quantity_in_stock').order('name'),
     supabase.from('profiles').select('id, full_name').order('full_name'),
   ])
 
   if (!project) notFound()
+
 
   const statusColors: Record<string, string> = {
     producao: 'bg-blue-100 text-blue-700',
