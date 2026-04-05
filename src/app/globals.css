@@ -1,63 +1,116 @@
 @import "tailwindcss";
 
-@theme {
+:root {
+  --color-background: #F9FAFB;
+  --color-foreground: #111827;
   --color-primary: #22C55E;
-  --color-primary-dark: #16A34A;
+  --color-primary-hover: #16A34A;
   --color-sidebar-bg: #111827;
-  --color-sidebar-text: #D1D5DB;
-  --color-sidebar-active: #22C55E;
-  --color-bg-main: #FFFFFF;
-  --color-bg-card: #FFFFFF;
-  --color-bg-secondary: #F9FAFB;
-  --color-border: #E5E7EB;
-  --color-text-primary: #111827;
-  --color-text-secondary: #6B7280;
-  --color-success: #22C55E;
-  --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-info: #3B82F6;
-}
-
-@layer base {
-  :root {
-    --background: var(--color-bg-main);
-    --foreground: var(--color-text-primary);
-  }
-}
-
-@layer utilities {
-  .soft-card {
-    @apply bg-white rounded-[20px] shadow-[0_4px_24px_rgba(0,0,0,0.02)] border border-[#00000008] transition-all duration-300;
-  }
-  
-  .glass-light {
-    @apply bg-white/80 backdrop-blur-xl border border-white shadow-[0_8px_30px_rgba(0,0,0,0.04)];
-  }
-
-  .hover-float {
-    @apply hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)];
-  }
+  --color-sidebar-text: #F9FAFB;
+  --color-sidebar-hover: #1F2937;
+  --color-sidebar-active: #374151;
 }
 
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  overflow-x: hidden;
+  background-color: var(--color-background);
+  color: var(--color-foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
 }
 
-/* Custom Scrollbar for a cleaner look */
-::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+.soft-card {
+  background: #FFFFFF;
+  border-radius: 1rem;
+  border: 1px solid #F1F5F9;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
+  transition: all 0.25s ease;
 }
-::-webkit-scrollbar-track {
-  background: transparent;
+
+.soft-card:hover {
+  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
 }
-::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
-  border-radius: 10px;
+
+.glass-panel {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255,255,255,0.4);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+
+.sidebar {
+  background-color: var(--color-sidebar-bg);
+  min-height: 100vh;
+  width: 240px;
+  flex-shrink: 0;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 16px;
+  border-radius: 8px;
+  color: #9CA3AF;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-decoration: none;
+}
+
+.sidebar-link:hover {
+  background-color: var(--color-sidebar-hover);
+  color: #F9FAFB;
+}
+
+.sidebar-link.active {
+  background-color: var(--color-sidebar-active);
+  color: #FFFFFF;
+}
+
+.btn-primary {
+  background-color: var(--color-primary);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  transition: background-color 0.2s;
+}
+
+.btn-primary:hover {
+  background-color: var(--color-primary-hover);
+}
+
+.stage-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.stage-pending { background: #F1F5F9; color: #64748B; }
+.stage-in_progress { background: #FEF9C3; color: #854D0E; }
+.stage-completed { background: #DCFCE7; color: #15803D; }
+
+.progress-bar {
+  height: 8px;
+  border-radius: 999px;
+  background: #E5E7EB;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #22C55E, #16A34A);
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
 }

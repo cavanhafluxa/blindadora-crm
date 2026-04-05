@@ -1,89 +1,109 @@
 import { login } from './actions'
-import { ShieldCheckIcon } from 'lucide-react'
+import { ShieldCheck } from 'lucide-react'
 
 export default function LoginPage({
   searchParams,
 }: {
-  searchParams: { message: string, error: string }
+  searchParams: { error?: string }
 }) {
   return (
-    <div className="flex h-screen w-full">
-      {/* Lado Esquerdo Verde */}
-      <div className="hidden lg:flex w-1/2 bg-[#22C55E] flex-col justify-center items-center p-12 text-white">
-        <ShieldCheckIcon className="w-24 h-24 mb-6 opacity-90" />
-        <h1 className="text-4xl font-bold mb-4 tracking-tight text-center">Blindadoras PRO</h1>
-        <p className="text-emerald-100 text-lg text-center max-w-md font-medium">
-          O sistema definitivo para a gestão unificada e inteligente da sua operação de blindagem automotiva.
+    <div className="min-h-screen flex">
+      {/* Lado Esquerdo - Marca */}
+      <div
+        className="hidden lg:flex w-1/2 flex-col justify-center items-center p-12"
+        style={{ background: 'linear-gradient(135deg, #111827 0%, #1a2740 100%)' }}
+      >
+        <div className="flex items-center gap-3 mb-8">
+          <div className="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center">
+            <ShieldCheck className="w-8 h-8 text-white" />
+          </div>
+          <span className="text-white text-3xl font-bold tracking-tight">PROBlind</span>
+        </div>
+        <h1 className="text-white text-4xl font-bold text-center leading-tight mb-4">
+          CRM para<br />Blindagem Automotiva
+        </h1>
+        <p className="text-slate-400 text-center text-lg max-w-sm">
+          Gerencie leads, projetos, estoque, financeiro e pós-venda em um único lugar.
         </p>
+
+        <div className="mt-12 grid grid-cols-2 gap-4 w-full max-w-sm">
+          {[
+            { label: 'Pipeline de Vendas', desc: 'Kanban integrado' },
+            { label: '12 Etapas', desc: 'Rastreio de produção' },
+            { label: 'Estoque', desc: 'Controle de materiais' },
+            { label: 'Financeiro', desc: 'DRE e relatórios' },
+          ].map((item) => (
+            <div key={item.label} className="bg-white/5 rounded-xl p-4 border border-white/10">
+              <p className="text-white text-sm font-semibold">{item.label}</p>
+              <p className="text-slate-400 text-xs mt-1">{item.desc}</p>
+            </div>
+          ))}
+        </div>
       </div>
 
-      {/* Lado Direito Formulário */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center bg-[#F9FAFB]">
-        <div className="max-w-md w-full px-8 py-10 soft-card">
-          <div className="mb-8 text-center lg:text-left">
-            <h2 className="text-2xl font-bold text-[#111827]">Bem-vindo de volta</h2>
-            <p className="text-[#6B7280] text-sm mt-2">Acesse sua conta para continuar.</p>
+      {/* Lado Direito - Formulário */}
+      <div className="flex-1 flex items-center justify-center bg-[#F9FAFB] p-8">
+        <div className="w-full max-w-md">
+          <div className="lg:hidden flex items-center gap-2 mb-8">
+            <div className="w-9 h-9 rounded-xl bg-green-500 flex items-center justify-center">
+              <ShieldCheck className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-slate-800 text-xl font-bold">PROBlind CRM</span>
           </div>
 
-          <form className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-[#111827] mb-2" htmlFor="email">
-                E-mail
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                required
-                className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-transparent transition-all"
-                placeholder="seu@email.com"
-              />
-            </div>
+          <h2 className="text-2xl font-bold text-slate-800 mb-1">Bem-vindo de volta</h2>
+          <p className="text-slate-500 text-sm mb-8">Entre com suas credenciais para continuar.</p>
 
-            <div>
-              <div className="flex items-center justify-between mb-2">
-                <label className="block text-sm font-medium text-[#111827]" htmlFor="password">
+          <div className="soft-card p-8">
+            <form className="space-y-5">
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="email">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  autoComplete="email"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  placeholder="seu@email.com"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="password">
                   Senha
                 </label>
-                <a href="#" className="text-sm font-semibold text-[#22C55E] hover:text-[#16A34A] transition-colors">
-                  Esqueci minha senha
-                </a>
+                <input
+                  id="password"
+                  name="password"
+                  type="password"
+                  required
+                  autoComplete="current-password"
+                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
+                  placeholder="••••••••"
+                />
               </div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                required
-                className="w-full px-4 py-2 border border-[#E5E7EB] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#22C55E] focus:border-transparent transition-all"
-                placeholder="••••••••"
-              />
-            </div>
 
-            <div className="flex items-center">
-              <input
-                id="remember"
-                name="remember"
-                type="checkbox"
-                className="h-4 w-4 text-[#22C55E] focus:ring-[#22C55E] border-[#E5E7EB] rounded"
-              />
-              <label htmlFor="remember" className="ml-2 block text-sm text-[#6B7280]">
-                Lembrar-me
-              </label>
-            </div>
+              {searchParams?.error && (
+                <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium border border-red-100">
+                  {searchParams.error}
+                </div>
+              )}
 
-            {searchParams?.error && (
-              <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium border border-red-100">
-                {searchParams.message || 'Falha ao autenticar.'}
-              </div>
-            )}
+              <button
+                formAction={login}
+                className="btn-primary w-full justify-center py-3 text-base mt-2"
+              >
+                Entrar no sistema
+              </button>
+            </form>
+          </div>
 
-            <button
-              formAction={login}
-              className="w-full flex justify-center py-2.5 px-4 border border-transparent rounded-lg shadow-sm text-sm font-medium text-white bg-[#22C55E] hover:bg-[#16A34A] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#22C55E] transition-all"
-            >
-              Entrar
-            </button>
-          </form>
+          <p className="text-center text-slate-400 text-xs mt-6">
+            © 2025 PROBlind CRM. Todos os direitos reservados.
+          </p>
         </div>
       </div>
     </div>
