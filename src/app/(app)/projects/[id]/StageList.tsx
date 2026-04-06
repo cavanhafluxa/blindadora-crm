@@ -146,10 +146,15 @@ export default function StageList({
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
-        onChange={e => {
-          const file = e.target.files?.[0]
-          if (file && activeUploadStage) handlePhotoUpload(activeUploadStage, file)
+        onChange={async e => {
+          const files = e.target.files
+          if (files && files.length > 0 && activeUploadStage) {
+            for (let i = 0; i < files.length; i++) {
+              await handlePhotoUpload(activeUploadStage, files[i])
+            }
+          }
           e.target.value = ''
         }}
       />
