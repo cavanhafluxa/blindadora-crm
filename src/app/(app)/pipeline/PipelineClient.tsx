@@ -24,6 +24,7 @@ type Lead = {
   source?: string | null
   qualification_score?: number | null
   assigned_to?: string | null
+  plate?: string | null
 }
 
 const STAGES = [
@@ -230,7 +231,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
     const { data: proj, error } = await supabase.from('projects').insert({
       customer_name: currentLead.customer_name,
       vehicle_model: currentLead.vehicle_model,
-      plate: currentLead.plate,
+      plate: currentLead.plate || 'A Definir',
       lead_id: currentLead.id,
       contract_value: currentLead.quoted_value,
       organization_id: orgId,
