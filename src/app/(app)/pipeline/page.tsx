@@ -10,6 +10,11 @@ export default async function PipelinePage() {
     .select('*')
     .order('created_at', { ascending: false })
 
+  const { data: teamMembers } = await supabase
+    .from('profiles')
+    .select('id, full_name')
+    .order('full_name')
+
   if (error) {
     console.error('Pipeline error:', error.message)
   }
@@ -20,7 +25,7 @@ export default async function PipelinePage() {
         <h1 className="text-2xl font-bold text-slate-800">Pipeline de Vendas</h1>
         <p className="text-slate-500 text-sm mt-1">Arraste os leads entre os estágios de conversão</p>
       </div>
-      <PipelineClient initialLeads={leads || []} />
+      <PipelineClient initialLeads={leads || []} teamMembers={teamMembers || []} />
     </div>
   )
 }

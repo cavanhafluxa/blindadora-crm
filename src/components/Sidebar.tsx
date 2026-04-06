@@ -22,11 +22,12 @@ const links = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/pipeline', label: 'Pipeline', icon: Kanban },
   { href: '/projects', label: 'Projetos', icon: Car },
+  { href: '/team', label: 'Colaboradores', icon: Users },
+  { href: '/audit', label: 'Histórico', icon: FileText },
   { href: '/proposals', label: 'Propostas', icon: FileText },
-  { href: '/materials', label: 'Estoque', icon: Package },
   { href: '/financial', label: 'Financeiro', icon: Wallet },
+  { href: '/materials', label: 'Estoque', icon: Package },
   { href: '/maintenance', label: 'Pós-Venda', icon: Wrench },
-  { href: '/suppliers', label: 'Fornecedores', icon: Users },
   { href: '/settings', label: 'Configurações', icon: Settings },
 ]
 
