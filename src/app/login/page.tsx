@@ -25,11 +25,11 @@ export default async function LoginPage({
         <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
           <ShieldCheck className="w-5 h-5 text-white" />
         </div>
-        <span className="text-white font-mono text-sm tracking-widest uppercase opacity-80 shadow-black drop-shadow-md">SYS.CORE // PROBlind</span>
+        <span className="text-white font-mono text-sm tracking-widest uppercase opacity-80 shadow-black drop-shadow-md">ACESSO // PROBlind</span>
       </div>
 
       <div className="absolute top-8 right-8 z-10">
-        <span className="text-white/50 font-mono text-xs tracking-widest uppercase">V1.0 // DARK</span>
+        <span className="text-white/50 font-mono text-xs tracking-widest uppercase">V1.0 // TEMA ESCURO</span>
       </div>
 
       {/* The Glassmorphism Form Container */}
@@ -37,20 +37,20 @@ export default async function LoginPage({
         
         <div className="w-full mb-8">
           <span className="inline-block px-2 py-1 bg-white/10 rounded text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 mb-4">
-            PROBlind.Identity
+            PROBlind CRM
           </span>
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
-            Authenticate
+            Bem-vindo de volta
           </h1>
           <p className="text-white/50 text-sm font-medium">
-            Secure credential access.
+            Entre com suas credenciais para continuar.
           </p>
         </div>
 
         {/* Divider */}
         <div className="w-full flex items-center gap-4 mb-8 opacity-40">
           <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/50"></div>
-          <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">Standard Protocol</span>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">Acesso Seguro</span>
           <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/50"></div>
         </div>
 
@@ -58,7 +58,7 @@ export default async function LoginPage({
         <form className="w-full space-y-6">
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="email">
-              Identifier
+              E-mail
             </label>
             <input
               id="email"
@@ -67,13 +67,13 @@ export default async function LoginPage({
               required
               autoComplete="email"
               className="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/50 focus:border-white/50 transition-all font-mono"
-              placeholder="user@domain.net"
+              placeholder="seu@email.com"
             />
           </div>
 
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="password">
-              Passcode
+              Senha
             </label>
             <input
               id="password"
@@ -82,7 +82,7 @@ export default async function LoginPage({
               required
               autoComplete="current-password"
               className="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/50 focus:border-white/50 transition-all tracking-widest"
-              placeholder="••••••••••••"
+              placeholder="••••••••"
             />
           </div>
 
@@ -96,7 +96,7 @@ export default async function LoginPage({
             formAction={login}
             className="w-full mt-4 flex items-center justify-center gap-3 bg-white text-black font-bold text-sm tracking-widest uppercase py-4 rounded-full hover:bg-slate-200 transition-all glow-effect group"
           >
-            Initialize Uplink
+            Entrar no sistema
             <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
           </button>
         </form>
@@ -105,7 +105,7 @@ export default async function LoginPage({
       
       {/* Decorative text at bottom */}
       <div className="absolute bottom-8 left-8 z-10">
-        <span className="text-white/30 font-mono text-xs tracking-widest uppercase">UPLINK.ESTABLISHED_</span>
+        <span className="text-white/30 font-mono text-xs tracking-widest uppercase">CONEXÃO_SEGURA_</span>
       </div>
     </div>
   )
