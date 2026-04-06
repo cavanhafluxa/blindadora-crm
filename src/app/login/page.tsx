@@ -1,5 +1,5 @@
 import { login } from './actions'
-import { ShieldCheck } from 'lucide-react'
+import { ArrowRight, ShieldCheck } from 'lucide-react'
 
 export default async function LoginPage({
   searchParams,
@@ -9,104 +9,103 @@ export default async function LoginPage({
   const resolvedParams = await searchParams
 
   return (
-    <div className="min-h-screen flex">
-      {/* Lado Esquerdo - Marca */}
-      <div
-        className="hidden lg:flex w-1/2 flex-col justify-center items-center p-12"
-        style={{ background: 'linear-gradient(135deg, #111827 0%, #1a2740 100%)' }}
-      >
-        <div className="flex items-center gap-3 mb-8">
-          <div className="w-14 h-14 rounded-2xl bg-green-500 flex items-center justify-center">
-            <ShieldCheck className="w-8 h-8 text-white" />
-          </div>
-          <span className="text-white text-3xl font-bold tracking-tight">PROBlind</span>
-        </div>
-        <h1 className="text-white text-4xl font-bold text-center leading-tight mb-4">
-          CRM para<br />Blindagem Automotiva
-        </h1>
-        <p className="text-slate-400 text-center text-lg max-w-sm">
-          Gerencie leads, projetos, estoque, financeiro e pós-venda em um único lugar.
-        </p>
+    <div className="relative min-h-screen flex items-center justify-center sm:justify-end sm:pr-24 overflow-hidden bg-black">
+      {/* Background Image Loading from Public */}
+      <div 
+        className="absolute inset-0 z-0 bg-cover bg-center bg-no-repeat transition-all duration-1000 ease-in-out"
+        style={{ backgroundImage: 'url("/bg-login.png")' }}
+      ></div>
+      
+      {/* Dark overlay & vignette for better glassmorphism contrast */}
+      <div className="absolute inset-0 z-0 bg-gradient-to-r from-black/20 via-black/40 to-black/90"></div>
+      <div className="absolute inset-0 z-0 bg-black/30 backdrop-blur-[2px]"></div>
 
-        <div className="mt-12 grid grid-cols-2 gap-4 w-full max-w-sm">
-          {[
-            { label: 'Pipeline de Vendas', desc: 'Kanban integrado' },
-            { label: '12 Etapas', desc: 'Rastreio de produção' },
-            { label: 'Estoque', desc: 'Controle de materiais' },
-            { label: 'Financeiro', desc: 'DRE e relatórios' },
-          ].map((item) => (
-            <div key={item.label} className="bg-white/5 rounded-xl p-4 border border-white/10">
-              <p className="text-white text-sm font-semibold">{item.label}</p>
-              <p className="text-slate-400 text-xs mt-1">{item.desc}</p>
-            </div>
-          ))}
+      {/* Decorative branding elements (Optional UI elements feeling like the aura design) */}
+      <div className="absolute top-8 left-8 z-10 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+          <ShieldCheck className="w-5 h-5 text-white" />
         </div>
+        <span className="text-white font-mono text-sm tracking-widest uppercase opacity-80 shadow-black drop-shadow-md">SYS.CORE // PROBlind</span>
       </div>
 
-      {/* Lado Direito - Formulário */}
-      <div className="flex-1 flex items-center justify-center bg-[#F9FAFB] p-8">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden flex items-center gap-2 mb-8">
-            <div className="w-9 h-9 rounded-xl bg-green-500 flex items-center justify-center">
-              <ShieldCheck className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-slate-800 text-xl font-bold">PROBlind CRM</span>
-          </div>
+      <div className="absolute top-8 right-8 z-10">
+        <span className="text-white/50 font-mono text-xs tracking-widest uppercase">V1.0 // DARK</span>
+      </div>
 
-          <h2 className="text-2xl font-bold text-slate-800 mb-1">Bem-vindo de volta</h2>
-          <p className="text-slate-500 text-sm mb-8">Entre com suas credenciais para continuar.</p>
-
-          <div className="soft-card p-8">
-            <form className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="email">
-                  E-mail
-                </label>
-                <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  required
-                  autoComplete="email"
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="seu@email.com"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-1.5" htmlFor="password">
-                  Senha
-                </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  autoComplete="current-password"
-                  className="w-full px-4 py-2.5 bg-slate-50 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition-all"
-                  placeholder="••••••••"
-                />
-              </div>
-
-              {resolvedParams?.error && (
-                <div className="p-3 bg-red-50 text-red-600 rounded-lg text-sm font-medium border border-red-100">
-                  {resolvedParams.error}
-                </div>
-              )}
-
-              <button
-                formAction={login}
-                className="btn-primary w-full justify-center py-3 text-base mt-2"
-              >
-                Entrar no sistema
-              </button>
-            </form>
-          </div>
-
-          <p className="text-center text-slate-400 text-xs mt-6">
-            © 2025 PROBlind CRM. Todos os direitos reservados.
+      {/* The Glassmorphism Form Container */}
+      <div className="relative z-10 w-full max-w-sm px-6 py-10 bg-[#0A0A0A]/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-2xl flex flex-col items-center">
+        
+        <div className="w-full mb-8">
+          <span className="inline-block px-2 py-1 bg-white/10 rounded text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 mb-4">
+            PROBlind.Identity
+          </span>
+          <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
+            Authenticate
+          </h1>
+          <p className="text-white/50 text-sm font-medium">
+            Secure credential access.
           </p>
         </div>
+
+        {/* Divider */}
+        <div className="w-full flex items-center gap-4 mb-8 opacity-40">
+          <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/50"></div>
+          <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">Standard Protocol</span>
+          <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/50"></div>
+        </div>
+
+        {/* Form elements */}
+        <form className="w-full space-y-6">
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="email">
+              Identifier
+            </label>
+            <input
+              id="email"
+              name="email"
+              type="email"
+              required
+              autoComplete="email"
+              className="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/50 focus:border-white/50 transition-all font-mono"
+              placeholder="user@domain.net"
+            />
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="password">
+              Passcode
+            </label>
+            <input
+              id="password"
+              name="password"
+              type="password"
+              required
+              autoComplete="current-password"
+              className="w-full px-5 py-3.5 bg-black/40 border border-white/10 rounded-2xl text-sm text-white placeholder-white/30 focus:outline-none focus:ring-1 focus:ring-white/50 focus:border-white/50 transition-all tracking-widest"
+              placeholder="••••••••••••"
+            />
+          </div>
+
+          {resolvedParams?.error && (
+            <div className="p-3 bg-red-500/20 text-red-300 rounded-xl text-xs font-semibold tracking-wide border border-red-500/30 text-center">
+              {resolvedParams.error}
+            </div>
+          )}
+
+          <button
+            formAction={login}
+            className="w-full mt-4 flex items-center justify-center gap-3 bg-white text-black font-bold text-sm tracking-widest uppercase py-4 rounded-full hover:bg-slate-200 transition-all glow-effect group"
+          >
+            Initialize Uplink
+            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          </button>
+        </form>
+
+      </div>
+      
+      {/* Decorative text at bottom */}
+      <div className="absolute bottom-8 left-8 z-10">
+        <span className="text-white/30 font-mono text-xs tracking-widest uppercase">UPLINK.ESTABLISHED_</span>
       </div>
     </div>
   )
