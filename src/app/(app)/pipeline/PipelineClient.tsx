@@ -368,9 +368,9 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   </div>
                   <div>
                     <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Termômetro ({currentLead.qualification_score}%)</label>
-                    <input
-                      type="range" min="0" max="100" step="10"
-                      value={currentLead.qualification_score}
+                      <input
+                        type="range" min="0" max="100" step="10"
+                        value={currentLead.qualification_score ?? 50}
                       onChange={e => setCurrentLead(prev => ({ ...prev, qualification_score: parseInt(e.target.value) }))}
                       className="w-full accent-indigo-500 mt-2"
                     />
