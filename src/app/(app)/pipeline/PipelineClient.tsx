@@ -21,6 +21,8 @@ type Lead = {
   armor_type: string | null
   quoted_value: number | null
   pipeline_stage: string
+  source?: string | null
+  qualification_score?: number | null
 }
 
 const STAGES = [
@@ -50,7 +52,17 @@ function LeadCard({ lead, isOverlay }: { lead: Lead; isOverlay?: boolean }) {
       {...listeners}
       className={`bg-white rounded-xl p-4 shadow-sm border border-slate-100 cursor-grab active:cursor-grabbing hover:shadow-md transition-all ${isOverlay ? 'rotate-1 shadow-xl scale-105' : ''}`}
     >
-      <p className="font-semibold text-slate-800 text-sm mb-2 truncate">{lead.customer_name}</p>
+      <div className="flex justify-between items-start mb-2">
+        <p className="font-semibold text-slate-800 text-sm truncate flex-1">{lead.customer_name}</p>
+        {lead.qualification_score !== undefined && lead.qualification_score !== null && (
+          <span title={`Score: ${lead.qualification_score}`} className="text-xs px-1.5 py-0.5 rounded flex-shrink-0 ml-2 shadow-sm border border-slate-200" style={{
+            backgroundColor: lead.qualification_score > 70 ? '#fef2f2' : lead.qualification_score > 30 ? '#fefce8' : '#f8fafc',
+            color: lead.qualification_score > 70 ? '#ef4444' : lead.qualification_score > 30 ? '#eab308' : '#64748b'
+          }}>
+            {lead.qualification_score > 70 ? '🔥' : lead.qualification_score > 30 ? '⚡' : '❄️'}
+          </span>
+        )}
+      </div>
       {lead.vehicle_model && (
         <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
           <Car className="w-3 h-3" />
@@ -61,6 +73,11 @@ function LeadCard({ lead, isOverlay }: { lead: Lead; isOverlay?: boolean }) {
         <div className="flex items-center gap-1 text-xs text-slate-500 mb-1">
           <Phone className="w-3 h-3" />
           <span>{lead.customer_phone}</span>
+        </div>
+      )}
+      {lead.source && (
+        <div className="text-[10px] uppercase font-bold text-slate-400 mt-2 mb-1">
+          Origem: {lead.source}
         </div>
       )}
       {lead.quoted_value && (
@@ -98,7 +115,7 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
   const [showModal, setShowModal] = useState(false)
-  const [newLead, setNewLead] = useState({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: '' })
+  const [newLead, setNewLead] = useState({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: '', source: '', qualification_score: 50 })
   const supabase = createClient()
 
   async function getOrgId(): Promise<string | null> {
@@ -157,6 +174,8 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
       vehicle_model: newLead.vehicle_model || null,
       armor_type: newLead.armor_type || null,
       quoted_value: newLead.quoted_value ? Number(newLead.quoted_value) : null,
+      source: newLead.source || null,
+      qualification_score: Number(newLead.qualification_score),
       pipeline_stage: 'new',
       organization_id: orgId,
     }).select().single()
@@ -164,7 +183,7 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
     if (!error && data) {
       setLeads(prev => [data as Lead, ...prev])
       setShowModal(false)
-      setNewLead({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: '' })
+      setNewLead({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: '', source: '', qualification_score: 50 })
     }
   }
 
@@ -225,6 +244,32 @@ export default function PipelineClient({ initialLeads }: { initialLeads: Lead[] 
                   />
                 </div>
               ))}
+              
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Origem do Lead</label>
+                <select
+                  value={newLead.source}
+                  onChange={e => setNewLead(prev => ({ ...prev, source: e.target.value }))}
+                  className="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
+                >
+                  <option value="">Selecione...</option>
+                  <option value="WhatsApp">WhatsApp</option>
+                  <option value="Site/Formulário">Site / Formulário</option>
+                  <option value="Indicação">Indicação</option>
+                  <option value="Instagram/Meta">Instagram / Meta Ads</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-slate-700 mb-1">Qualificação / Interesse <span className="text-slate-400 font-normal">({newLead.qualification_score}%)</span></label>
+                <input
+                  type="range" min="0" max="100" step="10"
+                  value={newLead.qualification_score}
+                  onChange={e => setNewLead(prev => ({ ...prev, qualification_score: parseInt(e.target.value) }))}
+                  className="w-full"
+                />
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button type="button" onClick={() => setShowModal(false)} className="flex-1 px-4 py-2 border border-slate-200 rounded-lg text-sm font-medium text-slate-600 hover:bg-slate-50">
                   Cancelar

@@ -65,6 +65,16 @@ export default async function DashboardPage() {
     },
   ]
 
+  // Conversion Metrics
+  const funnelStats = {
+    total: leads?.length || 0,
+    new: leads?.filter(l => l.pipeline_stage === 'new').length || 0,
+    prospecting: leads?.filter(l => l.pipeline_stage === 'prospecting').length || 0,
+    quoted: leads?.filter(l => l.pipeline_stage === 'quoted').length || 0,
+    contracted: leads?.filter(l => l.pipeline_stage === 'contracted').length || 0,
+  }
+  const conversionRate = funnelStats.total > 0 ? Math.round((funnelStats.contracted / funnelStats.total) * 100) : 0
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
@@ -156,6 +166,42 @@ export default async function DashboardPage() {
               <a href="/pipeline" className="text-green-600 font-medium hover:underline">Adicionar lead →</a>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Taxa de Conversão */}
+      <div className="mt-6 soft-card p-6">
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="font-semibold text-slate-800">Cenário de Vendas e Funil</h2>
+          <div className="text-right">
+            <span className="text-xs text-slate-400">Conversão Global</span>
+            <p className="text-2xl font-bold text-green-600">{conversionRate}%</p>
+          </div>
+        </div>
+        
+        <div className="flex flex-col md:flex-row gap-4 items-center">
+          {[
+            { label: 'Novos', val: funnelStats.new, color: 'bg-red-100', text: 'text-red-700' },
+            { label: 'Prospecção', val: funnelStats.prospecting, color: 'bg-yellow-100', text: 'text-yellow-700' },
+            { label: 'Orçados', val: funnelStats.quoted, color: 'bg-orange-100', text: 'text-orange-700' },
+            { label: 'Contratados', val: funnelStats.contracted, color: 'bg-green-100', text: 'text-green-700' },
+          ].map((step, idx, arr) => {
+            const stepPercent = funnelStats.total > 0 ? Math.round((step.val / funnelStats.total) * 100) : 0
+            return (
+              <div key={step.label} className="flex-1 w-full relative pt-2">
+                <div className={`rounded-xl p-4 ${step.color} ${step.text} flex flex-col items-center justify-center relative z-10`}>
+                  <p className="text-xs font-bold uppercase tracking-wider mb-1 opacity-70">{step.label}</p>
+                  <p className="text-3xl font-black">{step.val}</p>
+                  <p className="text-xs font-semibold mt-1 opacity-80">{stepPercent}%</p>
+                </div>
+                {idx < arr.length - 1 && (
+                  <div className="hidden md:block absolute top-1/2 -right-3 w-6 h-6 bg-white border border-slate-200 rounded-full flex justify-center items-center z-20 transform -translate-y-1/2">
+                    <span className="text-slate-400 text-xs">→</span>
+                  </div>
+                )}
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

@@ -4,7 +4,7 @@ import StageList from './StageList'
 import ProjectMaterials from './ProjectMaterials'
 import VehicleEntryForm from './VehicleEntryForm'
 import DocumentsSection from './DocumentsSection'
-import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield } from 'lucide-react'
+import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Receipt, TrendingUp, Filter, Milestone } from 'lucide-react'
 import Link from 'next/link'
 
 export const dynamic = 'force-dynamic'
@@ -27,6 +27,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     supabase.from('materials').select('id, name, quantity_in_stock').order('name'),
     supabase.from('profiles').select('id, full_name').order('full_name'),
     supabase.from('documents').select('*').eq('project_id', id).order('uploaded_at', { ascending: false }),
+    supabase.from('financials').select('*').eq('project_id', id).order('created_at'),
   ])
 
   if (!project) notFound()
@@ -46,6 +47,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
 
   const completedStages = stages?.filter(s => s.status === 'completed').length || 0
   const totalStages = stages?.length || 12
+
+  const financialsArray = arguments[0]?.[6]?.data || [] // Wait, Promise.all order
+
+  const projectFinancials = {
+    income: financialsArray.filter((f: any) => f.type === 'income').reduce((acc: number, f: any) => acc + Number(f.amount), 0),
+    expense: financialsArray.filter((f: any) => f.type === 'expense').reduce((acc: number, f: any) => acc + Number(f.amount), 0),
+    balance: 0
+  }
+  projectFinancials.balance = projectFinancials.income - projectFinancials.expense
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -135,18 +145,89 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
       )}
 
-      {/* Production Timeline + Materials Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      {/* Production Timeline + Materials Grid + Finance Timeline */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
         <div className="lg:col-span-2 soft-card p-6">
           <h2 className="font-semibold text-slate-800 mb-6">12 Etapas de Blindagem</h2>
           <StageList stages={stages || []} projectId={project.id} teamMembers={teamMembers || []} />
         </div>
-        <div>
+        <div className="flex flex-col gap-6">
           <ProjectMaterials
             projectId={project.id}
             initialProjectMaterials={projectMaterials as any || []}
             allMaterials={allMaterials as any || []}
           />
+          
+          {/* Fluxo de Caixa do Projeto */}
+          <div className="soft-card p-6 border-t-4 border-indigo-500">
+            <div className="flex items-center gap-2 mb-4">
+              <Receipt className="w-5 h-5 text-indigo-500" />
+              <h2 className="font-semibold text-slate-800">Fluxo de Caixa</h2>
+            </div>
+            
+            <div className="space-y-4 mb-4">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">Receitas</span>
+                <span className="font-semibold text-green-600">R$ {projectFinancials.income.toLocaleString('pt-BR')}</span>
+              </div>
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-slate-500">Despesas (Custos)</span>
+                <span className="font-semibold text-red-600">R$ {projectFinancials.expense.toLocaleString('pt-BR')}</span>
+              </div>
+              <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
+                <span className="font-bold text-slate-700">Margem (Lucro)</span>
+                <span className={`font-bold ${projectFinancials.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  R$ {projectFinancials.balance.toLocaleString('pt-BR')}
+                </span>
+              </div>
+            </div>
+            
+            <Link href="/financial" className="text-indigo-600 hover:text-indigo-700 text-xs font-semibold w-full block text-center bg-indigo-50 hover:bg-indigo-100 py-2 rounded-lg transition-colors">
+              Detalhar Financeiro
+            </Link>
+          </div>
+        </div>
+      </div>
+
+      {/* Timeline Visual de Eventos */}
+      <div className="soft-card p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <Milestone className="w-5 h-5 text-slate-500" />
+          <h2 className="font-semibold text-slate-800">Linha do Tempo (Eventos)</h2>
+        </div>
+        
+        <div className="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
+          
+          <div className="relative">
+            <div className="absolute -left-7 top-1 w-2.5 h-2.5 bg-green-500 rounded-full ring-4 ring-green-50"></div>
+            <p className="text-sm font-semibold text-slate-800">Criação do Projeto (Contrato)</p>
+            <p className="text-xs text-slate-400">{new Date(project.created_at).toLocaleString('pt-BR')}</p>
+          </div>
+
+          {project.entry_completed_at && (
+            <div className="relative">
+              <div className="absolute -left-7 top-1 w-2.5 h-2.5 bg-blue-500 rounded-full ring-4 ring-blue-50"></div>
+              <p className="text-sm font-semibold text-slate-800">Checklist de Entrada Concluído</p>
+              <p className="text-xs text-slate-400">{new Date(project.entry_completed_at).toLocaleString('pt-BR')}</p>
+            </div>
+          )}
+
+          {stages?.filter(s => s.status === 'completed').map((stage) => (
+            <div key={stage.id} className="relative">
+              <div className="absolute -left-7 top-1 w-2.5 h-2.5 bg-indigo-500 rounded-full ring-4 ring-indigo-50"></div>
+              <p className="text-sm font-semibold text-slate-800">Etapa Concluída: {stage.stage_name}</p>
+              <p className="text-xs text-slate-400">{stage.completed_at ? new Date(stage.completed_at).toLocaleString('pt-BR') : ''}</p>
+            </div>
+          ))}
+
+          {project.status === 'concluido' && (
+            <div className="relative">
+              <div className="absolute -left-7 top-1 w-2.5 h-2.5 bg-amber-500 rounded-full ring-4 ring-amber-50"></div>
+              <p className="text-sm font-semibold text-slate-800">Entrega Finalizada</p>
+              <p className="text-xs text-slate-400">Veículo entregue ao cliente.</p>
+            </div>
+          )}
+
         </div>
       </div>
     </div>
