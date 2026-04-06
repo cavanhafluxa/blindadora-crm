@@ -32,7 +32,7 @@ export default async function AuditPage() {
         <h1 className="text-2xl font-bold text-slate-800">Auditoria (Logs)</h1>
         <p className="text-slate-500 text-sm mt-1">Verifique o histórico de todas as alterações feitas no sistema</p>
       </div>
-      <AuditClient initialLogs={logs || []} />
+      <AuditClient initialLogs={(logs as any) || []} />
     </div>
   )
 }
