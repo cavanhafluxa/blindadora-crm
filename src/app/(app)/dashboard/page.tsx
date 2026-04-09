@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { CircleDollarSign, Truck, Receipt, Flame, ArrowUp, BarChart3, Clock, Percent, ShieldAlert, Award, CalendarDays, TrendingDown, Target } from 'lucide-react'
+import { CircleDollarSign, Truck, Receipt, Flame, ArrowUp, BarChart3, Clock, Percent, ShieldAlert, Award, CalendarDays, TrendingDown, Target, ShoppingCart, Activity } from 'lucide-react'
 import Link from 'next/link'
 
 export const revalidate = 30 // Cache for 30 seconds to speed up navigation
@@ -12,11 +12,15 @@ export default async function DashboardPage() {
     { data: leads },
     { data: financials },
     { data: stages },
+    { data: projectPurchases },
+    { data: stockOutflows },
   ] = await Promise.all([
     supabase.from('projects').select('*'),
     supabase.from('leads').select('*'),
     supabase.from('financials').select('*'),
     supabase.from('production_stages').select('*, profiles(full_name)'),
+    supabase.from('project_purchases').select('project_id, total_price'),
+    supabase.from('stock_movements').select('project_id, quantity, unit_cost').eq('movement_type', 'out'),
   ])
 
   const currentMonth = new Date().getMonth()
@@ -67,12 +71,30 @@ export default async function DashboardPage() {
   const maxFaturamento = Math.max(...faturamentoMes, 1)
   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
+  // Custo real por projeto (materiais + compras específicas)
+  const costByProject: Record<string, number> = {}
+  stockOutflows?.forEach(m => {
+    if (m.project_id) {
+      costByProject[m.project_id] = (costByProject[m.project_id] || 0) + (Number(m.unit_cost || 0) * Number(m.quantity))
+    }
+  })
+  projectPurchases?.forEach(p => {
+    if (p.project_id) {
+      costByProject[p.project_id] = (costByProject[p.project_id] || 0) + Number(p.total_price || 0)
+    }
+  })
+  const totalRealCost = Object.values(costByProject).reduce((a, b) => a + b, 0)
+  const totalContractValue = projects?.reduce((acc, p) => acc + Number(p.contract_value || 0), 0) || 0
+  const estimatedMargin = totalContractValue - totalRealCost
+  const marginPct = totalContractValue > 0 ? Math.round((estimatedMargin / totalContractValue) * 100) : 0
+
   const kpis = [
     { label: 'Faturamento Recebido', value: `R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`, sub: 'Total pago recebido', icon: CircleDollarSign, color: 'text-amber-600', bg: 'bg-amber-50', grad: 'bg-amber-200' },
     { label: 'Ticket Médio (Projetos)', value: `R$ ${ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`, sub: `Média de ${projects?.length || 0} projetos`, icon: BarChart3, color: 'text-blue-600', bg: 'bg-blue-50', grad: 'bg-blue-200' },
     { label: 'Tempo Médio de Pátio', value: `${tempoMedioPatio} dias`, sub: 'Média para conclusão', icon: Clock, color: 'text-indigo-600', bg: 'bg-indigo-50', grad: 'bg-indigo-200' },
     { label: 'Taxa de Conversão Mensal', value: `${conversaoMes}%`, sub: `${contractedThisMonth} leads fechados este mês`, icon: Percent, color: 'text-emerald-600', bg: 'bg-emerald-50', grad: 'bg-emerald-200' },
     { label: 'Pendências SICOVAB', value: `${pendenciasSicovab}`, sub: 'Projetos sem protocolo', icon: ShieldAlert, color: 'text-purple-600', bg: 'bg-purple-50', grad: 'bg-purple-200' },
+    { label: 'Margem Bruta Estimada', value: `${marginPct}%`, sub: `R$ ${estimatedMargin.toLocaleString('pt-BR')}`, icon: Activity, color: marginPct >= 30 ? 'text-emerald-600' : marginPct >= 10 ? 'text-amber-600' : 'text-red-600', bg: marginPct >= 30 ? 'bg-emerald-50' : marginPct >= 10 ? 'bg-amber-50' : 'bg-red-50', grad: 'bg-emerald-200' },
   ]
 
   // -------------------------
@@ -111,6 +133,18 @@ export default async function DashboardPage() {
     return date.getTime() >= today.getTime() && date.getTime() <= next30Days.getTime()
   }).sort((a,b) => new Date(a.expected_delivery_date).getTime() - new Date(b.expected_delivery_date).getTime()).slice(0, 5)
 
+  const kpiGrid = kpis.map((kpi, idx) => (
+    <div key={kpi.label} className="soft-card p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-b-4 border-transparent hover:border-amber-500">
+      <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-20 ${kpi.grad} group-hover:opacity-40 transition-opacity`} />
+      <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center mb-4`}>
+        <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
+      </div>
+      <p className="text-xs font-semibold text-slate-500 mb-1">{kpi.label}</p>
+      <h3 className="text-2xl font-bold text-slate-800 mb-1 leading-none">{kpi.value}</h3>
+      <p className="text-[10px] text-slate-400 font-medium">{kpi.sub}</p>
+    </div>
+  ))
+
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       <div className="mb-4">
@@ -119,18 +153,8 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        {kpis.map((kpi) => (
-          <div key={kpi.label} className="soft-card p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-b-4 border-transparent hover:border-amber-500">
-            <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-20 ${kpi.grad} group-hover:opacity-40 transition-opacity`} />
-            <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center mb-4`}>
-              <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
-            </div>
-            <p className="text-xs font-semibold text-slate-500 mb-1">{kpi.label}</p>
-            <h3 className="text-2xl font-bold text-slate-800 mb-1 leading-none">{kpi.value}</h3>
-            <p className="text-[10px] text-slate-400 font-medium">{kpi.sub}</p>
-          </div>
-        ))}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+        {kpiGrid}
       </div>
 
       {/* Analytics Grid 1 - Faturamento & Modelos */}

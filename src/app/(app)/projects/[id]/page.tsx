@@ -4,10 +4,12 @@ import StageList from './StageList'
 import ProjectMaterials from './ProjectMaterials'
 import VehicleEntryForm from './VehicleEntryForm'
 import DocumentsSection from './DocumentsSection'
-import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Receipt, TrendingUp, Filter, Milestone, Printer } from 'lucide-react'
+import ProjectCostPanel from './ProjectCostPanel'
+import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Receipt, TrendingUp, Filter, Milestone, Printer, FileSignature } from 'lucide-react'
 import Link from 'next/link'
 import PDFDownloadButton from '@/components/PDFDownloadButton'
 import OrdemServicoPDF from '@/components/OrdemServicoPDF'
+import ContractPDF from '@/components/ContractPDF'
 import MarkAsDeliveredButton from './MarkAsDeliveredButton'
 import CatalogPublishSection from './CatalogPublishSection'
 
@@ -24,6 +26,8 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     { data: allMaterials },
     { data: teamMembers },
     { data: documents },
+    { data: projectPurchases },
+    { data: stockOutflows },
   ] = await Promise.all([
     supabase.from('projects').select('*').eq('id', id).single(),
     supabase.from('production_stages').select('*').eq('project_id', id).order('stage_order'),
@@ -31,10 +35,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     supabase.from('materials').select('id, name, quantity_in_stock').order('name'),
     supabase.from('profiles').select('id, full_name').order('full_name'),
     supabase.from('documents').select('*').eq('project_id', id).order('uploaded_at', { ascending: false }),
+    supabase.from('project_purchases').select('*').eq('project_id', id).order('purchase_date', { ascending: false }),
+    supabase.from('stock_movements').select('quantity, unit_cost').eq('project_id', id).eq('movement_type', 'out'),
     supabase.from('financials').select('*').eq('project_id', id).order('created_at'),
   ])
 
   if (!project) notFound()
+
+  // Custo de materiais: soma das saídas de estoque vinculadas ao projeto
+  const materialCost = (stockOutflows || []).reduce((acc, m) => acc + (Number(m.unit_cost || 0) * Number(m.quantity)), 0)
 
 
   const statusColors: Record<string, string> = {
@@ -108,6 +117,13 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             className="btn-primary bg-indigo-600 hover:bg-indigo-700 text-sm flex-shrink-0"
           >
             <Printer className="w-4 h-4" /> Gerar O.S.
+          </PDFDownloadButton>
+          <PDFDownloadButton
+            document={<ContractPDF project={project} />}
+            fileName={`Contrato_${project.customer_name.replace(/\s+/g, '_')}.pdf`}
+            className="btn-primary bg-emerald-600 hover:bg-emerald-700 text-sm flex-shrink-0"
+          >
+            <FileSignature className="w-4 h-4" /> Gerar Contrato
           </PDFDownloadButton>
         </div>
       </div>
@@ -214,6 +230,15 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       <div className="mb-8">
         <CatalogPublishSection project={project} />
       </div>
+
+      {/* Painel de Custos & Compras Específicas */}
+      <ProjectCostPanel
+        projectId={project.id}
+        organizationId={project.organization_id}
+        contractValue={Number(project.contract_value || 0)}
+        initialPurchases={projectPurchases as any || []}
+        materialCost={materialCost}
+      />
 
       {/* Timeline Visual de Eventos */}
       <div className="soft-card p-6">

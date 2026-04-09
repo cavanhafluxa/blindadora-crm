@@ -143,3 +143,21 @@ body {
   font-size: 0.75rem;
   font-weight: bold;
 }
+
+.input-field {
+  padding: 10px 14px;
+  background-color: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #1e293b;
+  outline: none;
+  transition: all 0.15s ease;
+}
+
+.input-field:focus {
+  background-color: #ffffff;
+  border-color: #6366f1;
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
