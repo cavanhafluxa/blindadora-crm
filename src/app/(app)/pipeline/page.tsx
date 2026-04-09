@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import PipelineClient from './PipelineClient'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 10 // Pipeline changes more often, cache for 10s
 
 export default async function PipelinePage() {
   const supabase = await createClient()

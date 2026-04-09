@@ -13,18 +13,12 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     redirect('/login')
   }
 
-  // Obter o perfil do usuário
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('full_name')
-    .eq('id', user.id)
-    .single()
-
-  const userName = profile?.full_name || user.email?.split('@')[0] || 'Usuário'
+  // Pass only necessary info to sidebar
+  const userEmail = user.email || ''
 
   return (
     <div className="flex min-h-screen">
-      <Sidebar userName={userName} />
+      <Sidebar userEmail={userEmail} userId={user.id} />
       <main className="flex-1 min-w-0 overflow-auto relative">
         <div className="absolute top-4 right-6 z-40">
           <NotificationBell />

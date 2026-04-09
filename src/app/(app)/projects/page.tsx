@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
 import { Plus, ArrowRight, Wrench, AlertTriangle, FileWarning, Clock, FileX, Flame, Box, Calendar, Check, Car, ShieldAlert } from 'lucide-react'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30 // Cache for 30 seconds to speed up navigation
 
 export default async function ProjectsPage() {
   const supabase = await createClient()

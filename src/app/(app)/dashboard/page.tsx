@@ -2,7 +2,7 @@ import { createClient } from '@/utils/supabase/server'
 import { CircleDollarSign, Truck, Receipt, Flame, ArrowUp, BarChart3, Clock, Percent, ShieldAlert, Award, CalendarDays, TrendingDown, Target } from 'lucide-react'
 import Link from 'next/link'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30 // Cache for 30 seconds to speed up navigation
 
 export default async function DashboardPage() {
   const supabase = await createClient()

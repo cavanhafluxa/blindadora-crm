@@ -28,8 +28,8 @@ export default function NotificationBell() {
     let mounted = true
 
     async function loadNotifs() {
-      // Geração proativa na API route (Simulando Edge Function agendada)
-      await fetch('/api/generate-notifications').catch(() => {})
+      // Geração proativa em background (simulando agendamento)
+      fetch('/api/generate-notifications').catch(() => {})
       
       const { data } = await supabase
         .from('notifications')

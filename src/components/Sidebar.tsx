@@ -49,17 +49,34 @@ const sections = [
   }
 ]
 
-export default function Sidebar({ userName }: { userName?: string }) {
+export default function Sidebar({ userEmail, userId }: { userEmail: string; userId: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const supabase = createClient()
   const [theme, setTheme] = useState('light')
+  const [userName, setUserName] = useState<string>('')
 
   useEffect(() => {
     const savedTheme = localStorage.getItem('theme') || 'light'
     setTheme(savedTheme)
     document.documentElement.setAttribute('data-theme', savedTheme)
-  }, [])
+
+    // Fetch profile on client to avoid blocking initial shell render
+    async function loadProfile() {
+      const cacheKey = `user_name_${userId}`
+      const cached = localStorage.getItem(cacheKey)
+      if (cached) setUserName(cached)
+
+      const { data } = await supabase.from('profiles').select('full_name').eq('id', userId).single()
+      if (data?.full_name) {
+        setUserName(data.full_name)
+        localStorage.setItem(cacheKey, data.full_name)
+      } else if (!cached) {
+        setUserName(userEmail.split('@')[0])
+      }
+    }
+    loadProfile()
+  }, [userId, userEmail, supabase])
 
   function toggleTheme() {
     const newTheme = theme === 'light' ? 'dark' : 'light'
@@ -96,6 +113,7 @@ export default function Sidebar({ userName }: { userName?: string }) {
                   <Link
                     key={href}
                     href={href}
+                    prefetch={true}
                     className={`sidebar-link ${isActive ? 'active' : ''}`}
                   >
                     <Icon className="w-4 h-4 flex-shrink-0" />
@@ -127,11 +145,15 @@ export default function Sidebar({ userName }: { userName?: string }) {
         </button>
 
         <div className="flex items-center gap-3 px-2 pt-2">
-          <div className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
-            {userName ? userName.charAt(0).toUpperCase() : '?'}
-          </div>
+          {!userName ? (
+            <div className="w-8 h-8 rounded-full bg-gray-800 animate-pulse" />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+          )}
           <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">{userName || 'Usuário'}</span>
+            <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">{userName || 'Carregando...'}</span>
             <span className="text-[10px] text-gray-500">Logado</span>
           </div>
         </div>

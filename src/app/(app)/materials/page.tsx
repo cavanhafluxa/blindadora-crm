@@ -1,7 +1,7 @@
 import { createClient } from '@/utils/supabase/server'
 import MaterialsClient from './MaterialsClient'
 
-export const dynamic = 'force-dynamic'
+export const revalidate = 30 // Inventory cache for 30 seconds
 
 export default async function MaterialsPage() {
   const supabase = await createClient()
