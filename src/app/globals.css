@@ -9,6 +9,21 @@
   --color-sidebar-text: #F9FAFB;
   --color-sidebar-hover: #1F2937;
   --color-sidebar-active: #374151;
+  --color-card-bg: #FFFFFF;
+  --color-card-border: #F1F5F9;
+}
+
+[data-theme="dark"] {
+  --color-background: #0F1117;
+  --color-foreground: #F9FAFB;
+  --color-primary: #F59E0B;
+  --color-primary-hover: #D97706;
+  --color-sidebar-bg: #0B0C10;
+  --color-sidebar-text: #F9FAFB;
+  --color-sidebar-hover: #1F2937;
+  --color-sidebar-active: #F59E0B;
+  --color-card-bg: #1A1D24;
+  --color-card-border: #2D3340;
 }
 
 body {
@@ -19,9 +34,9 @@ body {
 }
 
 .soft-card {
-  background: #FFFFFF;
+  background: var(--color-card-bg, #FFFFFF);
   border-radius: 1rem;
-  border: 1px solid #F1F5F9;
+  border: 1px solid var(--color-card-border, #F1F5F9);
   box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
   transition: all 0.25s ease;
 }
@@ -111,6 +126,20 @@ body {
 .progress-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #22C55E, #16A34A);
+  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.dark-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+}
+
+.badge-armor {
+  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
+  color: white;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: bold;
 }

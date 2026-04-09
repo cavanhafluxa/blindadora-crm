@@ -25,6 +25,10 @@ type Lead = {
   qualification_score?: number | null
   assigned_to?: string | null
   plate?: string | null
+  customer_cpf?: string | null
+  customer_email?: string | null
+  notes?: string | null
+  created_at?: string
 }
 
 const STAGES = [
@@ -32,6 +36,7 @@ const STAGES = [
   { id: 'prospecting', label: 'Prospecção', dot: 'bg-amber-400', bg: 'bg-slate-50', border: 'border-slate-200/60' },
   { id: 'quoted', label: 'Orçado', dot: 'bg-purple-500', bg: 'bg-slate-50', border: 'border-slate-200/60' },
   { id: 'contracted', label: 'Fechado', dot: 'bg-emerald-500', bg: 'bg-slate-50', border: 'border-slate-200/60' },
+  { id: 'lost', label: 'Perdido', dot: 'bg-red-600', bg: 'bg-slate-50', border: 'border-slate-200/60' },
 ]
 
 function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOverlay?: boolean; onClick?: () => void; teamMembers: any[] }) {
@@ -82,6 +87,23 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
             <span>{lead.customer_phone}</span>
           </div>
         )}
+        {lead.customer_email && (
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <span className="w-3.5 h-3.5 opacity-70 text-[10px] flex items-center justify-center font-bold">@</span>
+            <span className="truncate">{lead.customer_email}</span>
+          </div>
+        )}
+        {lead.customer_cpf && (
+          <div className="flex items-center gap-2 text-xs text-slate-500">
+            <span className="w-3.5 h-3.5 opacity-70 text-[9px] flex items-center justify-center font-bold">#</span>
+            <span className="truncate">{lead.customer_cpf}</span>
+          </div>
+        )}
+        {lead.created_at && (
+          <div className="text-[10px] text-slate-400 mt-2 border-t pt-1 border-slate-100">
+            Criado em {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+          </div>
+        )}
       </div>
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-100">
@@ -130,10 +152,11 @@ function KanbanColumn({ stage, leads, onLeadClick, teamMembers }: { stage: typeo
 export default function PipelineClient({ initialLeads, teamMembers }: { initialLeads: Lead[], teamMembers: {id: string, full_name: string}[] }) {
   const [leads, setLeads] = useState<Lead[]>(initialLeads)
   const [activeLead, setActiveLead] = useState<Lead | null>(null)
+  const [searchTerm, setSearchTerm] = useState('')
   
   const [showModal, setShowModal] = useState(false)
   const [isEditing, setIsEditing] = useState(false)
-  const [currentLead, setCurrentLead] = useState<Partial<Lead>>({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: 0, source: '', qualification_score: 50, assigned_to: '' })
+  const [currentLead, setCurrentLead] = useState<Partial<Lead>>({ customer_name: '', customer_phone: '', customer_email: '', customer_cpf: '', notes: '', vehicle_model: '', armor_type: '', quoted_value: 0, source: '', qualification_score: 50, assigned_to: '' })
   
   const supabase = createClient()
 
@@ -172,7 +195,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
 
   function openNewModal() {
     setIsEditing(false)
-    setCurrentLead({ customer_name: '', customer_phone: '', vehicle_model: '', armor_type: '', quoted_value: 0, source: '', qualification_score: 50, assigned_to: '' })
+    setCurrentLead({ customer_name: '', customer_phone: '', customer_email: '', customer_cpf: '', notes: '', vehicle_model: '', armor_type: '', quoted_value: 0, source: '', qualification_score: 50, assigned_to: '' })
     setShowModal(true)
   }
 
@@ -190,6 +213,9 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
       const { data, error } = await supabase.from('leads').update({
         customer_name: currentLead.customer_name,
         customer_phone: currentLead.customer_phone || null,
+        customer_email: currentLead.customer_email || null,
+        customer_cpf: currentLead.customer_cpf || null,
+        notes: currentLead.notes || null,
         vehicle_model: currentLead.vehicle_model || null,
         armor_type: currentLead.armor_type || null,
         quoted_value: currentLead.quoted_value ? Number(currentLead.quoted_value) : null,
@@ -206,6 +232,9 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
       const { data, error } = await supabase.from('leads').insert({
         customer_name: currentLead.customer_name,
         customer_phone: currentLead.customer_phone || null,
+        customer_email: currentLead.customer_email || null,
+        customer_cpf: currentLead.customer_cpf || null,
+        notes: currentLead.notes || null,
         vehicle_model: currentLead.vehicle_model || null,
         armor_type: currentLead.armor_type || null,
         quoted_value: currentLead.quoted_value ? Number(currentLead.quoted_value) : null,
@@ -249,9 +278,18 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
     }
   }
 
+  const filteredLeads = leads.filter(l => l.customer_name.toLowerCase().includes(searchTerm.toLowerCase()))
+
   return (
     <>
-      <div className="flex justify-end mb-6 flex-shrink-0">
+      <div className="flex justify-between items-center mb-6 flex-shrink-0">
+        <input
+          type="text"
+          placeholder="Buscar contato..."
+          value={searchTerm}
+          onChange={e => setSearchTerm(e.target.value)}
+          className="w-full max-w-xs px-4 py-2 border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition-all"
+        />
         <button className="btn-primary rounded-xl px-5 py-2.5 shadow-md shadow-indigo-200" onClick={openNewModal}>
           <Plus className="w-4 h-4" /> Novo Contato
         </button>
@@ -264,7 +302,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
               <KanbanColumn
                 key={stage.id}
                 stage={stage}
-                leads={leads.filter(l => l.pipeline_stage === stage.id)}
+                leads={filteredLeads.filter(l => l.pipeline_stage === stage.id)}
                 onLeadClick={openEditModal}
                 teamMembers={teamMembers}
               />
@@ -305,6 +343,24 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                     type="tel"
                     value={currentLead.customer_phone || ''}
                     onChange={e => setCurrentLead(prev => ({ ...prev, customer_phone: e.target.value }))}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">E-mail</label>
+                  <input
+                    type="email"
+                    value={currentLead.customer_email || ''}
+                    onChange={e => setCurrentLead(prev => ({ ...prev, customer_email: e.target.value }))}
+                    className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">CPF/CNPJ</label>
+                  <input
+                    type="text"
+                    value={currentLead.customer_cpf || ''}
+                    onChange={e => setCurrentLead(prev => ({ ...prev, customer_cpf: e.target.value }))}
                     className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:bg-white focus:ring-2 focus:ring-indigo-500 transition-all font-medium"
                   />
                 </div>

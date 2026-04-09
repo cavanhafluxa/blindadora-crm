@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { FileText, Plus, X, ChevronDown, ChevronUp, DollarSign, Car, User, Trash2, Send } from 'lucide-react'
+import ProposalPDF from '@/components/ProposalPDF'
+import PDFDownloadButton from '@/components/PDFDownloadButton'
 
 type Lead = { id: string; customer_name: string; vehicle_model: string | null }
 
@@ -239,6 +241,15 @@ export default function ProposalsClient({ initialProposals, leads }: { initialPr
                         {(STATUS_CONFIG as any)[s].label}
                       </button>
                     ))}
+                    
+                    <PDFDownloadButton
+                      document={<ProposalPDF proposal={p} />}
+                      fileName={`Proposta_${p.customer_name.replace(/\s+/g, '_')}.pdf`}
+                      className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition-colors ml-2"
+                    >
+                      Exportar PDF
+                    </PDFDownloadButton>
+
                     <button onClick={() => handleDelete(p.id)} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 ml-auto font-medium">
                       <Trash2 className="w-3.5 h-3.5 inline mr-1" />Excluir
                     </button>

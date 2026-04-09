@@ -4,8 +4,10 @@ import StageList from './StageList'
 import ProjectMaterials from './ProjectMaterials'
 import VehicleEntryForm from './VehicleEntryForm'
 import DocumentsSection from './DocumentsSection'
-import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Receipt, TrendingUp, Filter, Milestone } from 'lucide-react'
+import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Receipt, TrendingUp, Filter, Milestone, Printer } from 'lucide-react'
 import Link from 'next/link'
+import PDFDownloadButton from '@/components/PDFDownloadButton'
+import OrdemServicoPDF from '@/components/OrdemServicoPDF'
 
 export const dynamic = 'force-dynamic'
 
@@ -89,6 +91,13 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
         </div>
+        <PDFDownloadButton
+          document={<OrdemServicoPDF project={project} stages={stages || []} />}
+          fileName={`OS_${project.chassis || project.plate || 'Projeto'}.pdf`}
+          className="btn-primary bg-indigo-600 hover:bg-indigo-700 text-sm flex-shrink-0"
+        >
+          <Printer className="w-4 h-4" /> Gerar O.S.
+        </PDFDownloadButton>
       </div>
 
       {/* Progress Bar */}
