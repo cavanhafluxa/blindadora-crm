@@ -15,6 +15,10 @@ type ProjectDocs = {
   sicovab_protocol?: string | null
   army_authorization?: string | null
   sicovab_sent_at?: string | null
+  auth_req_date?: string | null
+  auth_app_date?: string | null
+  decl_req_date?: string | null
+  decl_app_date?: string | null
 }
 
 export interface DocumentRecord {
@@ -83,11 +87,21 @@ export default function DocumentsSection({
 
   async function updateDoc(field: keyof ProjectDocs, value: string | null) {
     setSaving(field)
-    const updated = { ...docs, [field]: value }
-    setDocs(updated)
-    await supabase.from('projects').update({
-      [field]: value
-    }).eq('id', projectId)
+    let payload: Partial<ProjectDocs> = { [field]: value }
+    const now = new Date().toISOString()
+    
+    if (field === 'authorization_status') {
+      if (value === 'approved') payload.auth_app_date = now
+      else if (value === 'pending_approval') payload.auth_req_date = payload.auth_req_date || now
+    }
+    if (field === 'declaration_status') {
+      if (value === 'approved') payload.decl_app_date = now
+      else if (value === 'pending_approval') payload.decl_req_date = payload.decl_req_date || now
+    }
+
+    const updated = { ...docs, ...payload }
+    setDocs(updated as ProjectDocs)
+    await supabase.from('projects').update(payload).eq('id', projectId)
     setSaving(null)
   }
 
@@ -117,6 +131,14 @@ export default function DocumentsSection({
       alert('Erro ao vincular documento: ' + dbError.message)
     } else if (record) {
       setFiles(prev => [record as DocumentRecord, ...prev])
+      
+      // Auto-set the request date (Etapa 2.2)
+      if (docType === 'authorization' && !docs.auth_req_date) {
+        await updateDoc('authorization_status', 'pending_approval')
+      }
+      if (docType === 'declaration' && !docs.decl_req_date) {
+        await updateDoc('declaration_status', 'pending_approval')
+      }
     }
     
     setUploading(null)
@@ -183,12 +205,16 @@ export default function DocumentsSection({
     description,
     statusKey,
     notesKey,
+    reqDateKey,
+    appDateKey,
     docTypeString
   }: {
     title: string
     description: string
     statusKey?: 'authorization_status' | 'declaration_status'
     notesKey?: 'authorization_notes' | 'declaration_notes'
+    reqDateKey?: 'auth_req_date' | 'decl_req_date'
+    appDateKey?: 'auth_app_date' | 'decl_app_date'
     docTypeString: string
   }) {
     const fileInputRef = useRef<HTMLInputElement>(null)
@@ -213,6 +239,13 @@ export default function DocumentsSection({
             <div>
               <h3 className="font-semibold text-slate-800">{title}</h3>
               <p className="text-sm text-slate-500 mt-0.5">{description}</p>
+              
+              {(reqDateKey && docs[reqDateKey] || appDateKey && docs[appDateKey]) && (
+                <div className="flex gap-4 mt-2 text-[10px] text-slate-400 font-medium">
+                   {reqDateKey && docs[reqDateKey] && <span>Solicitado em: {new Date(docs[reqDateKey]!).toLocaleDateString('pt-BR')}</span>}
+                   {appDateKey && docs[appDateKey] && <span className="text-green-600">Aprovado em: {new Date(docs[appDateKey]!).toLocaleDateString('pt-BR')}</span>}
+                </div>
+              )}
             </div>
             
             <div className="flex flex-col items-end gap-2 shrink-0">
@@ -369,6 +402,8 @@ export default function DocumentsSection({
             description="Documento legal que autoriza a blindagem do veículo (Exército/Detran)"
             statusKey="authorization_status"
             notesKey="authorization_notes"
+            reqDateKey="auth_req_date"
+            appDateKey="auth_app_date"
             docTypeString="authorization"
           />
           <DocCard
@@ -376,6 +411,8 @@ export default function DocumentsSection({
             description="Declaração final emitida após conclusão do serviço para registro veicular"
             statusKey="declaration_status"
             notesKey="declaration_notes"
+            reqDateKey="decl_req_date"
+            appDateKey="decl_app_date"
             docTypeString="declaration"
           />
           

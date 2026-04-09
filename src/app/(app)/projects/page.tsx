@@ -208,6 +208,22 @@ export default async function ProjectsPage() {
                           </span>
                         )}
                       </div>
+                      
+                      {/* Datas de Docs */}
+                      {(p.auth_req_date || p.auth_app_date) && (
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          {p.auth_req_date && (
+                             <span className="text-[10px] text-slate-400 font-medium whitespace-nowrap">
+                               Auth. Solic: {new Date(p.auth_req_date).toLocaleDateString('pt-BR')}
+                             </span>
+                          )}
+                          {p.auth_app_date && (
+                             <span className="text-[10px] text-green-600 font-medium whitespace-nowrap">
+                               Auth. Aprov: {new Date(p.auth_app_date).toLocaleDateString('pt-BR')}
+                             </span>
+                          )}
+                        </div>
+                      )}
                     </div>
                     <span className={`stage-badge ${status.class}`}>{status.label}</span>
                   </div>
