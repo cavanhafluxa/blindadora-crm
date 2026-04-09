@@ -1,6 +1,6 @@
 import { createClient } from '@/utils/supabase/server'
 import Link from 'next/link'
-import { Plus, ArrowRight, Wrench, AlertTriangle, FileWarning, Clock, FileX, Flame, Box, Calendar, Check, Car } from 'lucide-react'
+import { Plus, ArrowRight, Wrench, AlertTriangle, FileWarning, Clock, FileX, Flame, Box, Calendar, Check, Car, ShieldAlert } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -30,6 +30,10 @@ export default async function ProjectsPage() {
 
   // Rejected docs
   const rejectedDocs = safeProjects.filter(p => p.authorization_status === 'rejected' || p.declaration_status === 'rejected')
+
+  // Pendente SICOVAB
+  const pendenteSicovab = safeProjects.filter(p => p.status !== 'concluido' && (!p.sicovab_protocol || p.sicovab_status === 'pending' || p.sicovab_status === 'rejected'))
+
 
   // At risk or delayed
   const today = new Date()
@@ -165,7 +169,8 @@ export default async function ProjectsPage() {
               // Project Alerts Logic
               const isLate = p.expected_delivery_date && p.status !== 'concluido' && new Date(p.expected_delivery_date) < new Date()
               const hasRejectedDocs = p.authorization_status === 'rejected' || p.declaration_status === 'rejected'
-              const hasAlert = isLate || hasRejectedDocs
+              const isPendenteSicovab = p.status !== 'concluido' && (!p.sicovab_protocol || p.sicovab_status === 'pending')
+              const hasAlert = isLate || hasRejectedDocs || isPendenteSicovab
 
               return (
                 <Link
@@ -190,6 +195,11 @@ export default async function ProjectsPage() {
                         {hasRejectedDocs && (
                           <span className="flex items-center gap-0.5 text-[10px] font-medium text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded">
                             <FileWarning className="w-3 h-3"/> Docs Rejeitados
+                          </span>
+                        )}
+                        {isPendenteSicovab && (
+                          <span className="flex items-center gap-0.5 text-[10px] font-medium text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded">
+                            <ShieldAlert className="w-3 h-3"/> Pendente SICOVAB
                           </span>
                         )}
                         {isLate && (

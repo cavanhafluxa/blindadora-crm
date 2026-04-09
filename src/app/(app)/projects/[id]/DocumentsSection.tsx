@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { FileCheck, Clock, Check, X, AlertCircle, Upload, Trash2, Loader2, FileText, Download } from 'lucide-react'
+import { FileCheck, Clock, Check, X, AlertCircle, Upload, Trash2, Loader2, FileText, Download, ShieldAlert } from 'lucide-react'
 
 type DocStatus = 'pending_docs' | 'pending_approval' | 'approved' | 'rejected'
 
@@ -11,6 +11,10 @@ type ProjectDocs = {
   authorization_notes: string | null
   declaration_status: DocStatus
   declaration_notes: string | null
+  sicovab_status?: string | null
+  sicovab_protocol?: string | null
+  army_authorization?: string | null
+  sicovab_sent_at?: string | null
 }
 
 export interface DocumentRecord {
@@ -44,17 +48,19 @@ export default function DocumentsSection({
     authorization_notes: null,
     declaration_status: 'pending_docs',
     declaration_notes: null,
+    sicovab_status: 'pending',
+    sicovab_protocol: null,
+    army_authorization: null,
+    sicovab_sent_at: null,
   }
-  const [docs, setDocs] = useState<ProjectDocs>(initialDocs || defaultDocs)
+  const [docs, setDocs] = useState<ProjectDocs>({ ...defaultDocs, ...initialDocs })
   const [saving, setSaving] = useState<string | null>(null)
   
   const [files, setFiles] = useState<DocumentRecord[]>(initialFiles)
   const [uploading, setUploading] = useState<string | null>(null)
   
-  // Cache for signed URLs: { 'storage/path': 'https://temp-url...' }
   const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
 
-  // Automatically fetch signed URLs for any files that don't have them yet
   useEffect(() => {
     async function loadSignedUrls() {
       const pathsToSign = files
@@ -65,8 +71,7 @@ export default function DocumentsSection({
 
       const newUrls: Record<string, string> = {}
       for (const path of pathsToSign) {
-        // Only bucket name "documents" and internal path
-        const { data } = await supabase.storage.from('documents').createSignedUrl(path, 60 * 60) // 1 hour
+        const { data } = await supabase.storage.from('documents').createSignedUrl(path, 60 * 60)
         if (data?.signedUrl) {
           newUrls[path] = data.signedUrl
         }
@@ -76,7 +81,7 @@ export default function DocumentsSection({
     loadSignedUrls()
   }, [files, signedUrls, supabase])
 
-  async function updateDoc(field: keyof ProjectDocs, value: string) {
+  async function updateDoc(field: keyof ProjectDocs, value: string | null) {
     setSaving(field)
     const updated = { ...docs, [field]: value }
     setDocs(updated)
@@ -89,7 +94,6 @@ export default function DocumentsSection({
   async function handleFileUpload(docType: string, file: File) {
     setUploading(docType)
     
-    // Create a path: projectId/docType/timestamp_filename
     const safeName = file.name.replace(/[^a-zA-Z0-9.\-_]/g, '')
     const path = `${projectId}/${docType}/${Date.now()}_${safeName}`
     
@@ -103,7 +107,6 @@ export default function DocumentsSection({
       return
     }
 
-    // Save record to database using the internal path
     const { data: record, error: dbError } = await supabase.from('documents').insert({
       project_id: projectId,
       doc_type: docType,
@@ -122,11 +125,9 @@ export default function DocumentsSection({
   async function handleDeleteFile(fileId: string, path: string) {
     if (!confirm('Deseja realmente remover este arquivo?')) return
     
-    // Delete from database first
     await supabase.from('documents').delete().eq('id', fileId)
     setFiles(prev => prev.filter(f => f.id !== fileId))
     
-    // Delete from storage
     if (!path.startsWith('http')) {
       await supabase.storage.from('documents').remove([path])
     }
@@ -190,7 +191,6 @@ export default function DocumentsSection({
     notesKey?: 'authorization_notes' | 'declaration_notes'
     docTypeString: string
   }) {
-    // Hidden file input reference specific to this card
     const fileInputRef = useRef<HTMLInputElement>(null)
     const isUploading = uploading === docTypeString
 
@@ -237,7 +237,6 @@ export default function DocumentsSection({
             </div>
           </div>
 
-          {/* Status selector (only for trackable docs) */}
           {statusKey && notesKey && (
             <>
               <div className="mb-3">
@@ -260,7 +259,6 @@ export default function DocumentsSection({
                 </div>
               </div>
 
-              {/* Notes */}
               <div>
                 <label className="text-xs font-medium text-slate-500 block mb-1.5">Observações / Motivo</label>
                 <textarea
@@ -274,7 +272,6 @@ export default function DocumentsSection({
             </>
           )}
 
-          {/* Render uploaded files inside this card */}
           <FileList docType={docTypeString} />
         </div>
       </div>
@@ -282,42 +279,119 @@ export default function DocumentsSection({
   }
 
   return (
-    <div className="soft-card p-6">
-      <div className="flex items-center gap-2 mb-6">
-        <FileCheck className="w-5 h-5 text-indigo-500" />
-        <h2 className="font-semibold text-slate-800">Documentações & Aprovações</h2>
-      </div>
-
-      <div className="space-y-5">
-        <DocCard
-          title="Autorização de Blindagem"
-          description="Documento legal que autoriza a blindagem do veículo (Exército/Detran)"
-          statusKey="authorization_status"
-          notesKey="authorization_notes"
-          docTypeString="authorization"
-        />
-        <DocCard
-          title="Declaração de Blindagem"
-          description="Declaração final emitida após conclusão do serviço para registro veicular"
-          statusKey="declaration_status"
-          notesKey="declaration_notes"
-          docTypeString="declaration"
-        />
+    <>
+      <div className="soft-card p-6 mb-6">
+        <div className="flex items-center gap-2 mb-6">
+          <ShieldAlert className="w-5 h-5 text-indigo-500" />
+          <h2 className="font-semibold text-slate-800">Controle SICOVAB / Exército</h2>
+        </div>
         
-        {/* NEW CARD: "Other Materials / Additional Docs" */}
-        <DocCard
-          title="Outros Materiais e Documentos"
-          description="CRV/DUT, CNH, RG, termos de vistoria e outros arquivos anexos do cliente"
-          docTypeString="other"
-        />
+        <div className="border border-slate-200 rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow transition-shadow">
+          <div className="p-5">
+            <div className="flex items-start justify-between gap-3 mb-6">
+               <div>
+                  <h3 className="font-semibold text-slate-800">Protocolo e Autorizações SICOVAB</h3>
+                  <p className="text-sm text-slate-500 mt-0.5">Gestão de registros e comprovantes junto ao exército e SICOVAB.</p>
+               </div>
+               <div className="flex flex-col items-end gap-2 shrink-0">
+                 <input type="file" ref={(ref) => { if(ref) (ref as any).uploadSicovab = () => ref.click() }} className="hidden" onChange={e => {
+                   if (e.target.files && e.target.files[0]) handleFileUpload('sicovab', e.target.files[0]); e.target.value = ''
+                 }} />
+                 <button onClick={() => {
+                   const node = document.querySelector('input[type="file"].hidden') as any
+                   if (node?.uploadSicovab) node.uploadSicovab()
+                 }} disabled={uploading === 'sicovab'} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-colors disabled:opacity-50">
+                    {uploading === 'sicovab' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                    Anexar Comprovante
+                 </button>
+               </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1">Status SICOVAB</label>
+                <select
+                  value={docs.sicovab_status || 'pending'}
+                  onChange={(e) => updateDoc('sicovab_status', e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500"
+                >
+                  <option value="pending">Aguardando Envio</option>
+                  <option value="submitted">Protocolado</option>
+                  <option value="approved">Aprovado</option>
+                  <option value="rejected">Rejeitado</option>
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1">Data de Envio</label>
+                <input
+                  type="date"
+                  value={docs.sicovab_sent_at ? docs.sicovab_sent_at.split('T')[0] : ''}
+                  onChange={(e) => updateDoc('sicovab_sent_at', e.target.value ? new Date(e.target.value).toISOString() : null)}
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1">Protocolo SICOVAB</label>
+                <input
+                  type="text"
+                  placeholder="Ex: 2023.12345/67"
+                  defaultValue={docs.sicovab_protocol || ''}
+                  onBlur={(e) => updateDoc('sicovab_protocol', e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+              <div>
+                <label className="text-xs font-medium text-slate-500 block mb-1">Autorização Exército</label>
+                <input
+                  type="text"
+                  placeholder="N° Autorização..."
+                  defaultValue={docs.army_authorization || ''}
+                  onBlur={(e) => updateDoc('army_authorization', e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
+                />
+              </div>
+            </div>
+            
+            <FileList docType="sicovab" />
+          </div>
+        </div>
       </div>
 
-      {/* Status Summary */}
-      <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-xs text-slate-500">
-        <span>Autorização: <strong className={STATUS_CONFIG[docs.authorization_status].color}>{STATUS_CONFIG[docs.authorization_status].label}</strong></span>
-        <span>Declaração: <strong className={STATUS_CONFIG[docs.declaration_status].color}>{STATUS_CONFIG[docs.declaration_status].label}</strong></span>
-        <span>Anexos Totais: <strong className="text-slate-700">{files.length}</strong></span>
+      <div className="soft-card p-6">
+        <div className="flex items-center gap-2 mb-6">
+          <FileCheck className="w-5 h-5 text-indigo-500" />
+          <h2 className="font-semibold text-slate-800">Documentações & Aprovações</h2>
+        </div>
+
+        <div className="space-y-5">
+          <DocCard
+            title="Autorização de Blindagem"
+            description="Documento legal que autoriza a blindagem do veículo (Exército/Detran)"
+            statusKey="authorization_status"
+            notesKey="authorization_notes"
+            docTypeString="authorization"
+          />
+          <DocCard
+            title="Declaração de Blindagem"
+            description="Declaração final emitida após conclusão do serviço para registro veicular"
+            statusKey="declaration_status"
+            notesKey="declaration_notes"
+            docTypeString="declaration"
+          />
+          
+          <DocCard
+            title="Outros Materiais e Documentos"
+            description="CRV/DUT, CNH, RG, termos de vistoria e outros arquivos anexos do cliente"
+            docTypeString="other"
+          />
+        </div>
+
+        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-xs text-slate-500">
+          <span>Autorização: <strong className={STATUS_CONFIG[docs.authorization_status].color}>{STATUS_CONFIG[docs.authorization_status].label}</strong></span>
+          <span>Declaração: <strong className={STATUS_CONFIG[docs.declaration_status].color}>{STATUS_CONFIG[docs.declaration_status].label}</strong></span>
+          <span>Anexos Totais: <strong className="text-slate-700">{files.length}</strong></span>
+        </div>
       </div>
-    </div>
+    </>
   )
 }

@@ -8,6 +8,7 @@ import { ArrowLeft, Car, Hash, Calendar, DollarSign, Gauge, Shield, Receipt, Tre
 import Link from 'next/link'
 import PDFDownloadButton from '@/components/PDFDownloadButton'
 import OrdemServicoPDF from '@/components/OrdemServicoPDF'
+import MarkAsDeliveredButton from './MarkAsDeliveredButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -91,13 +92,23 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             )}
           </div>
         </div>
-        <PDFDownloadButton
-          document={<OrdemServicoPDF project={project} stages={stages || []} />}
-          fileName={`OS_${project.chassis || project.plate || 'Projeto'}.pdf`}
-          className="btn-primary bg-indigo-600 hover:bg-indigo-700 text-sm flex-shrink-0"
-        >
-          <Printer className="w-4 h-4" /> Gerar O.S.
-        </PDFDownloadButton>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {project.status !== 'concluido' && (
+            <MarkAsDeliveredButton 
+              projectId={project.id} 
+              organizationId={project.organization_id} 
+              vehicleModel={project.vehicle_model || ''}
+              plate={project.plate || ''}
+            />
+          )}
+          <PDFDownloadButton
+            document={<OrdemServicoPDF project={project} stages={stages || []} />}
+            fileName={`OS_${project.chassis || project.plate || 'Projeto'}.pdf`}
+            className="btn-primary bg-indigo-600 hover:bg-indigo-700 text-sm flex-shrink-0"
+          >
+            <Printer className="w-4 h-4" /> Gerar O.S.
+          </PDFDownloadButton>
+        </div>
       </div>
 
       {/* Progress Bar */}

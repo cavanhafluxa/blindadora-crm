@@ -1,5 +1,5 @@
 import { createClient } from '@/utils/supabase/server'
-import { CircleDollarSign, Truck, Receipt, Flame, ArrowUp, BarChart3, Clock, Percent } from 'lucide-react'
+import { CircleDollarSign, Truck, Receipt, Flame, ArrowUp, BarChart3, Clock, Percent, ShieldAlert } from 'lucide-react'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,6 +57,9 @@ export default async function DashboardPage() {
     }, 0) / concludedProjects.length)
     : 0
 
+  // Pendências SICOVAB
+  const pendenciasSicovab = projects?.filter(p => p.status !== 'concluido' && (!p.sicovab_protocol || p.sicovab_status === 'pending')).length || 0
+
   // Gráfico de Faturamento CSS
   const faturamentoMes = Array(12).fill(0)
   financials?.filter(f => f.type === 'income' && f.paid && new Date(f.created_at).getFullYear() === currentYear).forEach(f => {
@@ -103,6 +106,15 @@ export default async function DashboardPage() {
       bg: 'bg-emerald-50',
       grad: 'bg-emerald-200',
     },
+    {
+      label: 'Pendências SICOVAB',
+      value: `${pendenciasSicovab}`,
+      sub: 'Projetos sem protocolo',
+      icon: ShieldAlert,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+      grad: 'bg-purple-200',
+    },
   ]
 
   return (
@@ -113,7 +125,7 @@ export default async function DashboardPage() {
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
         {kpis.map((kpi) => (
           <div key={kpi.label} className="soft-card p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300">
             <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-20 ${kpi.grad} group-hover:opacity-40 transition-opacity`} />
