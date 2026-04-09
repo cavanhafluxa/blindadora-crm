@@ -9,6 +9,7 @@ import Link from 'next/link'
 import PDFDownloadButton from '@/components/PDFDownloadButton'
 import OrdemServicoPDF from '@/components/OrdemServicoPDF'
 import MarkAsDeliveredButton from './MarkAsDeliveredButton'
+import CatalogPublishSection from './CatalogPublishSection'
 
 export const dynamic = 'force-dynamic'
 
@@ -207,6 +208,11 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             </Link>
           </div>
         </div>
+      </div>
+      
+      {/* Catalog Publish */}
+      <div className="mb-8">
+        <CatalogPublishSection project={project} />
       </div>
 
       {/* Timeline Visual de Eventos */}
