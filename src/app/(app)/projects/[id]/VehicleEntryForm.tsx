@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { 
   ClipboardCheck, CheckSquare, Square, Gauge, Camera, X, Plus, 
@@ -9,7 +9,8 @@ import {
 
 type ChecklistValue = {
   checked: boolean
-  media_url?: string
+  media_path?: string // New field to store relative path
+  media_url?: string // Legacy or signed version
   media_type?: 'image' | 'video'
   label?: string
   is_custom?: boolean
@@ -43,6 +44,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
   const [saved, setSaved] = useState(entryCompleted)
   const [odometer, setOdometer] = useState(currentOdometer?.toString() || '')
   const [selectedMedia, setSelectedMedia] = useState<{url: string, type: string} | null>(null)
+  const [signedUrls, setSignedUrls] = useState<Record<string, string>>({})
   
   const [checklist, setChecklist] = useState<Record<string, ChecklistValue>>(() => {
     const initial: Record<string, ChecklistValue> = {}
@@ -80,6 +82,42 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
     }))
   }
 
+  // Load signed URLs for all items
+  useEffect(() => {
+    async function loadUrls() {
+      const paths: string[] = []
+      const keys: string[] = []
+
+      Object.entries(checklist).forEach(([key, val]) => {
+        if (val.media_path) {
+          paths.push(val.media_path)
+          keys.push(key)
+        } else if (val.media_url && val.media_url.includes('stage-photos/')) {
+          const path = val.media_url.split('stage-photos/').pop()
+          if (path) {
+            paths.push(path)
+            keys.push(key)
+          }
+        }
+      })
+
+      if (paths.length > 0) {
+        const { data, error } = await supabase.storage
+          .from('stage-photos')
+          .createSignedUrls(paths, 3600)
+
+        if (data) {
+          const newUrls: Record<string, string> = {}
+          data.forEach((item, index) => {
+            if (item.signedUrl) newUrls[keys[index]] = item.signedUrl
+          })
+          setSignedUrls(prev => ({ ...prev, ...newUrls }))
+        }
+      }
+    }
+    loadUrls()
+  }, []) // Load once on mount or when checklist is initialized
+
   function addCustomItem() {
     if (!newCustomLabel.trim()) return
     const key = `custom_${Date.now()}`
@@ -110,13 +148,19 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
       const { error } = await supabase.storage.from('stage-photos').upload(fileName, file)
       if (error) throw error
 
-      const { data: { publicUrl } } = supabase.storage.from('stage-photos').getPublicUrl(fileName)
+      // Get signed URL immediately
+      const { data: signedData, error: signedError } = await supabase.storage
+        .from('stage-photos')
+        .createSignedUrl(fileName, 3600)
 
+      if (signedError) throw signedError
+
+      setSignedUrls(prev => ({ ...prev, [itemKey]: signedData.signedUrl }))
       setChecklist(prev => ({
         ...prev,
         [itemKey]: { 
           ...prev[itemKey], 
-          media_url: publicUrl, 
+          media_path: fileName, // Store path for security
           media_type: file.type.startsWith('video') ? 'video' : 'image',
           checked: true 
         }
@@ -260,23 +304,33 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                   <div className="flex items-center gap-2 py-2 pr-2">
                     {/* Media Thumbnail/Button */}
                     <div className="relative">
-                      {item.media_url ? (
+                      { (item.media_path || item.media_url) ? (
                         <div className="relative group/media">
                           <button 
-                            onClick={() => setSelectedMedia({url: item.media_url!, type: item.media_type!})}
+                            onClick={() => {
+                              const url = signedUrls[key] || item.media_url
+                              if (url) setSelectedMedia({url, type: item.media_type!})
+                            }}
                             className="w-12 h-12 rounded-xl border-2 border-white shadow-md overflow-hidden bg-black transition-transform hover:scale-110 active:scale-95"
                           >
-                            {item.media_type === 'video' ? (
+                            {!signedUrls[key] && !item.media_url && uploadingItem !== key ? (
+                               <Loader2 className="w-5 h-5 animate-spin text-white/50 m-auto" />
+                            ) : item.media_type === 'video' ? (
                               <div className="w-full h-full flex items-center justify-center">
                                 <PlayCircle className="w-5 h-5 text-white/80" />
-                                <video src={item.media_url} className="absolute inset-0 w-full h-full object-cover opacity-40" muted />
+                                <video src={signedUrls[key] || item.media_url} className="absolute inset-0 w-full h-full object-cover opacity-40" muted />
                               </div>
                             ) : (
-                              <img src={item.media_url} alt="Evidência" className="w-full h-full object-cover" />
+                              <img src={signedUrls[key] || item.media_url} alt="Evidência" className="w-full h-full object-cover" />
                             )}
                           </button>
                           <button 
-                            onClick={() => setChecklist(prev => ({ ...prev, [key]: { ...prev[key], media_url: undefined } }))}
+                            onClick={() => {
+                              setChecklist(prev => ({ ...prev, [key]: { ...prev[key], media_path: undefined, media_url: undefined } }))
+                              setSignedUrls(prev => {
+                                const n = {...prev}; delete n[key]; return n
+                              })
+                            }}
                             className="absolute -top-1.5 -right-1.5 p-1 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover/media:opacity-100 transition-opacity hover:bg-red-600"
                           >
                             <X className="w-2.5 h-2.5" />
