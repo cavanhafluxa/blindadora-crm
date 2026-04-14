@@ -1,8 +1,8 @@
 import { createClient } from '@/utils/supabase/server'
-import { CircleDollarSign, Truck, Receipt, Flame, ArrowUp, BarChart3, Clock, Percent, ShieldAlert, Award, CalendarDays, TrendingDown, Target, ShoppingCart, Activity } from 'lucide-react'
+import { CircleDollarSign, Target, Percent, Award, CalendarDays, Car, BarChart2, Clock, ShieldAlert, Activity } from 'lucide-react'
 import Link from 'next/link'
 
-export const revalidate = 30 // Cache for 30 seconds to speed up navigation
+export const revalidate = 30 
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -26,29 +26,10 @@ export default async function DashboardPage() {
   const currentMonth = new Date().getMonth()
   const currentYear = new Date().getFullYear()
 
-  // -------------------------
-  // KPIs base
-  // -------------------------
+  // 1. KPIs
   const totalRevenue = financials
     ?.filter(f => f.type === 'income' && f.paid)
     .reduce((acc, f) => acc + Number(f.amount), 0) || 0
-
-  const activeProjects = projects?.filter(p => p.status === 'producao').length || 0
-  const totalLeads = leads?.length || 0
-
-  const funnelStats = {
-    total: leads?.length || 0,
-    new: leads?.filter(l => l.pipeline_stage === 'new').length || 0,
-    prospecting: leads?.filter(l => l.pipeline_stage === 'prospecting').length || 0,
-    quoted: leads?.filter(l => l.pipeline_stage === 'quoted').length || 0,
-    contracted: leads?.filter(l => l.pipeline_stage === 'contracted').length || 0,
-  }
-
-  const conversionRate = funnelStats.total > 0 ? Math.round((funnelStats.contracted / funnelStats.total) * 100) : 0
-  
-  const leadsThisMonth = leads?.filter(l => new Date(l.created_at).getMonth() === currentMonth && new Date(l.created_at).getFullYear() === currentYear) || []
-  const contractedThisMonth = leadsThisMonth.filter(l => l.pipeline_stage === 'contracted').length
-  const conversaoMes = leadsThisMonth.length > 0 ? Math.round((contractedThisMonth / leadsThisMonth.length) * 100) : 0
 
   const ticketMedio = projects && projects.length > 0 ? totalRevenue / projects.length : 0
 
@@ -61,6 +42,11 @@ export default async function DashboardPage() {
     }, 0) / concludedProjects.length)
     : 0
 
+  const leadsThisMonth = leads?.filter(l => new Date(l.created_at).getMonth() === currentMonth && new Date(l.created_at).getFullYear() === currentYear) || []
+  const contractedThisMonth = leadsThisMonth.filter(l => l.pipeline_stage === 'contracted').length
+  const conversaoMes = leadsThisMonth.length > 0 ? Math.round((contractedThisMonth / leadsThisMonth.length) * 100) : 0
+
+  const activeProjects = projects?.filter(p => p.status === 'producao').length || 0
   const pendenciasSicovab = projects?.filter(p => p.status !== 'concluido' && (!p.sicovab_protocol || p.sicovab_status === 'pending')).length || 0
 
   const faturamentoMes = Array(12).fill(0)
@@ -71,7 +57,7 @@ export default async function DashboardPage() {
   const maxFaturamento = Math.max(...faturamentoMes, 1)
   const meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
-  // Custo real por projeto (materiais + compras específicas)
+  // Margem
   const costByProject: Record<string, number> = {}
   stockOutflows?.forEach(m => {
     if (m.project_id) {
@@ -88,20 +74,7 @@ export default async function DashboardPage() {
   const estimatedMargin = totalContractValue - totalRealCost
   const marginPct = totalContractValue > 0 ? Math.round((estimatedMargin / totalContractValue) * 100) : 0
 
-  const kpis = [
-    { label: 'Faturamento Recebido', value: `R$ ${totalRevenue.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`, sub: 'Total pago recebido', icon: CircleDollarSign, color: 'text-amber-600', bg: 'bg-amber-50', grad: 'bg-amber-200' },
-    { label: 'Ticket Médio (Projetos)', value: `R$ ${ticketMedio.toLocaleString('pt-BR', { minimumFractionDigits: 0 })}`, sub: `Média de ${projects?.length || 0} projetos`, icon: BarChart3, color: 'text-blue-600', bg: 'bg-blue-50', grad: 'bg-blue-200' },
-    { label: 'Tempo Médio de Pátio', value: `${tempoMedioPatio} dias`, sub: 'Média para conclusão', icon: Clock, color: 'text-indigo-600', bg: 'bg-indigo-50', grad: 'bg-indigo-200' },
-    { label: 'Taxa de Conversão Mensal', value: `${conversaoMes}%`, sub: `${contractedThisMonth} leads fechados este mês`, icon: Percent, color: 'text-emerald-600', bg: 'bg-emerald-50', grad: 'bg-emerald-200' },
-    { label: 'Pendências SICOVAB', value: `${pendenciasSicovab}`, sub: 'Projetos sem protocolo', icon: ShieldAlert, color: 'text-purple-600', bg: 'bg-purple-50', grad: 'bg-purple-200' },
-    { label: 'Margem Bruta Estimada', value: `${marginPct}%`, sub: `R$ ${estimatedMargin.toLocaleString('pt-BR')}`, icon: Activity, color: marginPct >= 30 ? 'text-emerald-600' : marginPct >= 10 ? 'text-amber-600' : 'text-red-600', bg: marginPct >= 30 ? 'bg-emerald-50' : marginPct >= 10 ? 'bg-amber-50' : 'bg-red-50', grad: 'bg-emerald-200' },
-  ]
-
-  // -------------------------
-  // Cockpit Gerencial (Analytics)
-  // -------------------------
-
-  // 1. Ranking de Modelos
+  // 2. Rankings
   const modelsRanking = projects?.reduce((acc: any, p) => {
     const model = p.vehicle_model || 'Não Informado'
     acc[model] = (acc[model] || 0) + 1
@@ -109,20 +82,9 @@ export default async function DashboardPage() {
   }, {})
   const topModels = Object.entries(modelsRanking || {}).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5)
 
-  // 2. Análise de Leads Perdidos
   const lostLeads = leads?.filter(l => l.pipeline_stage === 'lost') || []
-  const lostValue = lostLeads.reduce((acc, l) => acc + (Number(l.quoted_value) || 0), 0)
 
-  // 3. Eficiência do Time (Tarefas concluídas no mês)
-  const completedStagesThisMonth = stages?.filter(s => s.status === 'completed' && s.completed_at && new Date(s.completed_at).getMonth() === currentMonth && new Date(s.completed_at).getFullYear() === currentYear) || []
-  const teamEfficiency = completedStagesThisMonth.reduce((acc: any, s) => {
-    const name = s.profiles?.full_name || 'Desconhecido'
-    acc[name] = (acc[name] || 0) + 1
-    return acc
-  }, {})
-  const topPerformers = Object.entries(teamEfficiency || {}).sort((a: any, b: any) => b[1] - a[1]).slice(0, 4)
-
-  // 4. Forecast Entregas
+  // 3. Forecast
   const today = new Date()
   const next30Days = new Date()
   next30Days.setDate(today.getDate() + 30)
@@ -133,189 +95,225 @@ export default async function DashboardPage() {
     return date.getTime() >= today.getTime() && date.getTime() <= next30Days.getTime()
   }).sort((a,b) => new Date(a.expected_delivery_date).getTime() - new Date(b.expected_delivery_date).getTime()).slice(0, 5)
 
-  const kpiGrid = kpis.map((kpi, idx) => (
-    <div key={kpi.label} className="soft-card p-6 relative overflow-hidden group hover:-translate-y-1 transition-transform duration-300 border-b-4 border-transparent hover:border-amber-500">
-      <div className={`absolute -top-6 -right-6 w-24 h-24 rounded-full blur-2xl opacity-20 ${kpi.grad} group-hover:opacity-40 transition-opacity`} />
-      <div className={`w-10 h-10 rounded-xl ${kpi.bg} flex items-center justify-center mb-4`}>
-        <kpi.icon className={`w-5 h-5 ${kpi.color}`} />
-      </div>
-      <p className="text-xs font-semibold text-slate-500 mb-1">{kpi.label}</p>
-      <h3 className="text-2xl font-bold text-slate-800 mb-1 leading-none">{kpi.value}</h3>
-      <p className="text-[10px] text-slate-400 font-medium">{kpi.sub}</p>
-    </div>
-  ))
-
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold text-slate-800">Cockpit de Gestão</h1>
-        <p className="text-slate-500 text-sm mt-1">Analytics em tempo real da blindadora</p>
+    <div className="flex-1 w-full flex flex-col px-6 py-6 mb-4 space-y-5">
+      
+      {/* Header Area */}
+      <div className="flex flex-col gap-1 mb-2">
+        <h1 className="text-2xl font-semibold tracking-tight text-slate-800">Resumo Financeiro</h1>
+        <p className="text-[13px] font-medium text-slate-500">Faturamento, Produção e Operações</p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-        {kpiGrid}
-      </div>
-
-      {/* Analytics Grid 1 - Faturamento & Modelos */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 soft-card p-6">
-          <div className="flex items-center gap-2 mb-6">
-            <CircleDollarSign className="w-5 h-5 text-amber-500" />
-            <h2 className="font-semibold text-slate-800">Evolução do Faturamento ({currentYear})</h2>
-          </div>
-          
-          <div className="flex items-end gap-2 h-48 pt-4">
-            {faturamentoMes.map((val, idx) => (
-              <div key={idx} className="flex-1 flex flex-col items-center justify-end group cursor-pointer relative h-full">
-                {val > 0 && (
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap text-[10px] font-bold text-slate-700 mb-2 bg-slate-100 border border-slate-200 px-2 py-1 rounded-md absolute -mt-8 z-10 shadow-sm pointer-events-none">
-                    R$ {val.toLocaleString('pt-BR')}
-                  </div>
-                )}
-                <div 
-                  className={`w-full max-w-[40px] rounded-t-sm transition-all relative overflow-hidden ${idx === currentMonth ? 'bg-amber-300' : 'bg-slate-200 group-hover:bg-slate-300'}`}
-                  style={{ height: `${(val / maxFaturamento) * 100}%`, minHeight: val > 0 ? '4px' : '0' }}
-                >
-                  <div className={`absolute bottom-0 w-full opacity-90 h-full bg-gradient-to-t ${idx === currentMonth ? 'from-amber-500 to-amber-400' : 'from-slate-400 to-slate-300'}`}></div>
-                </div>
-                <span className={`text-[10px] font-bold mt-2 ${idx === currentMonth ? 'text-amber-600' : 'text-slate-400'}`}>{meses[idx]}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Ranking de Modelos */}
-        <div className="soft-card p-6 bg-gradient-to-br from-white to-slate-50 border border-slate-200">
-           <div className="flex items-center gap-2 mb-6">
-            <Target className="w-5 h-5 text-indigo-500" />
-            <h2 className="font-semibold text-slate-800">Top 5 Modelos</h2>
-          </div>
-          <div className="space-y-4">
-             {topModels.length > 0 ? topModels.map((item: any, idx) => (
-               <div key={item[0]} className="flex items-center justify-between">
-                 <div className="flex items-center gap-3">
-                   <div className={`w-6 h-6 rounded-md flex items-center justify-center text-xs font-bold ${idx === 0 ? 'bg-amber-500 text-white shadow-sm shadow-amber-500/50' : 'bg-slate-200 text-slate-600'}`}>
-                     {idx + 1}
-                   </div>
-                   <span className="text-sm font-semibold text-slate-700 truncate max-w-[150px]">{item[0]}</span>
-                 </div>
-                 <div className="text-xs font-bold bg-white border border-slate-200 px-2.5 py-1 rounded-full text-slate-600">
-                   {item[1]} vols
-                 </div>
-               </div>
-             )) : (
-               <p className="text-sm text-slate-400">Nenhum veículo registrado.</p>
-             )}
-          </div>
-        </div>
-      </div>
-
-      {/* Analytics Grid 2 - Eficiência, Forecast e Perdas */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* Top 6 KPIs - Classic Tailwind Slate styling */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         
-        {/* Forecast Entregas */}
-        <div className="soft-card p-6 border-t-4 border-emerald-500">
-          <div className="flex items-center gap-2 mb-5">
-            <CalendarDays className="w-5 h-5 text-emerald-500" />
-            <h2 className="font-semibold text-slate-800">Forecast Pendentes (30 Dias)</h2>
+        {/* Card 1: Faturamento Recebido */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-amber-50 text-amber-600 rounded-lg mb-3">
+              <CircleDollarSign className="w-4 h-4" />
+            </div>
+            <h3 className="text-[12px] font-semibold text-slate-500 mb-1 line-clamp-1">Faturamento Recebido</h3>
+            <div className="text-[18px] font-semibold text-slate-800 tracking-tight">R$ {(totalRevenue / 1000).toFixed(1)}k</div>
           </div>
-          {upcomingDeliveries && upcomingDeliveries.length > 0 ? (
-            <div className="space-y-3">
-              {upcomingDeliveries.map(p => {
-                const isLate = new Date(p.expected_delivery_date) < new Date()
-                return (
-                  <Link key={p.id} href={`/projects/${p.id}`} className="block p-3 bg-white border border-slate-100 hover:border-emerald-200 rounded-xl transition-colors">
-                    <p className="text-sm font-bold text-slate-700 truncate">{p.vehicle_model || 'Veículo'} - {p.customer_name}</p>
-                    <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-[10px] font-bold text-slate-400">
-                        {new Date(p.expected_delivery_date).toLocaleDateString('pt-BR')}
-                      </span>
-                      {isLate ? (
-                        <span className="text-[10px] font-bold bg-red-100 text-red-600 px-2 py-0.5 rounded-full">Atrasado</span>
-                      ) : (
-                        <span className="text-[10px] font-bold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">No prazo</span>
-                      )}
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <span className="text-slate-400 text-sm">Nenhuma entrega prevista</span>
-            </div>
-          )}
+          <p className="text-[10px] font-medium text-slate-400">Total pago recebido</p>
         </div>
 
-        {/* Eficiência do Time */}
-        <div className="soft-card p-6 border-t-4 border-indigo-500">
-          <div className="flex items-center gap-2 mb-5">
-            <Award className="w-5 h-5 text-indigo-500" />
-            <h2 className="font-semibold text-slate-800">Eficiência da Equipe (Mês)</h2>
+        {/* Card 2: Ticket Médio */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-blue-50 text-blue-600 rounded-lg mb-3">
+              <BarChart2 className="w-4 h-4" />
+            </div>
+            <h3 className="text-[12px] font-semibold text-slate-500 mb-1 line-clamp-1">Ticket Médio (Projetos)</h3>
+            <div className="text-[18px] font-semibold text-slate-800 tracking-tight">R$ {(ticketMedio / 1000).toFixed(1)}k</div>
           </div>
-          {topPerformers.length > 0 ? (
-            <div className="space-y-4">
-              <p className="text-xs text-slate-500 mb-2">Baseado em etapas concluídas no mês atual</p>
-              {topPerformers.map((item: any, idx) => {
-                // max is topPerformers[0][1]
-                const max = topPerformers[0][1] as number
-                const perc = Math.round((item[1] / max) * 100)
-                return (
-                  <div key={item[0]}>
-                    <div className="flex justify-between items-end mb-1">
-                      <span className="text-xs font-bold text-slate-700 truncate">{item[0]}</span>
-                      <span className="text-[10px] font-bold text-indigo-600">{item[1]} etapas</span>
-                    </div>
-                    <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                      <div className="h-full bg-indigo-500 rounded-full" style={{ width: `${perc}%` }}></div>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          ) : (
-            <div className="text-center py-6">
-              <span className="text-slate-400 text-sm">Nenhuma etapa concluída no mês</span>
-            </div>
-          )}
+          <p className="text-[10px] font-medium text-slate-400">Média de {projects?.length || 0} projetos</p>
         </div>
 
-        {/* Custo e Perdas */}
-        <div className="soft-card p-6 border-t-4 border-red-500 relative overflow-hidden">
-          <div className="absolute right-0 bottom-0 text-red-50 opacity-10 pointer-events-none transform translate-x-1/4 translate-y-1/4">
-            <TrendingDown className="w-32 h-32" />
-          </div>
-          <div className="flex items-center gap-2 mb-5 relative z-10">
-            <TrendingDown className="w-5 h-5 text-red-500" />
-            <h2 className="font-semibold text-slate-800">Análise de Entradas & Perdas</h2>
-          </div>
-          
-          <div className="space-y-4 relative z-10">
-            <div className="bg-red-50/50 p-4 rounded-xl border border-red-100">
-               <p className="text-xs font-bold text-red-800 uppercase tracking-wider mb-1">Leads Perdidos (Total)</p>
-               <div className="flex items-end gap-2">
-                 <span className="text-2xl font-black text-red-600">{lostLeads.length}</span>
-                 <span className="text-xs text-red-700/60 font-semibold mb-1">negócios não fechados</span>
-               </div>
-               {lostValue > 0 && (
-                 <p className="text-xs text-red-700 font-semibold mt-2 pt-2 border-t border-red-200/50">
-                    Oportunidade perdida: R$ {lostValue.toLocaleString('pt-BR')}
-                 </p>
-               )}
+        {/* Card 3: Tempo Médio Pátio */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-indigo-50 text-indigo-600 rounded-lg mb-3">
+              <Clock className="w-4 h-4" />
             </div>
+            <h3 className="text-[12px] font-semibold text-slate-500 mb-1 line-clamp-1">Tempo Médio de Pátio</h3>
+            <div className="text-[18px] font-semibold text-slate-800 tracking-tight">{tempoMedioPatio} dias</div>
+          </div>
+          <p className="text-[10px] font-medium text-slate-400">Média para conclusão</p>
+        </div>
 
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100">
-               <p className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-1">Conversão Funil</p>
-               <div className="flex items-end gap-2 text-slate-800">
-                 <span className="text-3xl font-black">{conversionRate}%</span>
-                 <span className="text-xs text-slate-500 font-semibold mb-1">de {funnelStats.total} leads</span>
-               </div>
+        {/* Card 4: Conversão Mensal */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-emerald-50 text-emerald-600 rounded-lg mb-3">
+              <Percent className="w-4 h-4" />
             </div>
+            <h3 className="text-[12px] font-semibold text-slate-500 mb-1 line-clamp-1">Taxa de Conversão Mensal</h3>
+            <div className="text-[18px] font-semibold text-slate-800 tracking-tight">{conversaoMes}%</div>
           </div>
+          <p className="text-[10px] font-medium text-slate-400">{contractedThisMonth} leads fechados este mês</p>
+        </div>
+
+        {/* Card 5: Pendências Sicovab */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-purple-50 text-purple-600 rounded-lg mb-3">
+              <ShieldAlert className="w-4 h-4" />
+            </div>
+            <h3 className="text-[12px] font-semibold text-slate-500 mb-1 line-clamp-1">Pendências SICOVAB</h3>
+            <div className="text-[18px] font-semibold text-slate-800 tracking-tight">{pendenciasSicovab}</div>
+          </div>
+          <p className="text-[10px] font-medium text-slate-400">Projetos sem protocolo</p>
+        </div>
+
+        {/* Card 6: Margem Estimada */}
+        <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-5 flex flex-col justify-between hover:shadow-md transition-shadow">
+          <div className="mb-4">
+            <div className="w-8 h-8 flex items-center justify-center bg-green-50 text-green-600 rounded-lg mb-3">
+              <Activity className="w-4 h-4" />
+            </div>
+            <h3 className="text-[12px] font-semibold text-slate-500 mb-1 line-clamp-1">Margem Bruta Estimada</h3>
+            <div className="text-[18px] font-semibold text-slate-800 tracking-tight">{marginPct}%</div>
+          </div>
+          <p className="text-[10px] font-medium text-slate-400">R$ {(estimatedMargin / 1000).toFixed(1)}k</p>
         </div>
 
       </div>
+
+      {/* Middle Area: Chart & Mini Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        {/* Main Chart */}
+        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col">
+          <div className="flex justify-between items-start mb-8">
+            <div>
+              <h2 className="text-[15px] font-semibold text-slate-800">Visão Mensal</h2>
+              <p className="text-[13px] font-medium text-slate-500">Acompanhamento do rendimento em R$</p>
+            </div>
+            <div className="bg-slate-50 border border-slate-200 text-slate-600 px-3 py-1 rounded-lg text-[12px] font-semibold">
+              Máx: R$ {maxFaturamento.toLocaleString('pt-BR')}
+            </div>
+          </div>
+
+          <div className="flex-1 flex items-end justify-between min-h-[220px] pb-2">
+            {faturamentoMes.map((val, idx) => {
+              const isCurrent = idx === currentMonth;
+              const hasData = val > 0;
+              const heightPct = hasData ? Math.max((val / maxFaturamento) * 100, 10) : 0;
+              
+              return (
+                <div key={idx} className="flex flex-col items-center justify-end h-full w-full group relative">
+                  {/* Tooltip */}
+                  {hasData && (
+                     <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-800 text-white px-2 py-1 rounded shadow-md pointer-events-none transform -translate-x-1/2 left-1/2 z-10">
+                       <span className="text-[11px] font-semibold whitespace-nowrap">R$ {(val/1000).toFixed(1)}k</span>
+                     </div>
+                  )}
+                  {/* Bar */}
+                  <div className="w-3/4 max-w-[28px] h-full flex flex-col justify-end">
+                    <div 
+                       className={`w-full rounded-t-md transition-all duration-300 ${isCurrent ? 'bg-blue-600' : 'bg-slate-200 group-hover:bg-blue-400'}`}
+                       style={{ height: `${heightPct}%` }}
+                    />
+                  </div>
+                  {/* Month Label */}
+                  <span className={`text-[10px] uppercase mt-3 ${isCurrent ? 'font-semibold text-slate-800' : 'font-medium text-slate-400'}`}>
+                    {meses[idx][0]}
+                  </span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Secondary KPIs */}
+        <div className="lg:col-span-1 flex flex-col gap-6">
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex items-center justify-between">
+             <div>
+               <h3 className="text-[13px] font-medium text-slate-500 mb-1">Modelo Mais Blindado</h3>
+               <div className="text-[15px] font-semibold tracking-tight text-slate-800">{topModels[0]?.[0]?.slice(0,18) || 'N/A'}</div>
+               <p className="text-[12px] font-medium text-slate-500 mt-1">{topModels[0]?.[1] || 0} unidades</p>
+             </div>
+             <div className="p-2.5 bg-amber-50 text-amber-600 rounded-lg">
+               <Award className="w-5 h-5" />
+             </div>
+          </div>
+          
+          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex-1 flex flex-col">
+             <div className="mb-6">
+               <h2 className="text-[15px] font-semibold text-slate-800">Volume (Sicovab/Perdas)</h2>
+             </div>
+             
+             <div className="flex flex-col gap-6 flex-1 justify-center">
+                <div>
+                  <div className="flex justify-between text-[13px] font-medium text-slate-700 mb-2">
+                    <span>Aguardando Sicovab</span>
+                    <span className="font-semibold">{pendenciasSicovab}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-indigo-500 rounded-full w-3/4" />
+                  </div>
+                </div>
+                <div>
+                  <div className="flex justify-between text-[13px] font-medium text-slate-700 mb-2">
+                    <span>Leads Perdidos</span>
+                    <span className="font-semibold">{lostLeads.length}</span>
+                  </div>
+                  <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div className="h-full bg-slate-300 rounded-full w-1/3" />
+                  </div>
+                </div>
+             </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Bottom Area: Forecast */}
+      <div className="bg-white rounded-xl border border-slate-200 shadow-sm">
+        <div className="p-6 border-b border-slate-100 flex justify-between items-center">
+          <div>
+            <h2 className="text-[15px] font-semibold text-slate-800">Próximas Entregas</h2>
+            <p className="text-[13px] font-medium text-slate-500">Previsão para os próximos 30 dias</p>
+          </div>
+          <div className="p-2 bg-slate-50 border border-slate-200 text-slate-600 rounded-lg">
+            <CalendarDays className="w-4 h-4" />
+          </div>
+        </div>
+        
+        <div className="divide-y divide-slate-100">
+            {upcomingDeliveries.length > 0 ? upcomingDeliveries.map((p, idx) => {
+              const isLate = new Date(p.expected_delivery_date) < new Date()
+              return (
+                <div key={p.id} className="flex items-center justify-between p-5 hover:bg-slate-50 transition-colors cursor-pointer group">
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 group-hover:text-blue-600 transition-colors">
+                      <Car className="w-4 h-4" />
+                    </div>
+                    <div>
+                      <h4 className="text-[14px] font-semibold text-slate-800">{p.vehicle_model || 'Não Informado'}</h4>
+                      <p className="text-[12px] font-medium text-slate-500">{p.customer_name}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col items-end gap-1">
+                    <span className="text-[13px] font-semibold text-slate-800">
+                      {new Date(p.expected_delivery_date).toLocaleDateString('pt-BR')}
+                    </span>
+                    <span className={`text-[11px] font-semibold px-2 py-0.5 rounded-full ${isLate ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                      {isLate ? 'Atrasado' : 'No Prazo'}
+                    </span>
+                  </div>
+                </div>
+              )
+            }) : (
+               <div className="p-8 text-center">
+                  <p className="text-[13px] font-medium text-slate-500">Nenhuma entrega prevista para os próximos dias.</p>
+               </div>
+            )}
+        </div>
+      </div>
+
     </div>
   )
 }

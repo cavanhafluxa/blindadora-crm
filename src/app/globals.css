@@ -1,81 +1,84 @@
 @import "tailwindcss";
 
-:root {
-  /* LIGHT MODE (NeuroBank Base) */
-  --color-background: #EEF2F6;
-  --color-foreground: #0F172A;
-  --color-primary: #3B82F6;
-  --color-primary-hover: #2563EB;
-  --color-primary-glow: rgba(59, 130, 246, 0.3);
-  
-  --color-sidebar-bg: #FFFFFF;
-  --color-sidebar-border: #E2E8F0;
-  --color-sidebar-text: #64748B;
-  --color-sidebar-hover: #F8FAFC;
-  --color-sidebar-active: #EFF6FF;
-  --color-sidebar-active-text: #1D4ED8;
-  
-  --color-card-bg: #FFFFFF;
-  --color-card-border: #E2E8F0;
-  --color-card-shadow: rgba(0, 0, 0, 0.04);
-  --color-card-shadow-hover: rgba(0, 0, 0, 0.08);
-
-  --color-input-bg: #F8FAFC;
-  --color-input-border: #E2E8F0;
+@theme {
+  --font-sans: var(--font-sora), ui-sans-serif, system-ui, sans-serif;
 }
 
-[data-theme="dark"] {
-  /* DARK MODE (NeuroBank Premium Enterprise) */
-  --color-background: #080A11;
-  --color-foreground: #F8FAFC;
-  --color-primary: #3B82F6;
-  --color-primary-hover: #60A5FA;
-  --color-primary-glow: rgba(59, 130, 246, 0.4);
-  
-  --color-sidebar-bg: #12141C;
-  --color-sidebar-border: #1E2333;
-  --color-sidebar-text: #8FA2B6;
-  --color-sidebar-hover: #191E2A;
-  --color-sidebar-active: #1D2331;
-  --color-sidebar-active-text: #FFFFFF;
-  
-  --color-card-bg: #10121A;
-  --color-card-border: #1C202B;
-  --color-card-shadow: rgba(0, 0, 0, 0.4);
-  --color-card-shadow-hover: rgba(0, 0, 0, 0.6);
+@layer base {
+  :root {
+    /* LIGHT THEME (Equa Soft) */
+    --color-background: #F3F4F6; /* Gray 100 base */
+    --color-foreground: #09090B; /* Zinc 950 */
+    --color-card-bg: #FFFFFF;
+    --color-card-border: rgba(0, 0, 0, 0.05); /* very subtle */
+    --color-card-shadow: rgba(0, 0, 0, 0.03);
+    --color-card-shadow-hover: rgba(0, 0, 0, 0.08);
+    --color-primary: #18181B; /* Black */
+    --color-primary-glow: transparent;
+    --color-sidebar-bg: #FFFFFF; /* Sidebar is white */
+    --color-sidebar-border: rgba(0,0,0,0.05);
+    --color-sidebar-hover: #F4F4F5;
+    --color-sidebar-active: #18181B; /* Black active pill */
+    --color-sidebar-text: #71717A; /* Zinc 500 */
+    --color-accent: #27272A; /* Dark accent */
+    --color-input-bg: #F8FAFC;
+    --color-input-border: #E2E8F0;
+  }
 
-  --color-input-bg: #0C0E14;
-  --color-input-border: #232836;
+  [data-theme='dark'] {
+    /* DARK THEME (Matte Dark) */
+    --color-background: #121212; /* Very dark matte gray */
+    --color-foreground: #FAFAFA;
+    --color-card-bg: #18181B; /* Lighter matte for cards (Zinc 900) */
+    --color-card-border: rgba(255, 255, 255, 0.05);
+    --color-card-shadow: rgba(0, 0, 0, 0.4);
+    --color-card-shadow-hover: rgba(0, 0, 0, 0.6);
+    --color-primary: #FFFFFF;
+    --color-primary-glow: transparent;
+    --color-sidebar-bg: #18181B;
+    --color-sidebar-border: rgba(255, 255, 255, 0.05);
+    --color-sidebar-hover: #27272A;
+    --color-sidebar-active: #FFFFFF; /* White active pill in dark mode */
+    --color-sidebar-text: #A1A1AA;
+    --color-accent: #E4E4E7;
+    --color-input-bg: #0A0A0A;
+    --color-input-border: #262626;
+  }
 }
 
 body {
   background-color: var(--color-background);
   color: var(--color-foreground);
-  font-family: 'Inter', system-ui, -apple-system, sans-serif;
-  -webkit-font-smoothing: antialiased;
   transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* Base Card Styles */
+/* Base Component Utilities */
 .soft-card {
   background: var(--color-card-bg);
-  border-radius: 1.25rem;
+  border-radius: 20px; /* Ample, puffy radius for the soft matte look */
   border: 1px solid var(--color-card-border);
   box-shadow: 0 4px 20px var(--color-card-shadow);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
-
 .soft-card:hover {
-  box-shadow: 0 10px 30px var(--color-card-shadow-hover);
-  border-color: rgba(59, 130, 246, 0.2); /* Subtle blue glow on hover */
+  box-shadow: 0 10px 40px var(--color-card-shadow-hover);
+  border-color: var(--color-card-border);
+  transform: translateY(-2px);
 }
 
-/* Glassmorphism Panel */
-.glass-panel {
-  background: var(--color-card-bg);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid var(--color-card-border);
+.equa-badge {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+[data-theme='dark'] .equa-badge {
+  background: rgba(255, 255, 255, 0.08);
 }
 
 /* Dashboard specific classes mapped to generic ones for retro-compatibility */
@@ -84,6 +87,44 @@ body {
   border: 1px solid var(--color-card-border);
   border-radius: 1.25rem;
   box-shadow: 0 4px 20px var(--color-card-shadow);
+}
+
+.crypto-card {
+  background: var(--color-card-bg);
+  border-radius: 20px;
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 8px 32px var(--color-card-shadow);
+  transition: all 0.2s ease-in-out;
+}
+.crypto-card:hover {
+  border-color: var(--color-card-border);
+  box-shadow: 0 8px 32px var(--color-card-shadow-hover);
+}
+
+.crypto-badge {
+  background: rgba(128, 128, 128, 0.1);
+  border: 1px solid rgba(128, 128, 128, 0.2);
+  color: var(--color-foreground);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.crypto-positive {
+  color: #10B981;
+}
+.crypto-negative {
+  color: #EF4444;
+}
+
+.glass-panel {
+  background: var(--color-card-bg);
+  border-radius: 20px;
+  border: 1px solid var(--color-card-border);
 }
 
 /* Sidebar Specifics */
@@ -124,7 +165,7 @@ body {
 /* CTA Buttons */
 .btn-primary {
   background-color: var(--color-primary);
-  color: white;
+  color: var(--color-background);
   padding: 10px 20px;
   border-radius: 0.75rem;
   font-size: 14px;
@@ -136,12 +177,11 @@ body {
   justify-content: center;
   gap: 8px;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px var(--color-primary-glow);
 }
 
 .btn-primary:hover {
-  background-color: var(--color-primary-hover);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
+  background-color: var(--color-sidebar-hover);
+  color: var(--color-foreground);
   transform: translateY(-1px);
 }
 
@@ -160,7 +200,6 @@ body {
 
 .input-field:focus {
   border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-glow);
 }
 
 /* Badges */
@@ -181,13 +220,12 @@ body {
 .stage-completed { background: rgba(16, 185, 129, 0.1); color: #10B981; border-color: rgba(16, 185, 129, 0.2); }
 
 .badge-armor {
-  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
-  color: white;
+  background: var(--color-foreground);
+  color: var(--color-background);
   padding: 0.2rem 0.6rem;
   border-radius: 999px;
   font-size: 0.75rem;
   font-weight: bold;
-  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
 }
 
 /* Progress bar */
@@ -201,9 +239,8 @@ body {
 .progress-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
+  background: var(--color-foreground);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
 /* Scrollbar customization for dark mode */

@@ -53,7 +53,7 @@ export default async function ProjectsPage() {
   }
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-8">
+    <div className="px-6 py-6 space-y-8">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>

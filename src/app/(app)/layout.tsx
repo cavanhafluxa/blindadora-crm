@@ -17,10 +17,10 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   const userEmail = user.email || ''
 
   return (
-    <div className="flex min-h-screen bg-[var(--color-background)] p-4 md:p-6 gap-6 transition-colors duration-300">
+    <div className="flex min-h-screen w-full bg-[var(--color-sidebar-bg)] overflow-hidden transition-colors duration-300">
       <Sidebar userEmail={userEmail} userId={user.id} />
-      <main className="flex-1 min-w-0 overflow-auto relative flex flex-col custom-scrollbar rounded-3xl">
-        <div className="absolute top-0 right-4 z-40">
+      <main className="flex-1 overflow-y-auto w-full h-[calc(100vh-2rem)] my-4 mr-4 rounded-3xl bg-[var(--color-background)] border border-[var(--color-card-border)] shadow-sm relative z-10 custom-scrollbar flex flex-col">
+        <div className="absolute top-6 right-8 z-40">
           <NotificationBell />
         </div>
         {children}
@@ -28,4 +28,3 @@ export default async function AppLayout({ children }: { children: React.ReactNod
     </div>
   )
 }
-

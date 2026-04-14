@@ -99,47 +99,23 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
   }).toUpperCase()
 
   return (
-    <aside className="sidebar w-64 flex-shrink-0 flex flex-col pt-6 pb-4 px-4 overflow-hidden relative h-[calc(100vh-3rem)]">
+    <aside className="w-64 flex-shrink-0 flex flex-col pt-8 pb-6 px-6 bg-[var(--color-sidebar-bg)] border-r border-[var(--color-sidebar-border)] z-50 h-[calc(100vh-2rem)] rounded-3xl relative mx-2 my-4 shadow-xl">
       {/* Logo Area */}
-      <div className="flex items-center gap-3 px-2 mb-6">
-        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
-          <ShieldCheck className="w-4 h-4 text-white" />
+      <div className="flex items-center gap-3 mb-10 pl-2">
+        <div className="w-8 h-8 rounded-full bg-black dark:bg-white flex items-center justify-center flex-shrink-0 group cursor-pointer transition-transform hover:scale-105">
+          <ShieldCheck className="w-4 h-4 text-white dark:text-black" />
         </div>
-        <span className="text-[var(--color-foreground)] font-bold text-lg tracking-tight">PROBlind</span>
-      </div>
-
-      {/* User Status Block */}
-      <div className="soft-card p-4 rounded-2xl mb-6 bg-gradient-to-b from-[var(--color-card-bg)] to-transparent relative">
-        <div className="flex justify-between items-start mb-3">
-          {!userName ? (
-            <div className="w-10 h-10 rounded-full bg-[var(--color-sidebar-border)] animate-pulse" />
-          ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-400 border-2 border-[var(--color-card-border)] flex items-center justify-center text-sm font-bold text-white shadow-md">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-          )}
-          
-          <button
-            onClick={toggleTheme}
-            className="p-1.5 rounded-full hover:bg-[var(--color-sidebar-hover)] transition-colors text-[var(--color-sidebar-text)]"
-            title="Alternar Tema"
-          >
-            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          </button>
-        </div>
-        
-        <div className="flex flex-col">
-          <span className="text-[9px] font-bold tracking-widest text-[var(--color-sidebar-text)] uppercase mb-1">{currentDate}</span>
-          <span className="text-xl font-bold text-[var(--color-foreground)] leading-tight tracking-tight">Bem-vindo,<br/>{userName ? userName.split(' ')[0] : '...'}!</span>
-        </div>
+        <span className="text-[var(--color-foreground)] font-bold text-xl tracking-tight">Equa CRM</span>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-7 overflow-y-auto custom-scrollbar pr-2 mb-4">
+      <nav className="flex-1 w-full space-y-8 flex flex-col overflow-y-auto custom-scrollbar">
         {sections.map((section) => (
-          <div key={section.title}>
-            <div className="px-2 mb-3 text-[10px] font-extrabold text-[var(--color-sidebar-text)] opacity-70 uppercase tracking-widest">{section.title}</div>
-            <div className="space-y-1">
+          <div key={section.title} className="w-full flex flex-col gap-2">
+            <span className="text-[10px] font-bold text-[var(--color-sidebar-text)] uppercase tracking-widest pl-2 mb-1 opacity-70">
+              {section.title}
+            </span>
+            <div className="flex flex-col gap-1">
               {section.links.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
                 return (
@@ -147,10 +123,10 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                     key={href}
                     href={href}
                     prefetch={true}
-                    className={`sidebar-link group ${isActive ? 'active' : ''}`}
+                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300 group ${isActive ? 'bg-[var(--color-sidebar-active)] text-white dark:text-black shadow-md' : 'text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-hover)] hover:text-[var(--color-foreground)]'}`}
                   >
-                    <Icon className={`w-[18px] h-[18px] flex-shrink-0 transition-colors ${isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-sidebar-text)] group-hover:text-[var(--color-foreground)]'}`} />
-                    <span className="font-semibold">{label}</span>
+                    <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-white dark:text-black' : 'text-[var(--color-sidebar-text)] group-hover:text-[var(--color-foreground)]'}`} strokeWidth={isActive ? 2 : 1.5} />
+                    <span className="text-sm font-semibold tracking-wide">{label}</span>
                   </Link>
                 )
               })}
@@ -159,23 +135,36 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
         ))}
       </nav>
 
-      {/* CTA Bottom Area */}
-      <div className="mt-auto px-1 flex flex-col gap-3">
-        <button className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 transition-all text-white p-4 rounded-2xl flex flex-col items-start shadow-xl shadow-blue-500/20 group">
-          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-xl group-hover:opacity-10 transition-opacity"></div>
-          <div className="flex items-center gap-2 font-bold text-sm mb-1 z-10">
-            <Sparkles className="w-4 h-4 text-blue-200" />
-            Planos & Assinaturas
-          </div>
-          <span className="text-xs text-blue-200 font-medium z-10">Gerenciar recursos VIP</span>
-        </button>
+      {/* Bottom Area (Theme & User) */}
+      <div className="mt-6 pt-6 border-t border-[var(--color-sidebar-border)] w-full flex flex-col gap-2">
+        
+        <div className="flex items-center justify-between px-2 mb-4">
+          {!userName ? (
+            <div className="w-8 h-8 rounded-full bg-[var(--color-sidebar-border)] animate-pulse" />
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-[var(--color-foreground)] shadow-sm">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+              <span className="text-sm font-bold text-[var(--color-foreground)] truncate max-w-[100px]">{userName.split(' ')[0]}</span>
+            </div>
+          )}
+          
+          <button
+            onClick={toggleTheme}
+            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--color-sidebar-hover)] transition-colors text-[var(--color-sidebar-text)] hover:text-[var(--color-foreground)]"
+            title="Alternar Tema"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" strokeWidth={1.5} /> : <Moon className="w-4 h-4" strokeWidth={1.5} />}
+          </button>
+        </div>
 
         <button
           onClick={handleLogout}
-          className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-500/80 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
+          className="flex items-center gap-3 px-3 py-2 rounded-2xl transition-all duration-300 text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-hover)] hover:text-red-500 w-full"
         >
-          <LogOut className="w-4 h-4" />
-          Desconectar
+          <LogOut className="w-4 h-4" strokeWidth={1.5} />
+          <span className="text-sm font-semibold tracking-wide">Logout</span>
         </button>
       </div>
     </aside>
