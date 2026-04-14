@@ -16,7 +16,8 @@ import {
   FileText,
   Users,
   Moon,
-  Sun
+  Sun,
+  Sparkles
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -91,21 +92,53 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
     router.refresh()
   }
 
+  const currentDate = new Date().toLocaleDateString('pt-BR', {
+    weekday: 'long',
+    month: 'long',
+    day: 'numeric'
+  }).toUpperCase()
+
   return (
-    <aside className="sidebar flex flex-col py-6 px-3">
-      {/* Logo */}
-      <div className="flex items-center gap-2.5 px-3 mb-8">
-        <div className="w-8 h-8 rounded-lg bg-[var(--color-primary)] flex items-center justify-center flex-shrink-0">
+    <aside className="sidebar w-64 flex-shrink-0 flex flex-col pt-6 pb-4 px-4 overflow-hidden relative h-[calc(100vh-3rem)]">
+      {/* Logo Area */}
+      <div className="flex items-center gap-3 px-2 mb-6">
+        <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-blue-500/30 flex-shrink-0">
           <ShieldCheck className="w-4 h-4 text-white" />
         </div>
-        <span className="text-white font-bold text-base">PROBlind</span>
+        <span className="text-[var(--color-foreground)] font-bold text-lg tracking-tight">PROBlind</span>
+      </div>
+
+      {/* User Status Block */}
+      <div className="soft-card p-4 rounded-2xl mb-6 bg-gradient-to-b from-[var(--color-card-bg)] to-transparent relative">
+        <div className="flex justify-between items-start mb-3">
+          {!userName ? (
+            <div className="w-10 h-10 rounded-full bg-[var(--color-sidebar-border)] animate-pulse" />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-blue-400 border-2 border-[var(--color-card-border)] flex items-center justify-center text-sm font-bold text-white shadow-md">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+          )}
+          
+          <button
+            onClick={toggleTheme}
+            className="p-1.5 rounded-full hover:bg-[var(--color-sidebar-hover)] transition-colors text-[var(--color-sidebar-text)]"
+            title="Alternar Tema"
+          >
+            {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+          </button>
+        </div>
+        
+        <div className="flex flex-col">
+          <span className="text-[9px] font-bold tracking-widest text-[var(--color-sidebar-text)] uppercase mb-1">{currentDate}</span>
+          <span className="text-xl font-bold text-[var(--color-foreground)] leading-tight tracking-tight">Bem-vindo,<br/>{userName ? userName.split(' ')[0] : '...'}!</span>
+        </div>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-6 overflow-y-auto custom-scrollbar pr-1">
+      <nav className="flex-1 space-y-7 overflow-y-auto custom-scrollbar pr-2 mb-4">
         {sections.map((section) => (
           <div key={section.title}>
-            <div className="px-4 mb-2 text-[10px] font-bold text-gray-500 uppercase tracking-wider">{section.title}</div>
+            <div className="px-2 mb-3 text-[10px] font-extrabold text-[var(--color-sidebar-text)] opacity-70 uppercase tracking-widest">{section.title}</div>
             <div className="space-y-1">
               {section.links.map(({ href, label, icon: Icon }) => {
                 const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
@@ -114,10 +147,10 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                     key={href}
                     href={href}
                     prefetch={true}
-                    className={`sidebar-link ${isActive ? 'active' : ''}`}
+                    className={`sidebar-link group ${isActive ? 'active' : ''}`}
                   >
-                    <Icon className="w-4 h-4 flex-shrink-0" />
-                    <span>{label}</span>
+                    <Icon className={`w-[18px] h-[18px] flex-shrink-0 transition-colors ${isActive ? 'text-[var(--color-primary)]' : 'text-[var(--color-sidebar-text)] group-hover:text-[var(--color-foreground)]'}`} />
+                    <span className="font-semibold">{label}</span>
                   </Link>
                 )
               })}
@@ -126,37 +159,24 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
         ))}
       </nav>
 
-      {/* User and Tools Bottom */}
-      <div className="mt-6 border-t border-gray-800 pt-4 px-2 space-y-3">
-        <button
-          onClick={toggleTheme}
-          className="sidebar-link w-full text-left"
-        >
-          {theme === 'dark' ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-          <span>{theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}</span>
+      {/* CTA Bottom Area */}
+      <div className="mt-auto px-1 flex flex-col gap-3">
+        <button className="w-full relative overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-500 hover:to-indigo-600 transition-all text-white p-4 rounded-2xl flex flex-col items-start shadow-xl shadow-blue-500/20 group">
+          <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-xl group-hover:opacity-10 transition-opacity"></div>
+          <div className="flex items-center gap-2 font-bold text-sm mb-1 z-10">
+            <Sparkles className="w-4 h-4 text-blue-200" />
+            Planos & Assinaturas
+          </div>
+          <span className="text-xs text-blue-200 font-medium z-10">Gerenciar recursos VIP</span>
         </button>
 
         <button
           onClick={handleLogout}
-          className="sidebar-link w-full text-left text-red-500 hover:text-red-400 hover:bg-gray-800/50"
+          className="flex items-center gap-2 px-3 py-2 text-sm font-semibold text-red-500/80 hover:text-red-500 hover:bg-red-500/10 rounded-xl transition-colors"
         >
-          <LogOut className="w-4 h-4 flex-shrink-0" />
-          <span>Sair</span>
+          <LogOut className="w-4 h-4" />
+          Desconectar
         </button>
-
-        <div className="flex items-center gap-3 px-2 pt-2">
-          {!userName ? (
-            <div className="w-8 h-8 rounded-full bg-gray-800 animate-pulse" />
-          ) : (
-            <div className="w-8 h-8 rounded-full bg-gray-800 border border-gray-700 flex items-center justify-center text-xs font-bold text-gray-300">
-              {userName.charAt(0).toUpperCase()}
-            </div>
-          )}
-          <div className="flex flex-col">
-            <span className="text-sm font-medium text-gray-200 truncate max-w-[120px]">{userName || 'Carregando...'}</span>
-            <span className="text-[10px] text-gray-500">Logado</span>
-          </div>
-        </div>
       </div>
     </aside>
   )

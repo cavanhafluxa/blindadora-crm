@@ -1,29 +1,51 @@
 @import "tailwindcss";
 
 :root {
-  --color-background: #F9FAFB;
-  --color-foreground: #111827;
-  --color-primary: #22C55E;
-  --color-primary-hover: #16A34A;
-  --color-sidebar-bg: #111827;
-  --color-sidebar-text: #F9FAFB;
-  --color-sidebar-hover: #1F2937;
-  --color-sidebar-active: #374151;
+  /* LIGHT MODE (NeuroBank Base) */
+  --color-background: #EEF2F6;
+  --color-foreground: #0F172A;
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-primary-glow: rgba(59, 130, 246, 0.3);
+  
+  --color-sidebar-bg: #FFFFFF;
+  --color-sidebar-border: #E2E8F0;
+  --color-sidebar-text: #64748B;
+  --color-sidebar-hover: #F8FAFC;
+  --color-sidebar-active: #EFF6FF;
+  --color-sidebar-active-text: #1D4ED8;
+  
   --color-card-bg: #FFFFFF;
-  --color-card-border: #F1F5F9;
+  --color-card-border: #E2E8F0;
+  --color-card-shadow: rgba(0, 0, 0, 0.04);
+  --color-card-shadow-hover: rgba(0, 0, 0, 0.08);
+
+  --color-input-bg: #F8FAFC;
+  --color-input-border: #E2E8F0;
 }
 
 [data-theme="dark"] {
-  --color-background: #0F1117;
-  --color-foreground: #F9FAFB;
-  --color-primary: #F59E0B;
-  --color-primary-hover: #D97706;
-  --color-sidebar-bg: #0B0C10;
-  --color-sidebar-text: #F9FAFB;
-  --color-sidebar-hover: #1F2937;
-  --color-sidebar-active: #F59E0B;
-  --color-card-bg: #1A1D24;
-  --color-card-border: #2D3340;
+  /* DARK MODE (NeuroBank Premium Enterprise) */
+  --color-background: #080A11;
+  --color-foreground: #F8FAFC;
+  --color-primary: #3B82F6;
+  --color-primary-hover: #60A5FA;
+  --color-primary-glow: rgba(59, 130, 246, 0.4);
+  
+  --color-sidebar-bg: #12141C;
+  --color-sidebar-border: #1E2333;
+  --color-sidebar-text: #8FA2B6;
+  --color-sidebar-hover: #191E2A;
+  --color-sidebar-active: #1D2331;
+  --color-sidebar-active-text: #FFFFFF;
+  
+  --color-card-bg: #10121A;
+  --color-card-border: #1C202B;
+  --color-card-shadow: rgba(0, 0, 0, 0.4);
+  --color-card-shadow-hover: rgba(0, 0, 0, 0.6);
+
+  --color-input-bg: #0C0E14;
+  --color-input-border: #232836;
 }
 
 body {
@@ -31,32 +53,48 @@ body {
   color: var(--color-foreground);
   font-family: 'Inter', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
+/* Base Card Styles */
 .soft-card {
-  background: var(--color-card-bg, #FFFFFF);
-  border-radius: 1rem;
-  border: 1px solid var(--color-card-border, #F1F5F9);
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04), 0 4px 16px rgba(0,0,0,0.04);
-  transition: all 0.25s ease;
+  background: var(--color-card-bg);
+  border-radius: 1.25rem;
+  border: 1px solid var(--color-card-border);
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .soft-card:hover {
-  box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+  box-shadow: 0 10px 30px var(--color-card-shadow-hover);
+  border-color: rgba(59, 130, 246, 0.2); /* Subtle blue glow on hover */
 }
 
+/* Glassmorphism Panel */
 .glass-panel {
-  background: rgba(255,255,255,0.75);
+  background: var(--color-card-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255,255,255,0.4);
+  border: 1px solid var(--color-card-border);
 }
 
+/* Dashboard specific classes mapped to generic ones for retro-compatibility */
+.dark-card {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: 1.25rem;
+  box-shadow: 0 4px 20px var(--color-card-shadow);
+}
+
+/* Sidebar Specifics */
 .sidebar {
   background-color: var(--color-sidebar-bg);
-  min-height: 100vh;
-  width: 240px;
-  flex-shrink: 0;
+  border: 1px solid var(--color-sidebar-border);
+  border-radius: 1.5rem;
+  box-shadow: 0 8px 30px var(--color-card-shadow);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
 }
 
 .sidebar-link {
@@ -64,100 +102,125 @@ body {
   align-items: center;
   gap: 12px;
   padding: 10px 16px;
-  border-radius: 8px;
-  color: #9CA3AF;
+  border-radius: 0.75rem;
+  color: var(--color-sidebar-text);
   font-size: 14px;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
 }
 
 .sidebar-link:hover {
   background-color: var(--color-sidebar-hover);
-  color: #F9FAFB;
+  color: var(--color-foreground);
 }
 
 .sidebar-link.active {
   background-color: var(--color-sidebar-active);
-  color: #FFFFFF;
+  color: var(--color-sidebar-active-text);
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05); /* Slight inner border */
 }
 
+/* CTA Buttons */
 .btn-primary {
   background-color: var(--color-primary);
   color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
+  padding: 10px 20px;
+  border-radius: 0.75rem;
   font-size: 14px;
   font-weight: 600;
   border: none;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 8px;
-  transition: background-color 0.2s;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px var(--color-primary-glow);
 }
 
 .btn-primary:hover {
   background-color: var(--color-primary-hover);
+  box-shadow: 0 6px 20px var(--color-primary-glow);
+  transform: translateY(-1px);
 }
 
+/* Input Fields */
+.input-field {
+  padding: 12px 16px;
+  background-color: var(--color-input-bg);
+  border: 1px solid var(--color-input-border);
+  border-radius: 0.75rem;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--color-foreground);
+  outline: none;
+  transition: all 0.2s ease;
+}
+
+.input-field:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-glow);
+}
+
+/* Badges */
 .stage-badge {
   display: inline-flex;
   align-items: center;
-  padding: 2px 10px;
+  padding: 4px 12px;
   border-radius: 999px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.03em;
   text-transform: uppercase;
+  border: 1px solid transparent;
 }
 
-.stage-pending { background: #F1F5F9; color: #64748B; }
-.stage-in_progress { background: #FEF9C3; color: #854D0E; }
-.stage-completed { background: #DCFCE7; color: #15803D; }
+.stage-pending { background: rgba(148, 163, 184, 0.1); color: #94A3B8; border-color: rgba(148, 163, 184, 0.2); }
+.stage-in_progress { background: rgba(245, 158, 11, 0.1); color: #F59E0B; border-color: rgba(245, 158, 11, 0.2); }
+.stage-completed { background: rgba(16, 185, 129, 0.1); color: #10B981; border-color: rgba(16, 185, 129, 0.2); }
 
-.progress-bar {
-  height: 8px;
+.badge-armor {
+  background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%);
+  color: white;
+  padding: 0.2rem 0.6rem;
   border-radius: 999px;
-  background: #E5E7EB;
+  font-size: 0.75rem;
+  font-weight: bold;
+  box-shadow: 0 2px 10px rgba(59, 130, 246, 0.3);
+}
+
+/* Progress bar */
+.progress-bar {
+  height: 6px;
+  border-radius: 999px;
+  background: var(--color-input-border);
   overflow: hidden;
 }
 
 .progress-bar-fill {
   height: 100%;
   border-radius: 999px;
-  background: linear-gradient(90deg, var(--color-primary), var(--color-primary-hover));
+  background: linear-gradient(90deg, #3B82F6, #8B5CF6);
   transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5);
 }
 
-.dark-card {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-card-border);
+/* Scrollbar customization for dark mode */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
 }
 
-.badge-armor {
-  background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%);
-  color: white;
-  padding: 0.2rem 0.6rem;
-  border-radius: 999px;
-  font-size: 0.75rem;
-  font-weight: bold;
+::-webkit-scrollbar-track {
+  background: transparent;
 }
 
-.input-field {
-  padding: 10px 14px;
-  background-color: #f8fafc;
-  border: 1px solid #e2e8f0;
+::-webkit-scrollbar-thumb {
+  background: var(--color-sidebar-border);
   border-radius: 10px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #1e293b;
-  outline: none;
-  transition: all 0.15s ease;
 }
 
-.input-field:focus {
-  background-color: #ffffff;
-  border-color: #6366f1;
-  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-sidebar-text);
 }
