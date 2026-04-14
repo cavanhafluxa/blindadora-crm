@@ -35,6 +35,27 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(url)
   }
 
+  // RBAC: Role-Based Access Control
+  if (session) {
+    const adminPaths = ['/settings', '/team', '/financial', '/audit']
+    const isTryingToAccessAdmin = adminPaths.some(path => request.nextUrl.pathname.startsWith(path))
+
+    if (isTryingToAccessAdmin) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single()
+
+      if (profile?.role !== 'admin') {
+        const url = request.nextUrl.clone()
+        url.pathname = '/dashboard'
+        url.searchParams.set('auth_err', 'unauthorized')
+        return NextResponse.redirect(url)
+      }
+    }
+  }
+
   return response
 }
 

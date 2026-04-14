@@ -185,3 +185,66 @@ EXECUTE FUNCTION create_default_stages();
 insert into storage.buckets (id, name, public) values ('stage-photos', 'stage-photos', false) ON CONFLICT DO NOTHING;
 insert into storage.buckets (id, name, public) values ('documents', 'documents', false) ON CONFLICT DO NOTHING;
 insert into storage.buckets (id, name, public) values ('org-assets', 'org-assets', true) ON CONFLICT DO NOTHING;
+
+-- Ativando RLS Master nas novas Tabelas
+ALTER TABLE organizations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE profiles ENABLE ROW LEVEL SECURITY;
+ALTER TABLE leads ENABLE ROW LEVEL SECURITY;
+ALTER TABLE projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE production_stages ENABLE ROW LEVEL SECURITY;
+ALTER TABLE stage_photos ENABLE ROW LEVEL SECURITY;
+ALTER TABLE materials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE project_materials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE financials ENABLE ROW LEVEL SECURITY;
+ALTER TABLE maintenance_orders ENABLE ROW LEVEL SECURITY;
+
+-- Políticas de Acesso
+CREATE POLICY "org_isolation_leads" ON leads USING (
+   organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+CREATE POLICY "org_isolation_organizations" ON organizations USING (
+   id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+CREATE POLICY "org_isolation_profiles" ON profiles USING (
+   organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+CREATE POLICY "org_isolation_projects" ON projects USING (
+   organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+CREATE POLICY "org_isolation_production_stages" ON production_stages USING (
+   project_id IN (SELECT id FROM projects WHERE organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid()))
+);
+CREATE POLICY "org_isolation_stage_photos" ON stage_photos USING (
+   stage_id IN (SELECT id FROM production_stages WHERE project_id IN (SELECT id FROM projects WHERE organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())))
+);
+CREATE POLICY "org_isolation_materials" ON materials USING (
+   organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+CREATE POLICY "org_isolation_project_materials" ON project_materials USING (
+   project_id IN (SELECT id FROM projects WHERE organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid()))
+);
+CREATE POLICY "org_isolation_documents" ON documents USING (
+   project_id IN (SELECT id FROM projects WHERE organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid()))
+);
+CREATE POLICY "org_isolation_financials" ON financials USING (
+   organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+CREATE POLICY "org_isolation_maintenance_orders" ON maintenance_orders USING (
+   organization_id = (SELECT organization_id FROM profiles WHERE id = auth.uid())
+);
+
+-- Políticas para 'stage-photos'
+CREATE POLICY "Logados inserem imagens" ON storage.objects FOR INSERT TO authenticated WITH CHECK 
+(bucket_id = 'stage-photos');
+CREATE POLICY "Logados leem imagens" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'stage-photos');
+
+-- Políticas para 'documents'
+CREATE POLICY "Logados inserem documentos" ON storage.objects FOR INSERT TO authenticated WITH CHECK 
+(bucket_id = 'documents');
+CREATE POLICY "Logados leem documentos" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'documents');
+
+-- Políticas para 'org-assets'
+CREATE POLICY "Logados inserem assets" ON storage.objects FOR INSERT TO authenticated WITH CHECK 
+(bucket_id = 'org-assets');
+CREATE POLICY "Logados leem assets" ON storage.objects FOR SELECT TO authenticated USING (bucket_id = 'org-assets');

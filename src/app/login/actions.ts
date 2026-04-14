@@ -13,6 +13,8 @@ export async function login(formData: FormData) {
   })
 
   if (error) {
+    // Artificial delay to mitigate brute-force attacks (rate limiting layer)
+    await new Promise(resolve => setTimeout(resolve, 1500))
     redirect(`/login?error=${encodeURIComponent(error.message)}`)
   }
 
