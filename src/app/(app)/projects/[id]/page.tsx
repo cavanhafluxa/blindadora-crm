@@ -28,6 +28,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     { data: documents },
     { data: projectPurchases },
     { data: stockOutflows },
+    { data: financials },
   ] = await Promise.all([
     supabase.from('projects').select('*').eq('id', id).single(),
     supabase.from('production_stages').select('*').eq('project_id', id).order('stage_order'),
@@ -61,7 +62,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const completedStages = stages?.filter(s => s.status === 'completed').length || 0
   const totalStages = stages?.length || 12
 
-  const financialsArray = arguments[0]?.[6]?.data || [] // Wait, Promise.all order
+  const financialsArray = financials || []
 
   const projectFinancials = {
     income: financialsArray.filter((f: any) => f.type === 'income').reduce((acc: number, f: any) => acc + Number(f.amount), 0),
