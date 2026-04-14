@@ -1,8 +1,9 @@
-'use client'
-
 import { useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { ClipboardCheck, CheckSquare, Square, Gauge, Camera, X, Plus, Trash2, Loader2, PlayCircle } from 'lucide-react'
+import { 
+  ClipboardCheck, CheckSquare, Square, Gauge, Camera, X, Plus, 
+  Trash2, Loader2, PlayCircle, Maximize2, FileText, CheckCircle2 
+} from 'lucide-react'
 
 type ChecklistValue = {
   checked: boolean
@@ -16,15 +17,15 @@ const CHECKLIST_ITEMS = [
   { key: 'pintura_ok', label: 'Pintura sem arranhões graves' },
   { key: 'lataria_ok', label: 'Lataria sem amassados' },
   { key: 'vidros_ok', label: 'Vidros originais intactos' },
-  { key: 'radio_ok', label: 'Rádio / Central multimídia funcionando' },
-  { key: 'ar_condicionado_ok', label: 'Ar-condicionado funcionando' },
-  { key: 'eletrica_ok', label: 'Sistema elétrico OK (faróis, lanterna)' },
-  { key: 'pneus_ok', label: 'Pneus calibrados e sem dano aparente' },
-  { key: 'estepe_ok', label: 'Estepe presente no veículo' },
-  { key: 'macaco_ok', label: 'Macaco e chave de roda presentes' },
-  { key: 'documentos_ok', label: 'Documentos do veículo conferidos' },
-  { key: 'chaves_ok', label: 'Todas as chaves recebidas' },
-  { key: 'sinistro_ausente', label: 'Ausência de sinistros anteriores visíveis' },
+  { key: 'radio_ok', label: 'Rádio / Central multimídia' },
+  { key: 'ar_condicionado_ok', label: 'Ar-condicionado' },
+  { key: 'eletrica_ok', label: 'Sistema elétrico (faróis, luzes)' },
+  { key: 'pneus_ok', label: 'Pneus e rodas' },
+  { key: 'estepe_ok', label: 'Estepe e Ferramentas' },
+  { key: 'macaco_ok', label: 'Macaco e chave de roda' },
+  { key: 'documentos_ok', label: 'Documentos do veículo' },
+  { key: 'chaves_ok', label: 'Todas as chaves' },
+  { key: 'sinistro_ausente', label: 'Histórico de sinistros' },
 ]
 
 type Props = {
@@ -39,23 +40,21 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
   const [isOpen, setIsOpen] = useState(!entryCompleted)
   const [saved, setSaved] = useState(entryCompleted)
   const [odometer, setOdometer] = useState(currentOdometer?.toString() || '')
+  const [selectedMedia, setSelectedMedia] = useState<{url: string, type: string} | null>(null)
   
   const [checklist, setChecklist] = useState<Record<string, ChecklistValue>>(() => {
     const initial: Record<string, ChecklistValue> = {}
-    
-    // Reconstruir estado inicial suportando upgrade de boolean -> object
     CHECKLIST_ITEMS.forEach(item => {
       const existing = currentChecklist?.[item.key]
       if (typeof existing === 'boolean') {
         initial[item.key] = { checked: existing }
-      } else if (existing && typeof existing === 'object' && existing !== null) {
+      } else if (existing && typeof existing === 'object') {
         initial[item.key] = existing as ChecklistValue
       } else {
         initial[item.key] = { checked: false }
       }
     })
 
-    // Adicionar itens customizados que já existem no banco
     if (currentChecklist) {
       Object.entries(currentChecklist).forEach(([key, value]) => {
         if (!initial[key] && value && typeof value === 'object' && (value as any).is_custom) {
@@ -63,7 +62,6 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
         }
       })
     }
-
     return initial
   })
 
@@ -104,19 +102,13 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
     if (!file || !itemKey) return
 
     setUploadingItem(itemKey)
-    
     try {
       const fileExt = file.name.split('.').pop()
       const fileName = `${projectId}/${itemKey}_${Date.now()}.${fileExt}`
-      const { data, error } = await supabase.storage
-        .from('stage-photos')
-        .upload(fileName, file)
-
+      const { error } = await supabase.storage.from('stage-photos').upload(fileName, file)
       if (error) throw error
 
-      const { data: { publicUrl } } = supabase.storage
-        .from('stage-photos')
-        .getPublicUrl(fileName)
+      const { data: { publicUrl } } = supabase.storage.from('stage-photos').getPublicUrl(fileName)
 
       setChecklist(prev => ({
         ...prev,
@@ -124,7 +116,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           ...prev[itemKey], 
           media_url: publicUrl, 
           media_type: file.type.startsWith('video') ? 'video' : 'image',
-          checked: true // Auto-marcar se subiu foto
+          checked: true 
         }
       }))
     } catch (err) {
@@ -155,183 +147,206 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
   const checkedCount = allItems.filter(([_, v]) => v.checked).length
 
   return (
-    <div className={`rounded-2xl border-2 mb-6 overflow-hidden transition-all duration-300 ${saved ? 'border-green-200 bg-green-50/50' : 'border-amber-200 bg-amber-50/50'}`}>
-      {/* Hidden File Input */}
-      <input 
-        type="file" 
-        ref={fileInputRef} 
-        className="hidden" 
-        accept="image/*,video/*"
-        onChange={handleFileUpload}
-      />
-
-      {/* Header */}
-      <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-5 text-left"
-      >
-        <div className="flex items-center gap-3">
-          <div className={`w-9 h-9 rounded-xl flex items-center justify-center ${saved ? 'bg-green-100' : 'bg-amber-100'}`}>
-            <ClipboardCheck className={`w-5 h-5 ${saved ? 'text-green-600' : 'text-amber-600'}`} />
-          </div>
-          <div>
-            <p className="font-semibold text-slate-800">Entrada do Veículo</p>
-            <p className="text-xs text-slate-500">
-              {saved
-                ? `✓ Checklist concluído — ${checkedCount} itens verificados`
-                : `⚠ Pendente — preencha o checklist de recepção`}
-            </p>
+    <div className={`soft-card mb-8 overflow-hidden border-2 transition-all duration-500 ${saved ? 'border-emerald-100 bg-white' : 'border-amber-100 bg-white'}`}>
+      {/* Lightbox Modal */}
+      {selectedMedia && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4 md:p-10 animate-in fade-in duration-300">
+          <button onClick={() => setSelectedMedia(null)} className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors">
+            <X className="w-6 h-6" />
+          </button>
+          <div className="max-w-5xl w-full h-full flex flex-col items-center justify-center">
+            {selectedMedia.type === 'video' ? (
+              <video src={selectedMedia.url} className="max-h-full w-auto rounded-2xl shadow-2xl" controls autoPlay />
+            ) : (
+              <img src={selectedMedia.url} alt="Ampliada" className="max-h-full w-auto object-contain rounded-2xl shadow-2xl" />
+            )}
           </div>
         </div>
-        <span className={`text-xs font-semibold px-3 py-1.5 rounded-full ${saved ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}`}>
-          {saved ? 'Concluído' : 'Pendente'}
-        </span>
-      </button>
+      )}
 
-      {/* Body */}
-      {isOpen && (
-        <div className="border-t border-amber-200 p-6 space-y-6 bg-white/80 backdrop-blur-sm">
-          {/* Odômetro */}
-          <div className="p-4 bg-slate-50 rounded-2xl border border-slate-100">
-            <label className="flex items-center gap-2 text-sm font-bold text-slate-700 mb-3">
-              <Gauge className="w-4 h-4 text-amber-500" />
-              Odômetro de Entrada (km)
-            </label>
-            <input
-              type="number"
-              placeholder="Ex: 45200"
-              value={odometer}
-              onChange={e => setOdometer(e.target.value)}
-              className="w-full max-w-xs px-4 py-3 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none transition-all"
-            />
+      {/* Hidden File Input */}
+      <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" onChange={handleFileUpload} />
+
+      {/* Header Bar */}
+      <div className={`p-1 bg-gradient-to-r ${saved ? 'from-emerald-500 to-teal-600' : 'from-amber-400 to-orange-500'}`} />
+      
+      <button 
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between p-6 text-left group hover:bg-slate-50 transition-colors"
+      >
+        <div className="flex items-center gap-4">
+          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner ${saved ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+            <ClipboardCheck className={`w-6 h-6 ${saved ? 'text-emerald-600' : 'text-amber-600'}`} />
           </div>
-
-          {/* Checklist */}
           <div>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm font-bold text-slate-700">
-                Checklist de Avarias Pré-Existentes
-                <span className="ml-2 text-xs font-normal text-slate-400">({checkedCount} itens OK)</span>
+            <h3 className="text-lg font-bold text-slate-800">Checklist de Entrada</h3>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className={`w-2 h-2 rounded-full animate-pulse ${saved ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+                {saved ? `Concluído • ${checkedCount} Itens` : `Pendente • ${checkedCount}/${allItems.length} Verificados`}
               </p>
             </div>
+          </div>
+        </div>
+        <div className={`p-2 rounded-lg bg-slate-100 text-slate-400 group-hover:bg-white group-hover:text-slate-600 transition-all ${isOpen ? 'rotate-180' : ''}`}>
+          <Plus className="w-5 h-5" />
+        </div>
+      </button>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+      {/* Body Content */}
+      {isOpen && (
+        <div className="p-6 pt-0 space-y-8 animate-in slide-in-from-top-4 duration-500">
+          {/* Odometer Section */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end p-5 rounded-3xl bg-slate-50 border border-slate-100 shadow-inner">
+            <div className="space-y-2">
+              <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-tighter">
+                <Gauge className="w-4 h-4 text-amber-500" />
+                Odômetro de Entrada
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  placeholder="000000"
+                  value={odometer}
+                  onChange={e => setOdometer(e.target.value)}
+                  className="w-full text-2xl font-mono tracking-widest px-4 py-3 bg-white border-2 border-slate-200 rounded-2xl focus:border-amber-400 focus:ring-4 focus:ring-amber-50 outline-none transition-all"
+                />
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-300">KM</span>
+              </div>
+            </div>
+            <p className="text-xs text-slate-400 italic mb-1">
+              * Obrigatório registrar a quilometragem na recepção do veículo.
+            </p>
+          </div>
+
+          {/* Checklist Items */}
+          <div className="space-y-4">
+            <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              Itens de Vistoria Técnica
+            </h4>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               {allItems.map(([key, item]) => (
                 <div 
                   key={key}
-                  className={`group relative flex flex-col p-3 rounded-2xl border transition-all ${
+                  className={`relative flex items-center p-1 pl-4 rounded-2xl border-2 transition-all duration-300 group ${
                     item.checked 
-                      ? 'border-green-200 bg-green-50/30' 
-                      : 'border-slate-100 bg-slate-50/50 hover:bg-white hover:border-slate-200'
+                      ? 'border-emerald-500 bg-emerald-50/50 shadow-sm' 
+                      : 'border-slate-100 bg-white hover:border-slate-300'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <button
-                      onClick={() => toggle(key)}
-                      className="flex items-center gap-3 text-left flex-1"
-                    >
-                      {item.checked
-                        ? <CheckSquare className="w-5 h-5 text-green-600 flex-shrink-0" />
-                        : <Square className="w-5 h-5 text-slate-300 flex-shrink-0" />
-                      }
-                      <span className={`text-sm ${item.checked ? 'font-medium text-green-900' : 'text-slate-600'}`}>
-                        {item.label || CHECKLIST_ITEMS.find(i => i.key === key)?.label}
-                      </span>
-                    </button>
+                  {/* Status Indicator Bar */}
+                  <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full transition-all ${item.checked ? 'bg-emerald-500 scale-y-100' : 'bg-slate-200 scale-y-50 opacity-0'}`} />
 
-                    <div className="flex items-center gap-1">
-                      {/* Upload Media Button */}
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation()
-                          setActiveItemForUpload(key)
-                          fileInputRef.current?.click()
-                        }}
-                        className={`p-2 rounded-lg transition-all ${
-                          item.media_url 
-                            ? 'bg-blue-100 text-blue-600' 
-                            : 'bg-slate-100 text-slate-400 hover:bg-amber-100 hover:text-amber-600'
-                        }`}
-                      >
-                        {uploadingItem === key ? (
-                          <Loader2 className="w-4 h-4 animate-spin" />
-                        ) : (
-                          <Camera className="w-4 h-4" />
-                        )}
-                      </button>
+                  {/* Text & Toggle */}
+                  <button
+                    onClick={() => toggle(key)}
+                    className="flex-1 py-4 flex items-center gap-4 text-left"
+                  >
+                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                      item.checked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 bg-white group-hover:border-slate-400'
+                    }`}>
+                      {item.checked && <CheckSquare className="w-4 h-4" />}
+                    </div>
+                    <span className={`text-sm font-bold transition-colors ${item.checked ? 'text-emerald-900' : 'text-slate-600'}`}>
+                      {item.label || CHECKLIST_ITEMS.find(i => i.key === key)?.label}
+                    </span>
+                  </button>
 
-                      {/* Remove Custom Item */}
-                      {item.is_custom && (
+                  {/* Actions & Preview Area */}
+                  <div className="flex items-center gap-2 py-2 pr-2">
+                    {/* Media Thumbnail/Button */}
+                    <div className="relative">
+                      {item.media_url ? (
+                        <div className="relative group/media">
+                          <button 
+                            onClick={() => setSelectedMedia({url: item.media_url!, type: item.media_type!})}
+                            className="w-12 h-12 rounded-xl border-2 border-white shadow-md overflow-hidden bg-black transition-transform hover:scale-110 active:scale-95"
+                          >
+                            {item.media_type === 'video' ? (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <PlayCircle className="w-5 h-5 text-white/80" />
+                                <video src={item.media_url} className="absolute inset-0 w-full h-full object-cover opacity-40" muted />
+                              </div>
+                            ) : (
+                              <img src={item.media_url} alt="Evidência" className="w-full h-full object-cover" />
+                            )}
+                          </button>
+                          <button 
+                            onClick={() => setChecklist(prev => ({ ...prev, [key]: { ...prev[key], media_url: undefined } }))}
+                            className="absolute -top-1.5 -right-1.5 p-1 bg-red-500 text-white rounded-full shadow-lg opacity-0 group-hover/media:opacity-100 transition-opacity hover:bg-red-600"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        </div>
+                      ) : (
                         <button
-                          onClick={() => removeCustomItem(key)}
-                          className="p-2 text-slate-300 hover:text-red-500 transition-colors"
+                          onClick={() => {
+                            setActiveItemForUpload(key)
+                            fileInputRef.current?.click()
+                          }}
+                          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                            uploadingItem === key ? 'bg-indigo-100' : 'bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600'
+                          }`}
                         >
-                          <Trash2 className="w-4 h-4" />
+                          {uploadingItem === key ? (
+                            <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                          ) : (
+                            <Camera className="w-5 h-5" />
+                          )}
                         </button>
                       )}
                     </div>
-                  </div>
 
-                  {/* Media Preview */}
-                  {item.media_url && (
-                    <div className="mt-3 relative w-full h-32 rounded-xl overflow-hidden border border-slate-200 bg-black group-hover:h-48 transition-all">
-                      {item.media_type === 'video' ? (
-                        <div className="w-full h-full flex flex-col items-center justify-center text-white text-xs gap-2">
-                          <PlayCircle className="w-8 h-8 opacity-50" />
-                          <span>Vídeo anexado</span>
-                          <video src={item.media_url} className="absolute inset-0 w-full h-full object-cover opacity-30" muted />
-                        </div>
-                      ) : (
-                        <img src={item.media_url} alt="Evidência" className="w-full h-full object-cover" />
-                      )}
+                    {/* Delete Custom */}
+                    {item.is_custom && (
                       <button
-                        onClick={() => setChecklist(prev => ({ ...prev, [key]: { ...prev[key], media_url: undefined } }))}
-                        className="absolute top-2 right-2 p-1.5 bg-black/50 text-white rounded-full hover:bg-red-500 transition-colors"
+                        onClick={() => removeCustomItem(key)}
+                        className="p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 transition-all rounded-xl"
                       >
-                        <X className="w-3 h-3" />
+                        <Trash2 className="w-5 h-5" />
                       </button>
-                    </div>
-                  )}
+                    )}
+                  </div>
                 </div>
               ))}
 
-              {/* Add Custom Item Input */}
-              <div className="p-3 rounded-2xl border-2 border-dashed border-slate-200 bg-white flex flex-col gap-2">
-                <p className="text-xs font-bold text-slate-400 px-1 uppercase tracking-wider">Novo Item</p>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    placeholder="Ex: Risco porta traseira..."
-                    value={newCustomLabel}
-                    onChange={e => setNewCustomLabel(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addCustomItem()}
-                    className="flex-1 px-3 py-2 text-sm bg-slate-50 border-none rounded-xl focus:ring-2 focus:ring-amber-400 focus:outline-none"
-                  />
-                  <button
-                    onClick={addCustomItem}
-                    disabled={!newCustomLabel.trim()}
-                    className="p-2 bg-amber-100 text-amber-600 rounded-xl hover:bg-amber-200 disabled:opacity-50 transition-colors"
-                  >
-                    <Plus className="w-5 h-5" />
-                  </button>
-                </div>
+              {/* Add Custom Item Integration */}
+              <div className="flex items-center gap-3 p-2 pl-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 focus-within:bg-white focus-within:border-amber-300 transition-all">
+                <FileText className="w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="Adicionar observação ou novo item..."
+                  value={newCustomLabel}
+                  onChange={e => setNewCustomLabel(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addCustomItem()}
+                  className="flex-1 py-3 text-sm font-semibold bg-transparent outline-none text-slate-700 placeholder:text-slate-400"
+                />
+                <button
+                  onClick={addCustomItem}
+                  disabled={!newCustomLabel.trim()}
+                  className="p-3 bg-white text-emerald-600 rounded-xl shadow-sm hover:shadow-md disabled:opacity-0 transition-all active:scale-95"
+                >
+                  <Plus className="w-5 h-5" />
+                </button>
               </div>
             </div>
           </div>
 
-          {/* Save actions */}
-          <div className="flex items-center gap-4 pt-4 border-t border-slate-100">
+          {/* Footer Actions */}
+          <div className="flex flex-col md:flex-row items-center gap-4 pt-8 border-t border-slate-100">
             <button
               onClick={handleSave}
               disabled={saving || !odometer}
-              className="flex-1 md:flex-none btn-primary px-8 py-3.5 rounded-2xl bg-green-600 hover:bg-green-700 text-white font-bold shadow-lg shadow-green-200 transition-all flex items-center justify-center gap-2 active:scale-95 disabled:opacity-50"
+              className="w-full md:flex-1 py-4 rounded-2xl bg-slate-900 hover:bg-black text-white font-black uppercase tracking-widest shadow-xl shadow-slate-200 transition-all flex items-center justify-center gap-3 active:scale-95 disabled:opacity-50 disabled:grayscale"
             >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : <ClipboardCheck className="w-5 h-5" />}
-              {saving ? 'Salvando Vistoria...' : '✓ Confirmar Entrada'}
+              {saving ? <Loader2 className="w-6 h-6 animate-spin text-amber-400" /> : <CheckCircle2 className="w-6 h-6 text-emerald-400" />}
+              {saving ? 'Validando Vistoria...' : 'Finalizar e Salvar Entrada'}
             </button>
             <button
               onClick={() => setIsOpen(false)}
-              className="px-6 py-3.5 text-sm font-semibold text-slate-400 hover:text-slate-600 transition-colors"
+              className="w-full md:w-auto px-8 py-4 text-sm font-black text-slate-400 hover:text-red-500 uppercase tracking-widest transition-colors"
             >
               Cancelar
             </button>
