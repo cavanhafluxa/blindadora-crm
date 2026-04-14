@@ -338,5 +338,6 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           </div>
         </div>
       )}
+    </div>
   )
 }
