@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
-import { Sora } from 'next/font/google'
+import { Inter_Tight } from 'next/font/google'
 import './globals.css'
 
-const sora = Sora({
+const interTight = Inter_Tight({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-sora',
+  variable: '--font-inter-tight',
+  weight: ['300', '400', '500', '600', '700', '800', '900'],
 })
 
 export const metadata: Metadata = {
@@ -19,8 +20,8 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={sora.variable}>
-      <body className="font-sans text-[14px] antialiased">{children}</body>
+    <html lang="pt-BR" className={interTight.variable}>
+      <body className="font-sans antialiased">{children}</body>
     </html>
   )
 }

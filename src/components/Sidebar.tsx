@@ -17,58 +17,57 @@ import {
   Users,
   Moon,
   Sun,
-  Sparkles
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
 
-const sections = [
-  {
-    title: 'Comercial',
-    links: [
-      { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-      { href: '/pipeline', label: 'Pipeline', icon: Kanban },
-      { href: '/proposals', label: 'Propostas', icon: FileText },
-    ]
-  },
-  {
-    title: 'Produção',
-    links: [
-      { href: '/projects', label: 'Projetos', icon: Car },
-      { href: '/materials', label: 'Estoque', icon: Package },
-    ]
-  },
-  {
-    title: 'Gestão',
-    links: [
-      { href: '/financial', label: 'Financeiro', icon: Wallet },
-      { href: '/maintenance', label: 'Pós-Venda', icon: Wrench },
-      { href: '/team', label: 'Colaboradores', icon: Users },
-      { href: '/audit', label: 'Histórico', icon: FileText },
-      { href: '/settings', label: 'Configurações', icon: Settings },
-    ]
-  }
+// ──────────────────────────────────────────────
+//  Navigation structure
+// ──────────────────────────────────────────────
+const navItems = [
+  { href: '/dashboard',  label: 'Dashboard',      icon: LayoutDashboard },
+  { href: '/pipeline',   label: 'Pipeline',        icon: Kanban          },
+  { href: '/proposals',  label: 'Propostas',       icon: FileText        },
+  { href: '/projects',   label: 'Projetos',        icon: Car             },
+  { href: '/materials',  label: 'Estoque',         icon: Package         },
+  { href: '/financial',  label: 'Financeiro',      icon: Wallet          },
+  { href: '/maintenance',label: 'Pós-Venda',       icon: Wrench          },
+  { href: '/team',       label: 'Colaboradores',   icon: Users           },
+  { href: '/audit',      label: 'Histórico',       icon: FileText        },
+  { href: '/settings',   label: 'Configurações',   icon: Settings        },
 ]
 
+// ──────────────────────────────────────────────
+//  Stagger delay per icon
+// ──────────────────────────────────────────────
+const STAGGER = 0.05 // seconds
+
 export default function Sidebar({ userEmail, userId }: { userEmail: string; userId: string }) {
-  const pathname = usePathname()
-  const router = useRouter()
-  const supabase = createClient()
-  const [theme, setTheme] = useState('light')
+  const pathname  = usePathname()
+  const router    = useRouter()
+  const supabase  = createClient()
+
+  const [theme,    setTheme]    = useState('light')
   const [userName, setUserName] = useState<string>('')
+  const [expanded, setExpanded] = useState(false)
 
+  // ── Bootstrap theme + profile ──
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') || 'light'
-    setTheme(savedTheme)
-    document.documentElement.setAttribute('data-theme', savedTheme)
+    const saved = localStorage.getItem('theme') || 'light'
+    setTheme(saved)
+    document.documentElement.setAttribute('data-theme', saved)
 
-    // Fetch profile on client to avoid blocking initial shell render
     async function loadProfile() {
       const cacheKey = `user_name_${userId}`
-      const cached = localStorage.getItem(cacheKey)
+      const cached   = localStorage.getItem(cacheKey)
       if (cached) setUserName(cached)
 
-      const { data } = await supabase.from('profiles').select('full_name').eq('id', userId).single()
+      const { data } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', userId)
+        .single()
+
       if (data?.full_name) {
         setUserName(data.full_name)
         localStorage.setItem(cacheKey, data.full_name)
@@ -80,10 +79,10 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
   }, [userId, userEmail, supabase])
 
   function toggleTheme() {
-    const newTheme = theme === 'light' ? 'dark' : 'light'
-    setTheme(newTheme)
-    localStorage.setItem('theme', newTheme)
-    document.documentElement.setAttribute('data-theme', newTheme)
+    const next = theme === 'light' ? 'dark' : 'light'
+    setTheme(next)
+    localStorage.setItem('theme', next)
+    document.documentElement.setAttribute('data-theme', next)
   }
 
   async function handleLogout() {
@@ -92,80 +91,220 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
     router.refresh()
   }
 
-  const currentDate = new Date().toLocaleDateString('pt-BR', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric'
-  }).toUpperCase()
+  const initials = userName ? userName.charAt(0).toUpperCase() : userEmail.charAt(0).toUpperCase()
 
   return (
-    <aside className="w-64 flex-shrink-0 flex flex-col pt-8 pb-6 px-6 bg-[var(--color-sidebar-bg)] border-r border-[var(--color-sidebar-border)] z-50 h-[calc(100vh-2rem)] rounded-3xl relative mx-2 my-4 shadow-xl">
-      {/* Logo Area */}
-      <div className="flex items-center gap-3 mb-10 pl-2">
-        <div className="w-8 h-8 rounded-full bg-black dark:bg-white flex items-center justify-center flex-shrink-0 group cursor-pointer transition-transform hover:scale-105">
-          <ShieldCheck className="w-4 h-4 text-white dark:text-black" />
-        </div>
-        <span className="text-[var(--color-foreground)] font-bold text-xl tracking-tight">Equa CRM</span>
-      </div>
+    /**
+     * FLOATING PILL WRAPPER
+     * position:fixed, 20px from every edge, black pill background
+     */
+    <aside
+      className="fixed left-5 top-5 bottom-5 z-50 flex flex-col"
+      onMouseEnter={() => setExpanded(true)}
+      onMouseLeave={() => setExpanded(false)}
+      style={{
+        width: expanded ? '220px' : '68px',
+        transition: 'width 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)',
+      }}
+    >
+      {/* ── The black pill ── */}
+      <div
+        className="pill-container flex flex-col h-full overflow-hidden"
+        style={{ padding: '20px 12px' }}
+      >
+        {/* Logo / Wordmark */}
+        <div
+          className="flex items-center mb-8 flex-shrink-0 overflow-hidden"
+          style={{ minHeight: '36px' }}
+        >
+          {/* Icon mark */}
+          <div
+            className="flex-shrink-0 flex items-center justify-center rounded-xl bg-[#FA5D29]"
+            style={{
+              width: '36px',
+              height: '36px',
+              minWidth: '36px',
+              boxShadow: '0 4px 12px rgba(250,93,41,0.40)',
+            }}
+          >
+            <ShieldCheck className="w-5 h-5 text-white" strokeWidth={2.5} />
+          </div>
 
-      {/* Navigation */}
-      <nav className="flex-1 w-full space-y-8 flex flex-col overflow-y-auto custom-scrollbar">
-        {sections.map((section) => (
-          <div key={section.title} className="w-full flex flex-col gap-2">
-            <span className="text-[10px] font-bold text-[var(--color-sidebar-text)] uppercase tracking-widest pl-2 mb-1 opacity-70">
-              {section.title}
+          {/* Brand name — slides in on expand */}
+          <div
+            className="ml-3 overflow-hidden flex-shrink-0"
+            style={{
+              width: expanded ? '140px' : '0px',
+              opacity: expanded ? 1 : 0,
+              transition: 'width 0.3s ease, opacity 0.25s ease',
+            }}
+          >
+            <span
+              className="text-white font-black text-[17px] tracking-tight whitespace-nowrap"
+              style={{ fontFamily: "'Inter Tight', sans-serif", letterSpacing: '-0.03em' }}
+            >
+              PRO<span style={{ color: '#FA5D29' }}>blind</span>
             </span>
-            <div className="flex flex-col gap-1">
-              {section.links.map(({ href, label, icon: Icon }) => {
-                const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
-                return (
-                  <Link
-                    key={href}
-                    href={href}
-                    prefetch={true}
-                    className={`relative flex items-center gap-3 px-3 py-2.5 rounded-2xl transition-all duration-300 group ${isActive ? 'bg-[var(--color-sidebar-active)] text-white dark:text-black shadow-md' : 'text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-hover)] hover:text-[var(--color-foreground)]'}`}
-                  >
-                    <Icon className={`w-4 h-4 transition-colors ${isActive ? 'text-white dark:text-black' : 'text-[var(--color-sidebar-text)] group-hover:text-[var(--color-foreground)]'}`} strokeWidth={isActive ? 2 : 1.5} />
-                    <span className="text-sm font-semibold tracking-wide">{label}</span>
-                  </Link>
-                )
-              })}
+          </div>
+        </div>
+
+        {/* ── Navigation ── */}
+        <nav className="flex flex-col gap-1 flex-1 overflow-y-auto overflow-x-hidden" style={{ scrollbarWidth: 'none' }}>
+          {navItems.map(({ href, label, icon: Icon }, idx) => {
+            const isActive = pathname === href || (href !== '/dashboard' && pathname.startsWith(href))
+
+            return (
+              <Link
+                key={href}
+                href={href}
+                prefetch={true}
+                title={!expanded ? label : undefined}
+                className={`sidebar-link group ${isActive ? 'active' : ''}`}
+                style={{
+                  transitionDelay: `${idx * STAGGER}s`,
+                  borderRadius: '12px',
+                  minHeight: '42px',
+                  justifyContent: expanded ? 'flex-start' : 'center',
+                }}
+              >
+                {/* Icon */}
+                <Icon
+                  className="sidebar-icon flex-shrink-0"
+                  style={{
+                    width: '18px',
+                    height: '18px',
+                    minWidth: '18px',
+                    color: isActive ? '#FFFFFF' : 'rgba(255,255,255,0.55)',
+                  }}
+                  strokeWidth={isActive ? 2.2 : 1.8}
+                />
+
+                {/* Label — slides in */}
+                <span
+                  className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
+                  style={{
+                    maxWidth: expanded ? '160px' : '0px',
+                    opacity: expanded ? 1 : 0,
+                    transition: 'max-width 0.28s ease, opacity 0.22s ease',
+                    fontFamily: "'Inter Tight', sans-serif",
+                    letterSpacing: '0.01em',
+                  }}
+                >
+                  {label}
+                </span>
+              </Link>
+            )
+          })}
+        </nav>
+
+        {/* ── Bottom: User + Theme + Logout ── */}
+        <div
+          className="flex flex-col gap-1 flex-shrink-0 mt-4 pt-4 overflow-hidden"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
+        >
+          {/* User avatar row */}
+          <div
+            className="flex items-center gap-3 px-2 py-2 overflow-hidden"
+            style={{ minHeight: '44px' }}
+          >
+            {/* Avatar */}
+            <div
+              className="flex-shrink-0 rounded-full flex items-center justify-center text-xs font-black text-white"
+              style={{
+                width: '32px',
+                height: '32px',
+                minWidth: '32px',
+                background: 'linear-gradient(135deg, #FA5D29 0%, #E84410 100%)',
+                boxShadow: '0 2px 8px rgba(250,93,41,0.40)',
+                fontFamily: "'Inter Tight', sans-serif",
+              }}
+            >
+              {initials}
+            </div>
+
+            {/* Name */}
+            <div
+              className="overflow-hidden flex-shrink-0"
+              style={{
+                width: expanded ? '120px' : '0px',
+                opacity: expanded ? 1 : 0,
+                transition: 'width 0.28s ease, opacity 0.22s ease',
+              }}
+            >
+              <p
+                className="text-white text-[13px] font-bold whitespace-nowrap truncate"
+                style={{ fontFamily: "'Inter Tight', sans-serif" }}
+              >
+                {userName.split(' ')[0] || userEmail.split('@')[0]}
+              </p>
+              <p
+                className="text-[11px] whitespace-nowrap truncate"
+                style={{ color: 'rgba(255,255,255,0.40)' }}
+              >
+                Gestor
+              </p>
             </div>
           </div>
-        ))}
-      </nav>
 
-      {/* Bottom Area (Theme & User) */}
-      <div className="mt-6 pt-6 border-t border-[var(--color-sidebar-border)] w-full flex flex-col gap-2">
-        
-        <div className="flex items-center justify-between px-2 mb-4">
-          {!userName ? (
-            <div className="w-8 h-8 rounded-full bg-[var(--color-sidebar-border)] animate-pulse" />
-          ) : (
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-full bg-neutral-200 dark:bg-neutral-800 flex items-center justify-center text-xs font-bold text-[var(--color-foreground)] shadow-sm">
-                {userName.charAt(0).toUpperCase()}
-              </div>
-              <span className="text-sm font-bold text-[var(--color-foreground)] truncate max-w-[100px]">{userName.split(' ')[0]}</span>
-            </div>
-          )}
-          
+          {/* Theme toggle */}
           <button
             onClick={toggleTheme}
-            className="w-8 h-8 flex items-center justify-center rounded-full hover:bg-[var(--color-sidebar-hover)] transition-colors text-[var(--color-sidebar-text)] hover:text-[var(--color-foreground)]"
-            title="Alternar Tema"
+            className="sidebar-link group"
+            title={!expanded ? (theme === 'dark' ? 'Modo Claro' : 'Modo Escuro') : undefined}
+            style={{
+              borderRadius: '12px',
+              minHeight: '40px',
+              justifyContent: expanded ? 'flex-start' : 'center',
+            }}
           >
-            {theme === 'dark' ? <Sun className="w-4 h-4" strokeWidth={1.5} /> : <Moon className="w-4 h-4" strokeWidth={1.5} />}
+            {theme === 'dark'
+              ? <Sun  className="flex-shrink-0" style={{ width: '17px', height: '17px', minWidth: '17px', color: 'rgba(255,255,255,0.55)' }} strokeWidth={1.8} />
+              : <Moon className="flex-shrink-0" style={{ width: '17px', height: '17px', minWidth: '17px', color: 'rgba(255,255,255,0.55)' }} strokeWidth={1.8} />
+            }
+            <span
+              className="overflow-hidden whitespace-nowrap text-[12px] font-semibold flex-shrink-0"
+              style={{
+                maxWidth: expanded ? '140px' : '0px',
+                opacity: expanded ? 1 : 0,
+                transition: 'max-width 0.28s ease, opacity 0.22s ease',
+                marginLeft: expanded ? '12px' : '0px',
+                fontFamily: "'Inter Tight', sans-serif",
+              }}
+            >
+              {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+            </span>
+          </button>
+
+          {/* Logout */}
+          <button
+            onClick={handleLogout}
+            className="sidebar-link group"
+            title={!expanded ? 'Sair' : undefined}
+            style={{
+              borderRadius: '12px',
+              minHeight: '40px',
+              justifyContent: expanded ? 'flex-start' : 'center',
+            }}
+          >
+            <LogOut
+              className="flex-shrink-0"
+              style={{ width: '17px', height: '17px', minWidth: '17px', color: 'rgba(239,68,68,0.70)' }}
+              strokeWidth={1.8}
+            />
+            <span
+              className="overflow-hidden whitespace-nowrap text-[12px] font-semibold flex-shrink-0 text-red-400"
+              style={{
+                maxWidth: expanded ? '140px' : '0px',
+                opacity: expanded ? 1 : 0,
+                transition: 'max-width 0.28s ease, opacity 0.22s ease',
+                marginLeft: expanded ? '12px' : '0px',
+                fontFamily: "'Inter Tight', sans-serif",
+              }}
+            >
+              Sair da conta
+            </span>
           </button>
         </div>
-
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-3 py-2 rounded-2xl transition-all duration-300 text-[var(--color-sidebar-text)] hover:bg-[var(--color-sidebar-hover)] hover:text-red-500 w-full"
-        >
-          <LogOut className="w-4 h-4" strokeWidth={1.5} />
-          <span className="text-sm font-semibold tracking-wide">Logout</span>
-        </button>
       </div>
     </aside>
   )
