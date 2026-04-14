@@ -6,254 +6,189 @@
 }
 
 /* ============================================================
-   PROBLLIND KINETIC — DESIGN TOKENS
-   Awwwards + Bento Concept
+   PROBLLIND — DESIGN TOKENS
+   Paleta: Preto · Branco · Off-White · Cinza Carvão
+   Sem laranja. Sem cores artificiais.
    ============================================================ */
 @layer base {
   :root {
-    /* Core Palette */
-    --color-background:      #F8F8F8;   /* Off-white respiro */
-    --color-foreground:      #222222;   /* Carvão legível */
-    --color-card-bg:         #FFFFFF;   /* Branco puro para cards */
-    --color-card-border:     rgba(0, 0, 0, 0.06);
-    --color-card-shadow:     rgba(0, 0, 0, 0.03);
-    --color-card-shadow-hover: rgba(0, 0, 0, 0.08);
+    /* Core */
+    --color-background:         #F8F8F8;       /* Off-white respiro */
+    --color-foreground:         #222222;       /* Cinza carvão */
+    --color-muted:              #888888;       /* Texto de suporte */
+    --color-muted-light:        #BBBBBB;
 
-    /* Sidebar Pill */
-    --color-sidebar-bg:      #000000;  /* Preto sólido */
-    --color-sidebar-border:  rgba(255,255,255,0.08);
-    --color-sidebar-hover:   rgba(255,255,255,0.10);
-    --color-sidebar-active:  #FA5D29;  /* Laranja Awwwards */
-    --color-sidebar-text:    rgba(255,255,255,0.55);
-    --color-sidebar-text-active: #FFFFFF;
+    /* Cards */
+    --color-card-bg:            #FFFFFF;
+    --color-card-border:        rgba(0,0,0,0.07);
+    --color-card-shadow:        rgba(0,0,0,0.04);
+    --color-card-shadow-hover:  rgba(0,0,0,0.10);
 
-    /* Brand / Actions */
-    --color-primary:         #FA5D29;  /* Laranja Awwwards */
-    --color-primary-light:   rgba(250, 93, 41, 0.12);
-    --color-primary-glow:    rgba(250, 93, 41, 0.25);
+    /* Sidebar — dark pill */
+    --color-sidebar-bg:         #111111;
+    --color-sidebar-border:     rgba(255,255,255,0.06);
+    --color-sidebar-hover:      rgba(255,255,255,0.07);
+    --color-sidebar-active-bg:  #FFFFFF;
+    --color-sidebar-active-text:#111111;
+    --color-sidebar-text:       rgba(255,255,255,0.48);
+
+    /* Actions */
+    --color-primary:            #111111;
+    --color-primary-light:      rgba(17,17,17,0.08);
+    --color-primary-glow:       rgba(17,17,17,0.15);
 
     /* Inputs */
-    --color-input-bg:        #FFFFFF;
-    --color-input-border:    #E5E7EB;
+    --color-input-bg:           #FFFFFF;
+    --color-input-border:       #E5E7EB;
+    --color-accent:             #555555;
 
-    /* Accent for subtle highlights */
-    --color-accent:          #111111;
-
-    /* Radius System */
-    --radius-pill:   32px;
-    --radius-card:   20px;
-    --radius-btn:    12px;
-    --radius-badge:  999px;
+    /* Radius */
+    --radius-sidebar:  10px;
+    --radius-card:     10px;
+    --radius-btn:      8px;
+    --radius-badge:    999px;
+    --radius-icon:     8px;
   }
 
-  /* Dark Mode — Luxury Automotive */
   [data-theme='dark'] {
-    --color-background:      #0E0E0E;
-    --color-foreground:      #F0F0F0;
-    --color-card-bg:         #161616;
-    --color-card-border:     rgba(255, 255, 255, 0.06);
-    --color-card-shadow:     rgba(0, 0, 0, 0.5);
-    --color-card-shadow-hover: rgba(0, 0, 0, 0.7);
+    --color-background:         #0E0E0E;
+    --color-foreground:         #F0F0F0;
+    --color-muted:              #888888;
+    --color-muted-light:        #555555;
 
-    --color-sidebar-bg:      #000000;
-    --color-sidebar-border:  rgba(255,255,255,0.08);
-    --color-sidebar-hover:   rgba(255,255,255,0.08);
-    --color-sidebar-active:  #FA5D29;
-    --color-sidebar-text:    rgba(255,255,255,0.45);
-    --color-sidebar-text-active: #FFFFFF;
+    --color-card-bg:            #181818;
+    --color-card-border:        rgba(255,255,255,0.07);
+    --color-card-shadow:        rgba(0,0,0,0.50);
+    --color-card-shadow-hover:  rgba(0,0,0,0.70);
 
-    --color-primary:         #FA5D29;
-    --color-primary-light:   rgba(250, 93, 41, 0.15);
-    --color-primary-glow:    rgba(250, 93, 41, 0.30);
+    --color-sidebar-bg:         #111111;
+    --color-sidebar-border:     rgba(255,255,255,0.06);
+    --color-sidebar-hover:      rgba(255,255,255,0.07);
+    --color-sidebar-active-bg:  #FFFFFF;
+    --color-sidebar-active-text:#111111;
+    --color-sidebar-text:       rgba(255,255,255,0.40);
 
-    --color-input-bg:        #111111;
-    --color-input-border:    #2A2A2A;
-    --color-accent:          #F0F0F0;
+    --color-primary:            #F0F0F0;
+    --color-primary-light:      rgba(240,240,240,0.08);
+    --color-primary-glow:       rgba(240,240,240,0.12);
+
+    --color-input-bg:           #111111;
+    --color-input-border:       #2A2A2A;
+    --color-accent:             #AAAAAA;
   }
 }
 
 /* ============================================================
-   BASE RESET
+   BASE
    ============================================================ */
-*, *::before, *::after {
-  box-sizing: border-box;
-}
+*, *::before, *::after { box-sizing: border-box; }
 
-html {
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
+html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
   font-family: 'Inter Tight', ui-sans-serif, system-ui, sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
-  line-height: 1.5;
+  line-height: 1.55;
 }
 
 /* ============================================================
-   KEYFRAME LIBRARY
+   KEYFRAMES
    ============================================================ */
-
-/* Page entrance */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Floating element */
-@keyframes float {
-  0%, 100% { transform: translateY(0); }
-  50%       { transform: translateY(-6px); }
-}
-
-/* Icon spring bounce */
 @keyframes springBounce {
-  0%   { transform: scale(1);    }
-  40%  { transform: scale(1.25); }
-  60%  { transform: scale(0.92); }
-  80%  { transform: scale(1.08); }
-  100% { transform: scale(1);    }
+  0%   { transform: scale(1); }
+  40%  { transform: scale(1.22); }
+  65%  { transform: scale(0.94); }
+  85%  { transform: scale(1.06); }
+  100% { transform: scale(1); }
 }
 
-/* Glow pulse for active link */
-@keyframes glowPulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 93, 41, 0.0); }
-  50%       { box-shadow: 0 0 12px 3px rgba(250, 93, 41, 0.35); }
-}
-
-/* Status dot pulse */
 @keyframes statusPulse {
-  0%, 100% { opacity: 1;   transform: scale(1); }
+  0%, 100% { opacity: 1; transform: scale(1); }
   50%       { opacity: 0.4; transform: scale(1.6); }
 }
 
-/* Noise grain texture (subtle) */
-@keyframes grain {
-  0%, 100% { transform: translate(0, 0); }
-  10%  { transform: translate(-2%, -3%); }
-  20%  { transform: translate(3%, 2%); }
-  30%  { transform: translate(-1%, 4%); }
-  40%  { transform: translate(4%, -1%); }
-  50%  { transform: translate(-3%, 3%); }
-  60%  { transform: translate(2%, -4%); }
-  70%  { transform: translate(-4%, 1%); }
-  80%  { transform: translate(1%, 3%); }
-  90%  { transform: translate(3%, -2%); }
-}
-
 /* ============================================================
-   CARD SYSTEM — Bento / Floating Cards
+   CARD SYSTEM
    ============================================================ */
 .soft-card {
   background: var(--color-card-bg);
   border-radius: var(--radius-card);
   border: 1px solid var(--color-card-border);
-  box-shadow: 0 4px 30px var(--color-card-shadow);
-  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.3s ease;
+  box-shadow: 0 2px 16px var(--color-card-shadow);
+  transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
+              box-shadow 0.25s ease;
 }
-
 .soft-card:hover {
-  transform: translateY(-3px) scale(1.005);
-  box-shadow: 0 12px 40px var(--color-card-shadow-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 32px var(--color-card-shadow-hover);
 }
 
-.glass-bento {
-  background: rgba(255, 255, 255, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-radius: var(--radius-pill);
-  border: 1px solid rgba(255, 255, 255, 0.60);
-  box-shadow: 0 4px 30px var(--color-card-shadow);
+.dark-card, .crypto-card, .glass-panel {
+  background: var(--color-card-bg);
+  border: 1px solid var(--color-card-border);
+  border-radius: var(--radius-card);
+  box-shadow: 0 2px 16px var(--color-card-shadow);
 }
 
-[data-theme='dark'] .glass-bento {
-  background: rgba(22, 22, 22, 0.75);
-  border: 1px solid rgba(255,255,255,0.06);
-}
-
-/* Page content animation */
+/* Page entrance */
 .page-enter {
-  animation: fadeInUp 0.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  animation: fadeInUp 0.35s cubic-bezier(0.22,1,0.36,1) forwards;
 }
 
 /* ============================================================
-   SIDEBAR — Pill Container Base
+   SIDEBAR
    ============================================================ */
 .pill-container {
   background: var(--color-sidebar-bg);
-  border-radius: var(--radius-pill);
+  border-radius: var(--radius-sidebar);
   box-shadow:
-    0 8px 32px rgba(0,0,0,0.18),
-    0 2px 8px rgba(0,0,0,0.12),
-    inset 0 1px 0 rgba(255,255,255,0.05);
+    0 6px 24px rgba(0,0,0,0.22),
+    0 1px 6px rgba(0,0,0,0.14),
+    inset 0 1px 0 rgba(255,255,255,0.04);
 }
 
-/* Sidebar nav link base */
+.sidebar { background: var(--color-sidebar-bg); border-radius: var(--radius-sidebar); }
+
 .sidebar-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px 12px;
-  border-radius: 12px;
+  padding: 9px 11px;
+  border-radius: 10px;
   color: var(--color-sidebar-text);
   font-size: 13px;
   font-weight: 600;
   letter-spacing: 0.01em;
-  transition:
-    background 0.2s ease,
-    color 0.2s ease,
-    padding-left 0.2s ease;
   text-decoration: none;
   white-space: nowrap;
   overflow: hidden;
+  transition: background 0.2s ease, color 0.2s ease;
 }
-
 .sidebar-link:hover {
   background: var(--color-sidebar-hover);
-  color: #FFFFFF;
+  color: rgba(255,255,255,0.90);
 }
-
 .sidebar-link:hover .sidebar-icon {
-  animation: springBounce 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+  animation: springBounce 0.42s cubic-bezier(0.34,1.56,0.64,1) forwards;
 }
-
 .sidebar-link.active {
-  background: var(--color-primary);
-  color: #FFFFFF;
-  animation: glowPulse 2.5s ease-in-out infinite;
+  background: var(--color-sidebar-active-bg);
+  color: var(--color-sidebar-active-text);
 }
-
-.sidebar-link.active .sidebar-icon {
-  color: #FFFFFF;
-}
+.sidebar-link.active .sidebar-icon { color: var(--color-sidebar-active-text); }
 
 /* ============================================================
-   SIDEBAR LEGACY COMPAT
-   ============================================================ */
-.sidebar {
-  background-color: var(--color-sidebar-bg);
-  border-radius: var(--radius-pill);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-  display: flex;
-  flex-direction: column;
-  transition: all 0.3s ease;
-}
-
-/* ============================================================
-   BUTTON SYSTEM
+   BUTTONS
    ============================================================ */
 .btn-primary {
-  background-color: var(--color-primary);
-  color: #FFFFFF;
+  background: var(--color-foreground);
+  color: var(--color-background);
   padding: 10px 20px;
   border-radius: var(--radius-btn);
   font-size: 13px;
@@ -266,26 +201,17 @@ body {
   justify-content: center;
   gap: 8px;
   letter-spacing: 0.02em;
-  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1),
-              box-shadow 0.2s ease,
-              background 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.2s ease;
 }
-
-.btn-primary:hover {
-  transform: translateY(-2px) scale(1.02);
-  box-shadow: 0 6px 20px var(--color-primary-glow);
-}
-
-.btn-primary:active {
-  transform: translateY(0) scale(0.98);
-}
+.btn-primary:hover  { opacity: 0.85; transform: translateY(-1px); }
+.btn-primary:active { opacity: 1; transform: translateY(0); }
 
 /* ============================================================
-   INPUT SYSTEM
+   INPUTS
    ============================================================ */
 .input-field {
-  padding: 12px 16px;
-  background-color: var(--color-input-bg);
+  padding: 11px 15px;
+  background: var(--color-input-bg);
   border: 1.5px solid var(--color-input-border);
   border-radius: var(--radius-btn);
   font-size: 13px;
@@ -296,31 +222,26 @@ body {
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
   width: 100%;
 }
-
 .input-field:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-foreground);
   box-shadow: 0 0 0 3px var(--color-primary-light);
 }
 
 /* ============================================================
-   BADGE SYSTEM
+   BADGES
    ============================================================ */
 .equa-badge {
-  background: rgba(0, 0, 0, 0.05);
-  padding: 4px 10px;
+  background: rgba(0,0,0,0.06);
+  padding: 3px 10px;
   border-radius: var(--radius-badge);
   font-size: 11px;
   font-weight: 700;
-  font-family: 'Inter Tight', sans-serif;
   letter-spacing: 0.03em;
   display: inline-flex;
   align-items: center;
   gap: 4px;
 }
-
-[data-theme='dark'] .equa-badge {
-  background: rgba(255, 255, 255, 0.08);
-}
+[data-theme='dark'] .equa-badge { background: rgba(255,255,255,0.08); }
 
 .stage-badge {
   display: inline-flex;
@@ -334,10 +255,12 @@ body {
   font-family: 'Inter Tight', sans-serif;
   border: 1px solid transparent;
 }
+.stage-pending     { background: rgba(148,163,184,0.10); color: #8899AA; border-color: rgba(148,163,184,0.20); }
+.stage-in_progress { background: rgba(34,34,34,0.08);   color: #444444; border-color: rgba(34,34,34,0.16); }
+.stage-completed   { background: rgba(22,163,74,0.08);   color: #15803D; border-color: rgba(22,163,74,0.20); }
 
-.stage-pending    { background: rgba(148,163,184,0.10); color: #94A3B8; border-color: rgba(148,163,184,0.20); }
-.stage-in_progress { background: rgba(250,93,41,0.10);  color: #FA5D29; border-color: rgba(250,93,41,0.20); }
-.stage-completed  { background: rgba(16,185,129,0.10);  color: #10B981; border-color: rgba(16,185,129,0.20); }
+[data-theme='dark'] .stage-in_progress { background: rgba(255,255,255,0.08); color: #AAAAAA; border-color: rgba(255,255,255,0.14); }
+[data-theme='dark'] .stage-completed   { background: rgba(22,163,74,0.12); color: #4ADE80; border-color: rgba(74,222,128,0.24); }
 
 .badge-armor {
   background: var(--color-foreground);
@@ -349,71 +272,36 @@ body {
   letter-spacing: 0.04em;
 }
 
-/* Progress bar */
-.progress-bar {
-  height: 5px;
-  border-radius: var(--radius-badge);
-  background: var(--color-input-border);
-  overflow: hidden;
-}
+/* Progress */
+.progress-bar      { height: 4px; border-radius: var(--radius-badge); background: var(--color-input-border); overflow: hidden; }
+.progress-bar-fill { height: 100%; border-radius: var(--radius-badge); background: var(--color-foreground); transition: width 0.5s cubic-bezier(0.4,0,0.2,1); }
 
-.progress-bar-fill {
-  height: 100%;
-  border-radius: var(--radius-badge);
-  background: var(--color-primary);
-  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-}
+/* Status dot */
+.status-dot        { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+.status-dot.active { background: #22C55E; animation: statusPulse 2s ease-in-out infinite; }
 
-/* Status dot (pulsing) */
-.status-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  display: inline-block;
-}
+/* Misc compat */
+.crypto-badge { background: rgba(128,128,128,0.10); border: 1px solid rgba(128,128,128,0.20); color: var(--color-foreground); padding: 4px 12px; border-radius: var(--radius-badge); font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; }
+.crypto-positive { color: #16A34A; }
+.crypto-negative { color: #DC2626; }
 
-.status-dot.active {
-  background: #10B981;
-  animation: statusPulse 2s ease-in-out infinite;
-}
-
-/* ============================================================
-   CARD COMPAT
-   ============================================================ */
-.dark-card,
-.crypto-card,
-.glass-panel {
-  background: var(--color-card-bg);
-  border: 1px solid var(--color-card-border);
+.glass-bento {
+  background: rgba(255,255,255,0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-radius: var(--radius-card);
-  box-shadow: 0 4px 20px var(--color-card-shadow);
+  border: 1px solid rgba(255,255,255,0.60);
+  box-shadow: 0 4px 24px var(--color-card-shadow);
 }
-
-.crypto-badge {
-  background: rgba(128,128,128,0.10);
-  border: 1px solid rgba(128,128,128,0.20);
-  color: var(--color-foreground);
-  padding: 4px 12px;
-  border-radius: var(--radius-badge);
-  font-size: 11px;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.crypto-positive { color: #10B981; }
-.crypto-negative { color: #EF4444; }
+[data-theme='dark'] .glass-bento { background: rgba(24,24,24,0.80); border: 1px solid rgba(255,255,255,0.06); }
 
 /* ============================================================
    SCROLLBAR
    ============================================================ */
-::-webkit-scrollbar              { width: 5px; height: 5px; }
-::-webkit-scrollbar-track        { background: transparent; }
-::-webkit-scrollbar-thumb        { background: rgba(0,0,0,0.12); border-radius: 10px; }
-::-webkit-scrollbar-thumb:hover  { background: rgba(0,0,0,0.22); }
-
-[data-theme='dark'] ::-webkit-scrollbar-thumb       { background: rgba(255,255,255,0.10); }
-[data-theme='dark'] ::-webkit-scrollbar-thumb:hover  { background: rgba(255,255,255,0.20); }
-
-.custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.10) transparent; }
+::-webkit-scrollbar             { width: 4px; height: 4px; }
+::-webkit-scrollbar-track       { background: transparent; }
+::-webkit-scrollbar-thumb       { background: rgba(0,0,0,0.10); border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.20); }
+[data-theme='dark'] ::-webkit-scrollbar-thumb       { background: rgba(255,255,255,0.08); }
+[data-theme='dark'] ::-webkit-scrollbar-thumb:hover  { background: rgba(255,255,255,0.16); }
+.custom-scrollbar { scrollbar-width: thin; scrollbar-color: rgba(0,0,0,0.08) transparent; }
