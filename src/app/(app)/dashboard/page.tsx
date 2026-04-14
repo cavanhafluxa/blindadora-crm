@@ -75,12 +75,12 @@ export default async function DashboardPage() {
   const marginPct = totalContractValue > 0 ? Math.round((estimatedMargin / totalContractValue) * 100) : 0
 
   // 2. Rankings
-  const modelsRanking = projects?.reduce((acc: any, p) => {
+  const modelsRanking: Record<string, number> = projects?.reduce((acc: Record<string, number>, p) => {
     const model = p.vehicle_model || 'Não Informado'
     acc[model] = (acc[model] || 0) + 1
     return acc
-  }, {})
-  const topModels = Object.entries(modelsRanking || {}).sort((a: any, b: any) => b[1] - a[1]).slice(0, 5)
+  }, {} as Record<string, number>) || {}
+  const topModels = Object.entries(modelsRanking).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
   const lostLeads = leads?.filter(l => l.pipeline_stage === 'lost') || []
 
@@ -89,7 +89,7 @@ export default async function DashboardPage() {
   const next30Days = new Date()
   next30Days.setDate(today.getDate() + 30)
 
-  const upcomingDeliveries = projects?.filter(p => {
+  const upcomingDeliveries = (projects || []).filter(p => {
     if (p.status === 'concluido' || !p.expected_delivery_date) return false
     const date = new Date(p.expected_delivery_date)
     return date.getTime() >= today.getTime() && date.getTime() <= next30Days.getTime()
