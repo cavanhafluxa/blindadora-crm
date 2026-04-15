@@ -102,6 +102,19 @@ export default async function DashboardPage() {
   const estimatedMargin = totalContractValue - totalRealCost
   const marginPct = totalContractValue > 0 ? Math.round((estimatedMargin / totalContractValue) * 100) : 0
 
+  // ── Rankings ─────────────────────────────────
+  const modelsRanking: Record<string, number> = projects.reduce((acc: Record<string, number>, p) => {
+    const model = p.vehicle_model || 'Não Informado'
+    acc[model] = (acc[model] || 0) + 1
+    return acc
+  }, {})
+  const topModels = Object.entries(modelsRanking).sort((a, b) => b[1] - a[1]).slice(0, 5)
+
+  const recentFinancials = [...financials]
+    .filter(f => f && f.created_at)
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 6)
+
   // ── Render ──────────────────────────────────
   return (
     <div className="flex-1 w-full flex flex-col px-8 py-8 space-y-8 bg-[#F8FAFC] min-h-screen">
@@ -332,4 +345,3 @@ export default async function DashboardPage() {
     </div>
   )
 }
-
