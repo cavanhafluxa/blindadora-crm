@@ -287,7 +287,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
 
     if (periodFilter !== 'all') {
       const now = new Date()
-      let startDate = new Date()
+      const startDate = new Date()
       if (periodFilter === 'current_month') {
         startDate.setDate(1)
         startDate.setHours(0,0,0,0)
@@ -295,7 +295,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
         startDate.setMonth(now.getMonth() - 1)
         startDate.setDate(1)
         startDate.setHours(0,0,0,0)
-        let endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59)
+        const endDate = new Date(now.getFullYear(), now.getMonth(), 0, 23, 59, 59)
         result = result.filter(l => {
           if (!l.created_at) return false
           const d = new Date(l.created_at)
@@ -319,12 +319,12 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
 
   // Metricas (Etapa 1.2)
   const metrics = useMemo(() => {
-    let prospectados = filteredLeads.length
-    let orcados = filteredLeads.filter(l => l.pipeline_stage === 'quoted' || l.pipeline_stage === 'contracted').length
-    let fechados = filteredLeads.filter(l => l.pipeline_stage === 'contracted').length
-    let conv = prospectados > 0 ? Math.round((fechados / prospectados) * 100) : 0
-    let vBlindagem = filteredLeads.filter(l => (l.type || 'blindagem') === 'blindagem').length
-    let vManutencao = filteredLeads.filter(l => l.type === 'manutencao').length
+    const prospectados = filteredLeads.length
+    const orcados = filteredLeads.filter(l => l.pipeline_stage === 'quoted' || l.pipeline_stage === 'contracted').length
+    const fechados = filteredLeads.filter(l => l.pipeline_stage === 'contracted').length
+    const conv = prospectados > 0 ? Math.round((fechados / prospectados) * 100) : 0
+    const vBlindagem = filteredLeads.filter(l => (l.type || 'blindagem') === 'blindagem').length
+    const vManutencao = filteredLeads.filter(l => l.type === 'manutencao').length
     return { prospectados, orcados, fechados, conv, vBlindagem, vManutencao }
   }, [filteredLeads])
 

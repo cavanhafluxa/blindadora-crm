@@ -232,7 +232,7 @@ export default function ProposalsClient({ initialProposals, leads }: { initialPr
                       </div>
                     </div>
                   )}
-                  {p.notes && <p className="text-sm text-slate-600 italic">"{p.notes}"</p>}
+                  {p.notes && <p className="text-sm text-slate-600 italic">&quot;{p.notes}&quot;</p>}
 
                   {/* Status actions */}
                   <div className="flex flex-wrap gap-2">

@@ -99,6 +99,7 @@ export default function StageList({
   async function handlePhotoUpload(stageId: string, file: File) {
     setUploading(stageId)
     const ext = file.name.split('.').pop()
+    // eslint-disable-next-line react-hooks/purity
     const path = `${projectId}/${stageId}/${Date.now()}.${ext}`
 
     const { error: uploadError } = await supabase.storage

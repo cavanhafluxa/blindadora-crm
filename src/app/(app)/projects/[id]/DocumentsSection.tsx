@@ -87,7 +87,7 @@ export default function DocumentsSection({
 
   async function updateDoc(field: keyof ProjectDocs, value: string | null) {
     setSaving(field)
-    let payload: Partial<ProjectDocs> = { [field]: value }
+    const payload: Partial<ProjectDocs> = { [field]: value }
     const now = new Date().toISOString()
     
     if (field === 'authorization_status') {

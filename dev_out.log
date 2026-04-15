@@ -1,0 +1,12 @@
+▲ Next.js 16.2.2 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://26.36.203.255:3000
+- Environments: .env.local
+✓ Ready in 383ms
+
+ GET /catalogo 200 in 1424ms (next.js: 415ms, application-code: 1009ms)
+ GET /dashboard 307 in 503ms (next.js: 49ms, application-code: 454ms)
+ GET /catalogo 200 in 1033ms (next.js: 4ms, application-code: 1029ms)
+ GET /dashboard 307 in 1105ms (next.js: 19ms, application-code: 1086ms)
+ GET /login 200 in 78ms (next.js: 38ms, application-code: 39ms)
+ GET /projects/1234 307 in 2.5s (next.js: 1195ms, application-code: 1284ms)

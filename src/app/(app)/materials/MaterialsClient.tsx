@@ -53,13 +53,6 @@ export default function MaterialsClient({
   const [form, setForm] = useState({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0' })
   const [saving, setSaving] = useState(false)
 
-  // Load history when tab changes
-  useEffect(() => {
-    if (activeTab === 'history' && movements.length === 0) {
-      loadHistory()
-    }
-  }, [activeTab])
-
   async function loadHistory() {
     const { data } = await supabase
       .from('stock_movements')
@@ -74,6 +67,14 @@ export default function MaterialsClient({
     
     if (data) setMovements(data as any[])
   }
+
+  // Load history when tab changes
+  useEffect(() => {
+    if (activeTab === 'history' && movements.length === 0) {
+      loadHistory()
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeTab])
 
   async function getOrgId() {
     const { data: { user } } = await supabase.auth.getUser()

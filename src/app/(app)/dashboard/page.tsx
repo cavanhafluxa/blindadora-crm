@@ -32,13 +32,19 @@ export default async function DashboardPage() {
   const currentYear  = new Date().getFullYear()
 
   // ── KPIs ──────────────────────────────────────
-  const totalRevenue = financials
-    ?.filter(f => f.type === 'income' && f.paid)
-    .reduce((acc, f) => acc + Number(f.amount), 0) || 0
+  const safeFinancials = financials || []
+  const safeProjects = projects || []
+  const safeLeads = leads || []
+  const safeStockOutflows = stockOutflows || []
+  const safeProjectPurchases = projectPurchases || []
 
-  const ticketMedio = projects && projects.length > 0 ? totalRevenue / projects.length : 0
+  const totalRevenue = safeFinancials
+    .filter(f => f.type === 'income' && f.paid)
+    .reduce((acc, f) => acc + Number(f.amount), 0)
 
-  const concludedProjects = projects?.filter(p => p.status === 'concluido') || []
+  const ticketMedio = safeProjects.length > 0 ? totalRevenue / safeProjects.length : 0
+
+  const concludedProjects = safeProjects.filter(p => p.status === 'concluido')
   const tempoMedioPatio   = concludedProjects.length > 0
     ? Math.round(concludedProjects.reduce((acc, p) => {
         const start = new Date(p.created_at).getTime()
@@ -47,24 +53,24 @@ export default async function DashboardPage() {
       }, 0) / concludedProjects.length)
     : 0
 
-  const leadsThisMonth     = leads?.filter(l =>
+  const leadsThisMonth     = safeLeads.filter(l =>
     new Date(l.created_at).getMonth() === currentMonth &&
     new Date(l.created_at).getFullYear() === currentYear
-  ) || []
+  )
   const contractedThisMonth = leadsThisMonth.filter(l => l.pipeline_stage === 'contracted').length
   const conversaoMes        = leadsThisMonth.length > 0
     ? Math.round((contractedThisMonth / leadsThisMonth.length) * 100)
     : 0
 
-  const activeProjects    = projects?.filter(p => p.status === 'producao').length || 0
-  const pendenciasSicovab = projects?.filter(p =>
+  const activeProjects    = safeProjects.filter(p => p.status === 'producao').length
+  const pendenciasSicovab = safeProjects.filter(p =>
     p.status !== 'concluido' && (!p.sicovab_protocol || p.sicovab_status === 'pending')
-  ).length || 0
+  ).length
 
   // ── Faturamento mensal ────────────────────────
   const faturamentoMes = Array(12).fill(0)
-  financials
-    ?.filter(f => f.type === 'income' && f.paid && new Date(f.created_at).getFullYear() === currentYear)
+  safeFinancials
+    .filter(f => f.type === 'income' && f.paid && new Date(f.created_at).getFullYear() === currentYear)
     .forEach(f => {
       const month = new Date(f.created_at).getMonth()
       faturamentoMes[month] += Number(f.amount)
@@ -74,40 +80,40 @@ export default async function DashboardPage() {
 
   // ── Margem ───────────────────────────────────
   const costByProject: Record<string, number> = {}
-  stockOutflows?.forEach(m => {
+  safeStockOutflows.forEach(m => {
     if (m.project_id) {
       costByProject[m.project_id] = (costByProject[m.project_id] || 0) +
         (Number(m.unit_cost || 0) * Number(m.quantity))
     }
   })
-  projectPurchases?.forEach(p => {
+  safeProjectPurchases.forEach(p => {
     if (p.project_id) {
       costByProject[p.project_id] = (costByProject[p.project_id] || 0) + Number(p.total_price || 0)
     }
   })
   const totalRealCost     = Object.values(costByProject).reduce((a, b) => a + b, 0)
-  const totalContractValue = projects?.reduce((acc, p) => acc + Number(p.contract_value || 0), 0) || 0
+  const totalContractValue = safeProjects.reduce((acc, p) => acc + Number(p.contract_value || 0), 0)
   const estimatedMargin    = totalContractValue - totalRealCost
   const marginPct          = totalContractValue > 0
     ? Math.round((estimatedMargin / totalContractValue) * 100)
     : 0
 
   // ── Rankings ─────────────────────────────────
-  const modelsRanking: Record<string, number> = projects?.reduce((acc: Record<string, number>, p) => {
+  const modelsRanking: Record<string, number> = safeProjects.reduce((acc: Record<string, number>, p) => {
     const model  = p.vehicle_model || 'Não Informado'
     acc[model]   = (acc[model] || 0) + 1
     return acc
-  }, {} as Record<string, number>) || {}
+  }, {} as Record<string, number>)
   const topModels = Object.entries(modelsRanking).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
-  const lostLeads = leads?.filter(l => l.pipeline_stage === 'lost') || []
+  const lostLeads = safeLeads.filter(l => l.pipeline_stage === 'lost')
 
   // ── Forecast ─────────────────────────────────
   const today     = new Date()
   const next30Days = new Date()
   next30Days.setDate(today.getDate() + 30)
 
-  const upcomingDeliveries = (projects || [])
+  const upcomingDeliveries = safeProjects
     .filter(p => {
       if (p.status === 'concluido' || !p.expected_delivery_date) return false
       const date = new Date(p.expected_delivery_date)
@@ -117,7 +123,7 @@ export default async function DashboardPage() {
     .slice(0, 5)
 
   // ── Derived for "last transactions" look ─────
-  const recentFinancials = [...(financials || [])]
+  const recentFinancials = [...safeFinancials]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 6)
 

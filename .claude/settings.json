@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(echo \"EXIT: $?\")",
+      "Bash(npx next *)",
+      "Bash(npx eslint *)",
+      "Bash(python3 -c \"import sys,json; data=json.load\\(sys.stdin\\); [print\\(m['ruleId'], m['line']\\) for f in data for m in f['messages'] if m['severity']==2]\")"
+    ]
+  }
+}
