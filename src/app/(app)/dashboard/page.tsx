@@ -7,6 +7,8 @@ import {
 } from 'lucide-react'
 
 import Link from 'next/link'
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { SalesAreaChart, InvoicesDonutChart } from "@/components/dashboard/DashboardCharts"
 
 export const revalidate = 30
 export const dynamic = 'force-dynamic'
@@ -82,7 +84,16 @@ export default async function DashboardPage() {
       faturamentoMes[month] += Number(f.amount || 0)
     })
 
-  const maxFaturamento = Math.max(...faturamentoMes, 1)
+  const salesData = meses.map((m, i) => ({
+    month: m,
+    revenue: faturamentoMes[i]
+  }))
+
+  const invoiceStatusData = [
+    { status: 'pago', count: financials.filter(f => f.paid && f.type === 'income').length, fill: "#10B981" },
+    { status: 'pendente', count: financials.filter(f => !f.paid && f.type === 'income').length, fill: "#4F46E5" },
+    { status: 'atrasado', count: financials.filter(f => !f.paid && f.type === 'expense').length, fill: "#1E1B4B" },
+  ]
 
   // ── Margem ───────────────────────────────────
   const costByProject: Record<string, number> = {}
@@ -101,14 +112,6 @@ export default async function DashboardPage() {
   const totalContractValue = projects.reduce((acc, p) => acc + Number(p.contract_value || 0), 0)
   const estimatedMargin = totalContractValue - totalRealCost
   const marginPct = totalContractValue > 0 ? Math.round((estimatedMargin / totalContractValue) * 100) : 0
-
-  // ── Rankings ─────────────────────────────────
-  const modelsRanking: Record<string, number> = projects.reduce((acc: Record<string, number>, p) => {
-    const model = p.vehicle_model || 'Não Informado'
-    acc[model] = (acc[model] || 0) + 1
-    return acc
-  }, {})
-  const topModels = Object.entries(modelsRanking).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
   const recentFinancials = [...financials]
     .filter(f => f && f.created_at)
@@ -155,9 +158,9 @@ export default async function DashboardPage() {
             sub: 'Desde a última semana'
           },
         ].map((kpi, i) => (
-          <div 
+          <Card 
             key={i} 
-            className="group relative bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300"
+            className="group relative p-6 transition-all duration-300 border-none shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]"
           >
             {/* Vertical Bar */}
             <div className="absolute left-0 top-6 bottom-6 w-1 rounded-r-full" style={{ backgroundColor: kpi.color }} />
@@ -180,168 +183,76 @@ export default async function DashboardPage() {
                 <kpi.icon className="w-5 h-5" style={{ color: kpi.color }} />
               </div>
             </div>
-          </div>
+          </Card>
         ))}
       </div>
 
-      {/* ── Middle Row: Charts ───────────────────── */}
+      {/* ── Middle Row: Interactive Charts ───────── */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Invoice Statistics (Donut) */}
-        <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Estatísticas de Faturas</h3>
-            <button className="text-slate-300 hover:text-slate-600 transition-colors">•••</button>
-          </div>
-          
-          <div className="relative flex flex-col items-center">
-            {/* Real SVG Donut */}
-            <svg className="w-48 h-48 -rotate-90 transform" viewBox="0 0 100 100">
-              <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F8FAFC" strokeWidth="12" />
-              {/* Paid segment (Indigo) */}
-              <circle 
-                cx="50" cy="50" r="40" fill="transparent" stroke="#4F46E5" strokeWidth="12"
-                strokeDasharray={`${(financials.filter(f => f.paid).length / Math.max(financials.length, 1)) * 251} 251`}
-                className="transition-all duration-1000"
-              />
-              {/* Overdue segment (Slate) */}
-              <circle 
-                cx="50" cy="50" r="40" fill="transparent" stroke="#1E1B4B" strokeWidth="12"
-                strokeDasharray={`${(financials.filter(f => !f.paid && f.type === 'expense').length / Math.max(financials.length, 1)) * 251} 251`}
-                strokeDashoffset={`-${(financials.filter(f => f.paid).length / Math.max(financials.length, 1)) * 251}`}
-                className="transition-all duration-1000"
-              />
-            </svg>
-            <div className="absolute top-[38%] left-1/2 -translate-x-1/2 text-center pointer-events-none">
-              <p className="text-3xl font-black text-slate-900 tracking-tighter">{financials.length}</p>
-              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Faturas</p>
-            </div>
-
-
-            <div className="w-full mt-10 space-y-4">
-               {[
-                 { label: 'Pago', val: financials.filter(f => f.paid && f.type === 'income').length, color: 'bg-indigo-500' },
-                 { label: 'Atrasado', val: financials.filter(f => !f.paid && f.type === 'expense').length, color: 'bg-slate-800' },
-                 { label: 'Pendente', val: financials.filter(f => !f.paid && f.type === 'income').length, color: 'bg-indigo-100' },
-               ].map((item, i) => (
-                 <div key={i} className="flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                     <div className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
-                     <span className="text-[13px] font-bold text-slate-400">{item.label}</span>
-                   </div>
-                   <span className="text-[14px] font-black text-slate-800">{item.val}</span>
-                 </div>
-               ))}
-            </div>
-          </div>
+        <InvoicesDonutChart data={invoiceStatusData} total={financials.length} />
+        <div className="lg:col-span-2">
+           <SalesAreaChart data={salesData} />
         </div>
-
-        {/* Sales Analytics (Line Chart) */}
-        <div className="lg:col-span-2 bg-white p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
-          <div className="flex justify-between items-center mb-8">
-            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Análise de Vendas</h3>
-            <button className="text-slate-300 hover:text-slate-600 transition-colors">•••</button>
-          </div>
-
-          <div className="h-[280px] w-full relative flex items-end justify-between px-2">
-            {/* Grid lines */}
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-[0.05]">
-              {[...Array(6)].map((_, i) => <div key={i} className="w-full h-[1px] bg-slate-200" />)}
-            </div>
-
-            {/* Real SVG Area Chart */}
-            <div className="absolute inset-0 pointer-events-none">
-              <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
-                <defs>
-                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.15" />
-                    <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
-                  </linearGradient>
-                </defs>
-                <path 
-                  d="M0,80 Q10,20 20,60 T40,30 T60,70 T80,20 T100,50 L100,100 L0,100 Z" 
-                  fill="url(#areaGradient)"
-                  className="animate-fade-in"
-                />
-                <path 
-                  d="M0,80 Q10,20 20,60 T40,30 T60,70 T80,20 T100,50" 
-                  fill="none" 
-                  stroke="#4F46E5" 
-                  strokeWidth="2"
-                  className="animate-in slide-in-from-left duration-1000"
-                />
-                {/* Dots */}
-                {[0, 20, 40, 60, 80, 100].map(x => (
-                   <circle key={x} cx={x} cy={x === 40 ? 30 : 50} r="1.5" fill="white" stroke="#4F46E5" strokeWidth="0.5" />
-                ))}
-              </svg>
-            </div>
-
-
-            {meses.map((m, i) => (
-              <span key={i} className={`text-[11px] font-bold ${i === currentMonth ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' : 'text-slate-300'}`}>
-                {m}
-              </span>
-            ))}
-          </div>
-        </div>
-
       </div>
 
       {/* ── Bottom Row: Table ────────────────────── */}
-      <div className="bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
-        <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
-          <h3 className="text-lg font-bold text-slate-800 tracking-tight">Faturas Recentes</h3>
+      <Card className="rounded-[32px] border-none shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+        <CardHeader className="px-8 py-6 border-b border-slate-50 flex flex-row items-center justify-between space-y-0">
+          <div className="grid gap-1">
+            <CardTitle className="text-lg font-bold text-slate-800">Faturas Recentes</CardTitle>
+            <CardDescription className="text-xs font-medium text-slate-500">Últimas movimentações financeiras no escritório</CardDescription>
+          </div>
           <div className="flex gap-4">
              <button className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[12px] font-bold text-slate-500 hover:bg-slate-100 transition-colors">
                <Activity className="w-3.5 h-3.5" /> Filtrar
              </button>
-             <button className="text-slate-300 hover:text-slate-600 transition-colors">•••</button>
           </div>
-        </div>
+        </CardHeader>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-left">
-            <thead>
-              <tr className="text-[11px] font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50">
-                <th className="px-8 py-4">No</th>
-                <th className="px-8 py-4">Descrição</th>
-                <th className="px-8 py-4">Data</th>
-                <th className="px-8 py-4">Status</th>
-                <th className="px-8 py-4 text-right">Preço</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-slate-50">
-              {recentFinancials.map((f, i) => (
-                <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
-                  <td className="px-8 py-5 text-[13px] font-medium text-slate-400">#{i + 1}</td>
-                  <td className="px-8 py-5">
-                    <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-[10px] font-bold text-indigo-500">
-                        {f.description?.charAt(0) || 'F'}
-                      </div>
-                      <span className="text-[14px] font-bold text-slate-700">{f.description || 'Fatura Geral'}</span>
-                    </div>
-                  </td>
-                  <td className="px-8 py-5 text-[13px] font-medium text-slate-400">
-                    {new Date(f.created_at).toLocaleDateString('pt-BR')}
-                  </td>
-                  <td className="px-8 py-5">
-                    <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-tight ${
-                      f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'
-                    }`}>
-                      {f.paid ? 'Pago' : 'Pendente'}
-                    </span>
-                  </td>
-                  <td className="px-8 py-5 text-[14px] font-black text-slate-800 text-right">
-                    R$ {Number(f.amount || 0).toLocaleString('pt-BR')}
-                  </td>
+        <CardContent className="p-0">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead>
+                <tr className="text-[11px] font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50">
+                  <th className="px-8 py-4">No</th>
+                  <th className="px-8 py-4">Descrição</th>
+                  <th className="px-8 py-4">Data</th>
+                  <th className="px-8 py-4">Status</th>
+                  <th className="px-8 py-4 text-right">Preço</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {recentFinancials.map((f, i) => (
+                  <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                    <td className="px-8 py-5 text-[13px] font-medium text-slate-400">#{i + 1}</td>
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-[10px] font-bold text-indigo-500">
+                          {f.description?.charAt(0) || 'F'}
+                        </div>
+                        <span className="text-[14px] font-bold text-slate-700">{f.description || 'Fatura Geral'}</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-[13px] font-medium text-slate-400">
+                      {new Date(f.created_at).toLocaleDateString('pt-BR')}
+                    </td>
+                    <td className="px-8 py-5">
+                      <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-tight ${
+                        f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'
+                      }`}>
+                        {f.paid ? 'Pago' : 'Pendente'}
+                      </span>
+                    </td>
+                    <td className="px-8 py-5 text-[14px] font-black text-slate-800 text-right">
+                      R$ {Number(f.amount || 0).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   )
 }
