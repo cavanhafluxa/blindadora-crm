@@ -15,7 +15,6 @@ export default function PDFDownloadButton({ document, fileName, children, classN
 
   return (
     <PDFDownloadLink document={document} fileName={fileName} className={className}>
-      {/* @ts-expect-error react-pdf types */}
       {({ loading }) => (
         <span className="flex items-center gap-2">
           {loading ? 'Gerando...' : children}
