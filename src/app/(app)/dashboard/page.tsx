@@ -10,7 +10,7 @@ import Link from 'next/link'
 export const revalidate = 30
 
 export default async function DashboardPage() {
-  const supabase = await createClient()
+  let supabase;
 
   let projects: any[] = [], 
       leads: any[] = [], 
@@ -20,6 +20,7 @@ export default async function DashboardPage() {
       stockOutflows: any[] = [];
 
   try {
+    supabase = await createClient()
     const results = await Promise.all([
       supabase.from('projects').select('*'),
       supabase.from('leads').select('*'),
@@ -29,15 +30,16 @@ export default async function DashboardPage() {
       supabase.from('stock_movements').select('project_id, quantity, unit_cost').eq('movement_type', 'out'),
     ])
 
-    projects = results[0].data || []
-    leads = results[1].data || []
-    financials = results[2].data || []
-    stages = results[3].data || []
-    projectPurchases = results[4].data || []
-    stockOutflows = results[5].data || []
+    projects = results[0]?.data || []
+    leads = results[1]?.data || []
+    financials = results[2]?.data || []
+    stages = results[3]?.data || []
+    projectPurchases = results[4]?.data || []
+    stockOutflows = results[5]?.data || []
   } catch (err) {
-    console.error('Erro ao carregar dados do Dashboard:', err)
+    console.error('Erro fatal ao carregar o Dashboard:', err)
   }
+
 
 
 
@@ -45,9 +47,10 @@ export default async function DashboardPage() {
   const currentYear  = new Date().getFullYear()
 
   // ── KPIs ──────────────────────────────────────
-  const totalRevenue = financials
-    .filter(f => f.type === 'income' && f.paid)
-    .reduce((acc, f) => acc + Number(f.amount), 0)
+  const totalRevenue = (financials || [])
+    .filter(f => f && f.type === 'income' && f.paid)
+    .reduce((acc, f) => acc + Number(f.amount || 0), 0)
+
 
   const ticketMedio = projects.length > 0 ? totalRevenue / projects.length : 0
 
@@ -62,14 +65,16 @@ export default async function DashboardPage() {
     : 0
 
 
-  const leadsThisMonth     = leads.filter(l =>
+  const leadsThisMonth     = (leads || []).filter(l =>
+    l && l.created_at &&
     new Date(l.created_at).getMonth() === currentMonth &&
     new Date(l.created_at).getFullYear() === currentYear
   )
-  const contractedThisMonth = leadsThisMonth.filter(l => l.pipeline_stage === 'contracted').length
+  const contractedThisMonth = leadsThisMonth.filter(l => l && l.pipeline_stage === 'contracted').length
   const conversaoMes        = leadsThisMonth.length > 0
     ? Math.round((contractedThisMonth / leadsThisMonth.length) * 100)
     : 0
+
 
   const activeProjects    = projects.filter(p => p.status === 'producao').length
   const pendenciasSicovab = projects.filter(p =>
