@@ -12,39 +12,47 @@ export const revalidate = 30
 export default async function DashboardPage() {
   const supabase = await createClient()
 
-  const [
-    { data: projects },
-    { data: leads },
-    { data: financials },
-    { data: stages },
-    { data: projectPurchases },
-    { data: stockOutflows },
-  ] = await Promise.all([
-    supabase.from('projects').select('*'),
-    supabase.from('leads').select('*'),
-    supabase.from('financials').select('*'),
-    supabase.from('production_stages').select('*, profiles(full_name)'),
-    supabase.from('project_purchases').select('project_id, total_price'),
-    supabase.from('stock_movements').select('project_id, quantity, unit_cost').eq('movement_type', 'out'),
-  ])
+  let projects: any[] = [], 
+      leads: any[] = [], 
+      financials: any[] = [], 
+      stages: any[] = [], 
+      projectPurchases: any[] = [], 
+      stockOutflows: any[] = [];
+
+  try {
+    const results = await Promise.all([
+      supabase.from('projects').select('*'),
+      supabase.from('leads').select('*'),
+      supabase.from('financials').select('*'),
+      supabase.from('production_stages').select('*'), 
+      supabase.from('project_purchases').select('project_id, total_price'),
+      supabase.from('stock_movements').select('project_id, quantity, unit_cost').eq('movement_type', 'out'),
+    ])
+
+    projects = results[0].data || []
+    leads = results[1].data || []
+    financials = results[2].data || []
+    stages = results[3].data || []
+    projectPurchases = results[4].data || []
+    stockOutflows = results[5].data || []
+  } catch (err) {
+    console.error('Erro ao carregar dados do Dashboard:', err)
+  }
+
+
 
   const currentMonth = new Date().getMonth()
   const currentYear  = new Date().getFullYear()
 
   // ── KPIs ──────────────────────────────────────
-  const safeFinancials = financials || []
-  const safeProjects = projects || []
-  const safeLeads = leads || []
-  const safeStockOutflows = stockOutflows || []
-  const safeProjectPurchases = projectPurchases || []
-
-  const totalRevenue = safeFinancials
+  const totalRevenue = financials
     .filter(f => f.type === 'income' && f.paid)
     .reduce((acc, f) => acc + Number(f.amount), 0)
 
-  const ticketMedio = safeProjects.length > 0 ? totalRevenue / safeProjects.length : 0
+  const ticketMedio = projects.length > 0 ? totalRevenue / projects.length : 0
 
-  const concludedProjects = safeProjects.filter(p => p.status === 'concluido')
+  const concludedProjects = projects.filter(p => p.status === 'concluido')
+
   const tempoMedioPatio   = concludedProjects.length > 0
     ? Math.round(concludedProjects.reduce((acc, p) => {
         const start = new Date(p.created_at).getTime()
@@ -53,7 +61,7 @@ export default async function DashboardPage() {
       }, 0) / concludedProjects.length)
     : 0
 
-  const leadsThisMonth     = safeLeads.filter(l =>
+  const leadsThisMonth     = leads.filter(l =>
     new Date(l.created_at).getMonth() === currentMonth &&
     new Date(l.created_at).getFullYear() === currentYear
   )
@@ -62,58 +70,60 @@ export default async function DashboardPage() {
     ? Math.round((contractedThisMonth / leadsThisMonth.length) * 100)
     : 0
 
-  const activeProjects    = safeProjects.filter(p => p.status === 'producao').length
-  const pendenciasSicovab = safeProjects.filter(p =>
+  const activeProjects    = projects.filter(p => p.status === 'producao').length
+  const pendenciasSicovab = projects.filter(p =>
     p.status !== 'concluido' && (!p.sicovab_protocol || p.sicovab_status === 'pending')
   ).length
 
   // ── Faturamento mensal ────────────────────────
   const faturamentoMes = Array(12).fill(0)
-  safeFinancials
+  financials
     .filter(f => f.type === 'income' && f.paid && new Date(f.created_at).getFullYear() === currentYear)
     .forEach(f => {
       const month = new Date(f.created_at).getMonth()
       faturamentoMes[month] += Number(f.amount)
     })
+
   const maxFaturamento = Math.max(...faturamentoMes, 1)
   const meses          = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
 
   // ── Margem ───────────────────────────────────
   const costByProject: Record<string, number> = {}
-  safeStockOutflows.forEach(m => {
+  stockOutflows.forEach(m => {
     if (m.project_id) {
       costByProject[m.project_id] = (costByProject[m.project_id] || 0) +
         (Number(m.unit_cost || 0) * Number(m.quantity))
     }
   })
-  safeProjectPurchases.forEach(p => {
+  projectPurchases.forEach(p => {
     if (p.project_id) {
       costByProject[p.project_id] = (costByProject[p.project_id] || 0) + Number(p.total_price || 0)
     }
   })
   const totalRealCost     = Object.values(costByProject).reduce((a, b) => a + b, 0)
-  const totalContractValue = safeProjects.reduce((acc, p) => acc + Number(p.contract_value || 0), 0)
+  const totalContractValue = projects.reduce((acc, p) => acc + Number(p.contract_value || 0), 0)
   const estimatedMargin    = totalContractValue - totalRealCost
   const marginPct          = totalContractValue > 0
     ? Math.round((estimatedMargin / totalContractValue) * 100)
     : 0
 
   // ── Rankings ─────────────────────────────────
-  const modelsRanking: Record<string, number> = safeProjects.reduce((acc: Record<string, number>, p) => {
+  const modelsRanking: Record<string, number> = projects.reduce((acc: Record<string, number>, p) => {
     const model  = p.vehicle_model || 'Não Informado'
     acc[model]   = (acc[model] || 0) + 1
     return acc
   }, {} as Record<string, number>)
   const topModels = Object.entries(modelsRanking).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
-  const lostLeads = safeLeads.filter(l => l.pipeline_stage === 'lost')
+  const lostLeads = leads.filter(l => l.pipeline_stage === 'lost')
+
 
   // ── Forecast ─────────────────────────────────
   const today     = new Date()
   const next30Days = new Date()
   next30Days.setDate(today.getDate() + 30)
 
-  const upcomingDeliveries = safeProjects
+  const upcomingDeliveries = projects
     .filter(p => {
       if (p.status === 'concluido' || !p.expected_delivery_date) return false
       const date = new Date(p.expected_delivery_date)
@@ -123,9 +133,10 @@ export default async function DashboardPage() {
     .slice(0, 5)
 
   // ── Derived for "last transactions" look ─────
-  const recentFinancials = [...safeFinancials]
+  const recentFinancials = [...financials]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 6)
+
 
   return (
     <div className="flex-1 w-full flex flex-col px-6 py-6 space-y-6">
