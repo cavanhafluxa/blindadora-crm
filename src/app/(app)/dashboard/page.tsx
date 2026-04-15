@@ -329,4 +329,7 @@ export default async function DashboardPage() {
           </table>
         </div>
       </div>
+    </div>
+  )
+}
 
