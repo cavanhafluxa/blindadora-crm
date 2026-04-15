@@ -40,20 +40,27 @@ export async function middleware(request: NextRequest) {
     const adminPaths = ['/settings', '/team', '/financial', '/audit']
     const isTryingToAccessAdmin = adminPaths.some(path => request.nextUrl.pathname.startsWith(path))
 
-    if (isTryingToAccessAdmin) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single()
+      let profile = null;
+      try {
+        const { data } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single()
+        profile = data
+      } catch (err) {
+        console.error('Middleware: Erro ao buscar perfil:', err)
+      }
 
-      if (profile?.role !== 'admin') {
+      const isAdminPath = adminPaths.some(path => request.nextUrl.pathname.startsWith(path))
+      
+      if (isAdminPath && profile?.role !== 'admin') {
         const url = request.nextUrl.clone()
         url.pathname = '/dashboard'
         url.searchParams.set('auth_err', 'unauthorized')
         return NextResponse.redirect(url)
       }
-    }
+
   }
 
   return response

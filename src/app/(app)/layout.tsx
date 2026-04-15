@@ -5,13 +5,21 @@ import NotificationBell from '@/components/NotificationBell'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const supabase = await createClient()
-  const { data: { user } } = await supabase.auth.getUser()
+  let user = null;
+  try {
+    const { data } = await supabase.auth.getUser()
+    user = data?.user
+  } catch (err) {
+    console.error('AppLayout: Erro ao obter usuário:', err)
+  }
+
 
   if (!user) {
     redirect('/login')
   }
 
-  const userEmail = user.email || ''
+  const userEmail = user?.email || ''
+
 
   return (
     /*
