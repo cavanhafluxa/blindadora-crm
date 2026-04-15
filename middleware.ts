@@ -23,20 +23,20 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  const { data: { session } } = await supabase.auth.getSession()
+  const { data: { user } } = await supabase.auth.getUser()
 
   const isPublicPath = request.nextUrl.pathname.startsWith('/login') ||
     request.nextUrl.pathname.startsWith('/auth') ||
     request.nextUrl.pathname.startsWith('/catalogo')
 
-  if (!session && !isPublicPath) {
+  if (!user && !isPublicPath) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
     return NextResponse.redirect(url)
   }
 
   // RBAC: Role-Based Access Control
-  if (session) {
+  if (user) {
     const adminPaths = ['/settings', '/team', '/financial', '/audit']
     const isTryingToAccessAdmin = adminPaths.some(path => request.nextUrl.pathname.startsWith(path))
 
@@ -44,7 +44,7 @@ export async function middleware(request: NextRequest) {
       const { data: profile } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', session.user.id)
+        .eq('id', user.id)
         .single()
 
       if (profile?.role !== 'admin') {
