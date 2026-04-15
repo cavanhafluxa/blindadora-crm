@@ -12,8 +12,9 @@ const nextConfig: NextConfig = {
           { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains' },
           {
             key: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://ncfozqgrdfkbaexixzta.supabase.co; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ncfozqgrdfkbaexixzta.supabase.co; worker-src 'self' blob:; frame-ancestors 'none';"
+            value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' blob: data: https://ncfozqgrdfkbaexixzta.supabase.co https://*.supabase.co; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://ncfozqgrdfkbaexixzta.supabase.co https://*.supabase.co; worker-src 'self' blob:; frame-ancestors 'none';"
           },
+
         ],
       },
     ];

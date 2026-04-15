@@ -55,11 +55,12 @@ export default async function DashboardPage() {
 
   const tempoMedioPatio   = concludedProjects.length > 0
     ? Math.round(concludedProjects.reduce((acc, p) => {
-        const start = new Date(p.created_at).getTime()
-        const end   = new Date(p.updated_at).getTime()
+        const start = new Date(p.created_at || Date.now()).getTime()
+        const end   = new Date(p.updated_at || Date.now()).getTime()
         return acc + (end - start) / (1000 * 60 * 60 * 24)
       }, 0) / concludedProjects.length)
     : 0
+
 
   const leadsThisMonth     = leads.filter(l =>
     new Date(l.created_at).getMonth() === currentMonth &&
@@ -80,9 +81,11 @@ export default async function DashboardPage() {
   financials
     .filter(f => f.type === 'income' && f.paid && new Date(f.created_at).getFullYear() === currentYear)
     .forEach(f => {
-      const month = new Date(f.created_at).getMonth()
-      faturamentoMes[month] += Number(f.amount)
+      const date = f.created_at ? new Date(f.created_at) : new Date()
+      const month = date.getMonth()
+      faturamentoMes[month] += Number(f.amount || 0)
     })
+
 
   const maxFaturamento = Math.max(...faturamentoMes, 1)
   const meses          = ['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez']
@@ -100,12 +103,13 @@ export default async function DashboardPage() {
       costByProject[p.project_id] = (costByProject[p.project_id] || 0) + Number(p.total_price || 0)
     }
   })
-  const totalRealCost     = Object.values(costByProject).reduce((a, b) => a + b, 0)
+  const totalRealCost     = Object.values(costByProject).reduce((a, b) => a + (Number(b) || 0), 0)
   const totalContractValue = projects.reduce((acc, p) => acc + Number(p.contract_value || 0), 0)
   const estimatedMargin    = totalContractValue - totalRealCost
   const marginPct          = totalContractValue > 0
     ? Math.round((estimatedMargin / totalContractValue) * 100)
     : 0
+
 
   // ── Rankings ─────────────────────────────────
   const modelsRanking: Record<string, number> = projects.reduce((acc: Record<string, number>, p) => {
@@ -129,8 +133,13 @@ export default async function DashboardPage() {
       const date = new Date(p.expected_delivery_date)
       return date.getTime() >= today.getTime() && date.getTime() <= next30Days.getTime()
     })
-    .sort((a, b) => new Date(a.expected_delivery_date).getTime() - new Date(b.expected_delivery_date).getTime())
+    .sort((a, b) => {
+      const da = a.expected_delivery_date ? new Date(a.expected_delivery_date).getTime() : 0
+      const db = b.expected_delivery_date ? new Date(b.expected_delivery_date).getTime() : 0
+      return da - db
+    })
     .slice(0, 5)
+
 
   // ── Derived for "last transactions" look ─────
   const recentFinancials = [...financials]

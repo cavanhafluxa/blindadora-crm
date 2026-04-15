@@ -19,20 +19,16 @@ export default async function AppLayout({ children }: { children: React.ReactNod
   }
 
   const userEmail = user?.email || ''
-
+  const userId = user?.id || ''
 
   return (
-    /*
-     * Root shell: off-white background fills the viewport.
-     * The sidebar is position:fixed so we push content with
-     * padding-left = sidebar collapsed width (68px) + 20px gap + 20px gutter = 108px
-     */
     <div
       className="min-h-screen w-full transition-colors duration-300"
       style={{ backgroundColor: 'var(--color-background)' }}
     >
       {/* Floating Pill Sidebar */}
-      <Sidebar userEmail={userEmail} userId={user.id} />
+      <Sidebar userEmail={userEmail} userId={userId} />
+
 
       {/* Main content area — offset from the fixed sidebar */}
       <main
