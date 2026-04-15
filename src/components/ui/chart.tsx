@@ -254,11 +254,11 @@ const ChartLegend = RechartsPrimitive.Legend
 
 const ChartLegendContent = React.forwardRef<
   HTMLDivElement,
-  React.ComponentProps<"div"> &
-    Pick<RechartsPrimitive.LegendProps, "payload"> & {
-      hideIcon?: boolean
-      nameKey?: string
-    }
+  React.ComponentProps<"div"> & {
+    payload?: any[]
+    hideIcon?: boolean
+    nameKey?: string
+  }
 >(({ className, hideIcon = false, payload, nameKey }, ref) => {
   const { config } = useChart()
 
