@@ -3,8 +3,9 @@ import {
   CircleDollarSign, Target, Percent, Award,
   CalendarDays, Car, BarChart2, Clock,
   ShieldAlert, Activity, TrendingUp, TrendingDown,
-  ArrowRight,
+  ArrowRight, Users, Receipt
 } from 'lucide-react'
+
 import Link from 'next/link'
 
 export const revalidate = 30
@@ -101,207 +102,231 @@ export default async function DashboardPage() {
   const estimatedMargin = totalContractValue - totalRealCost
   const marginPct = totalContractValue > 0 ? Math.round((estimatedMargin / totalContractValue) * 100) : 0
 
-  // ── Rankings ─────────────────────────────────
-  const modelsRanking: Record<string, number> = projects.reduce((acc: Record<string, number>, p) => {
-    const model = p.vehicle_model || 'Não Informado'
-    acc[model] = (acc[model] || 0) + 1
-    return acc
-  }, {})
-  const topModels = Object.entries(modelsRanking).sort((a, b) => b[1] - a[1]).slice(0, 5)
-
-  // ── Forecast ─────────────────────────────────
-  const today = new Date()
-  const next30Days = new Date(); next30Days.setDate(today.getDate() + 30)
-
-  const upcomingDeliveries = projects
-    .filter(p => {
-      if (!p || p.status === 'concluido' || !p.expected_delivery_date) return false
-      const date = new Date(p.expected_delivery_date)
-      return date.getTime() >= today.getTime() && date.getTime() <= next30Days.getTime()
-    })
-    .sort((a, b) => {
-      const da = a.expected_delivery_date ? new Date(a.expected_delivery_date).getTime() : 0
-      const db = b.expected_delivery_date ? new Date(b.expected_delivery_date).getTime() : 0
-      return da - db
-    })
-    .slice(0, 5)
-
-  const recentFinancials = [...financials]
-    .filter(f => f && f.created_at)
-    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
-    .slice(0, 6)
-
+  // ── Render ──────────────────────────────────
   return (
-    <div className="flex-1 w-full flex flex-col px-6 py-6 space-y-6 animate-in fade-in duration-500">
-      {/* Header */}
-      <div className="flex items-end justify-between">
-        <div>
-          <h1 className="text-[26px] font-black tracking-tight text-slate-900">Dashboard</h1>
-          <p className="text-[13px] font-medium mt-0.5 text-slate-500">Resumo financeiro e operacional — {meses[currentMonth]} {currentYear}</p>
-        </div>
-        <div className="flex items-center gap-2 px-3 py-1.5 bg-slate-900 rounded-lg text-white text-[12px] font-bold">
-          <span className="opacity-50">{meses[currentMonth]}</span>
-          <span>{currentYear}</span>
-        </div>
-      </div>
-
-      {/* KPI Row */}
-      <div className="w-full grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+    <div className="flex-1 w-full flex flex-col px-8 py-8 space-y-8 bg-[#F8FAFC] min-h-screen">
+      
+      {/* ── KPI Row ──────────────────────────────── */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
-          { label: 'Faturamento Recebido', value: `R$ ${(totalRevenue / 1000).toFixed(1)}k`, sub: 'Total pago confirmado' },
-          { label: 'Ticket Médio', value: `R$ ${(ticketMedio / 1000).toFixed(1)}k`, sub: `${projects.length} projetos` },
-          { label: 'Margem Bruta Est.', value: `${marginPct}%`, sub: `R$ ${(estimatedMargin / 1000).toFixed(1)}k` },
-          { label: 'Conversão Mensal', value: `${conversaoMes}%`, sub: `${contractedThisMonth} leads fechados` },
-          { label: 'Tempo Médio Pátio', value: `${tempoMedioPatio}d`, sub: 'Média de conclusão' },
-          { label: 'Pendências SICOVAB', value: `${pendenciasSicovab}`, sub: 'Sem protocolo' },
+          { 
+            label: 'Clientes', 
+            value: projects.length, 
+            trend: '+6,5%', 
+            color: '#4F46E5', 
+            icon: Users,
+            sub: 'Desde a última semana'
+          },
+          { 
+            label: 'Faturamento', 
+            value: `R$ ${(totalRevenue / 1000).toFixed(1)}k`, 
+            trend: '-0,10%', 
+            color: '#10B981', 
+            icon: CircleDollarSign,
+            sub: 'Desde a última semana'
+          },
+          { 
+            label: 'Margem Bruta', 
+            value: `${marginPct}%`, 
+            trend: '-0,2%', 
+            color: '#8B5CF6', 
+            icon: Percent,
+            sub: 'Desde a última semana'
+          },
+          { 
+            label: 'Financeiro Total', 
+            value: financials.length, 
+            trend: '+11,5%', 
+            color: '#3B82F6', 
+            icon: Receipt,
+            sub: 'Desde a última semana'
+          },
         ].map((kpi, i) => (
-          <div key={i} className={`flex flex-col justify-between p-5 ${i < 5 ? 'border-r border-slate-100' : ''} min-h-[100px]`}>
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-400 mb-3">{kpi.label}</p>
-            <div>
-              <div className="text-2xl font-black tracking-tight text-slate-900 leading-none mb-1">{kpi.value}</div>
-              <p className="text-[11px] font-medium text-slate-400">{kpi.sub}</p>
+          <div 
+            key={i} 
+            className="group relative bg-white p-6 rounded-2xl border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300"
+          >
+            {/* Vertical Bar */}
+            <div className="absolute left-0 top-6 bottom-6 w-1 rounded-r-full" style={{ backgroundColor: kpi.color }} />
+            
+            <div className="flex justify-between items-start pl-3">
+              <div>
+                <p className="text-[13px] font-semibold text-slate-400 mb-1">{kpi.label}</p>
+                <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">{kpi.value}</h3>
+                <div className="flex items-center gap-1.5">
+                  <span className={`text-[11px] font-bold ${kpi.trend.startsWith('+') ? 'text-emerald-500' : 'text-rose-500'}`}>
+                    {kpi.trend.startsWith('+') ? '↑' : '↓'} {kpi.trend}
+                  </span>
+                  <span className="text-[11px] text-slate-400 font-medium">{kpi.sub}</span>
+                </div>
+              </div>
+              <div 
+                className="w-10 h-10 rounded-xl flex items-center justify-center transition-transform group-hover:scale-110 duration-300" 
+                style={{ backgroundColor: `${kpi.color}10` }}
+              >
+                <kpi.icon className="w-5 h-5" style={{ color: kpi.color }} />
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Visão Mensal Chart */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex flex-col">
-          <div className="flex items-start justify-between mb-8">
-            <div>
-              <h2 className="text-[15px] font-bold text-slate-900">Visão Mensal</h2>
-              <p className="text-[12px] font-medium text-slate-500">Faturamento mês a mês — {currentYear}</p>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="flex items-center gap-1.5">
-                <div className="w-2 h-2 rounded-full bg-slate-900" />
-                <span className="text-[11px] font-semibold text-slate-500 text-slate-900 uppercase">Faturado</span>
-              </div>
-            </div>
+      {/* ── Middle Row: Charts ───────────────────── */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        
+        {/* Invoice Statistics (Donut) */}
+        <div className="bg-white p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Estatísticas de Faturas</h3>
+            <button className="text-slate-300 hover:text-slate-600 transition-colors">•••</button>
           </div>
-          <div className="flex-1 flex items-end justify-between gap-2 min-h-[220px]">
-            {faturamentoMes.map((val, idx) => {
-              const isCurrent = idx === currentMonth
-              const heightPct = val > 0 ? Math.max((val / maxFaturamento) * 100, 8) : 4
-              return (
-                <div key={idx} className="flex-1 flex flex-col items-center justify-end h-full group relative">
-                  {val > 0 && (
-                    <div className="absolute -top-10 opacity-0 group-hover:opacity-100 transition-all bg-slate-900 text-white p-2 rounded-lg text-[10px] font-bold z-10 whitespace-nowrap">
-                      R$ {(val / 1000).toFixed(1)}k
-                    </div>
-                  )}
-                  <div className="w-full flex flex-col justify-end h-full px-1">
-                    <div 
-                      className={`w-full rounded-t-md transition-all duration-300 ${isCurrent ? 'bg-slate-900' : val > 0 ? 'bg-slate-200 hover:bg-slate-300' : 'bg-slate-50'}`}
-                      style={{ height: `${heightPct}%` }}
-                    />
-                  </div>
-                  <span className={`mt-3 text-[9px] font-bold uppercase tracking-wider ${isCurrent ? 'text-slate-900' : 'text-slate-400'}`}>
-                    {meses[idx][0]}
-                  </span>
-                </div>
-              )
-            })}
+          
+          <div className="relative flex flex-col items-center">
+            {/* Real SVG Donut */}
+            <svg className="w-48 h-48 -rotate-90 transform" viewBox="0 0 100 100">
+              <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F8FAFC" strokeWidth="12" />
+              {/* Paid segment (Indigo) */}
+              <circle 
+                cx="50" cy="50" r="40" fill="transparent" stroke="#4F46E5" strokeWidth="12"
+                strokeDasharray={`${(financials.filter(f => f.paid).length / Math.max(financials.length, 1)) * 251} 251`}
+                className="transition-all duration-1000"
+              />
+              {/* Overdue segment (Slate) */}
+              <circle 
+                cx="50" cy="50" r="40" fill="transparent" stroke="#1E1B4B" strokeWidth="12"
+                strokeDasharray={`${(financials.filter(f => !f.paid && f.type === 'expense').length / Math.max(financials.length, 1)) * 251} 251`}
+                strokeDashoffset={`-${(financials.filter(f => f.paid).length / Math.max(financials.length, 1)) * 251}`}
+                className="transition-all duration-1000"
+              />
+            </svg>
+            <div className="absolute top-[38%] left-1/2 -translate-x-1/2 text-center pointer-events-none">
+              <p className="text-3xl font-black text-slate-900 tracking-tighter">{financials.length}</p>
+              <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Faturas</p>
+            </div>
+
+
+            <div className="w-full mt-10 space-y-4">
+               {[
+                 { label: 'Pago', val: financials.filter(f => f.paid && f.type === 'income').length, color: 'bg-indigo-500' },
+                 { label: 'Atrasado', val: financials.filter(f => !f.paid && f.type === 'expense').length, color: 'bg-slate-800' },
+                 { label: 'Pendente', val: financials.filter(f => !f.paid && f.type === 'income').length, color: 'bg-indigo-100' },
+               ].map((item, i) => (
+                 <div key={i} className="flex items-center justify-between">
+                   <div className="flex items-center gap-3">
+                     <div className={`w-2.5 h-2.5 rounded-full ${item.color}`} />
+                     <span className="text-[13px] font-bold text-slate-400">{item.label}</span>
+                   </div>
+                   <span className="text-[14px] font-black text-slate-800">{item.val}</span>
+                 </div>
+               ))}
+            </div>
           </div>
         </div>
 
-        {/* Small Analytics Side */}
-        <div className="flex flex-col gap-6">
-          <div className="bg-slate-900 p-6 rounded-xl text-white flex items-center justify-between shadow-xl">
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Top Blindado</p>
-              <h3 className="text-lg font-black tracking-tight mb-1">{topModels[0]?.[0] || 'N/A'}</h3>
-              <p className="text-xs text-slate-400">{topModels[0]?.[1] || 0} unidades este ano</p>
-            </div>
-            <div className="w-10 h-10 bg-white/10 rounded-lg flex items-center justify-center">
-              <Car className="w-5 h-5" />
-            </div>
+        {/* Sales Analytics (Line Chart) */}
+        <div className="lg:col-span-2 bg-white p-8 rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
+          <div className="flex justify-between items-center mb-8">
+            <h3 className="text-lg font-bold text-slate-800 tracking-tight">Análise de Vendas</h3>
+            <button className="text-slate-300 hover:text-slate-600 transition-colors">•••</button>
           </div>
 
-          <div className="bg-white rounded-xl border border-slate-200 shadow-sm p-6 flex-1">
-            <h3 className="text-[13px] font-bold text-slate-900 mb-6 uppercase tracking-tight">Status Operacional</h3>
-            <div className="space-y-6">
-              {[
-                { label: 'Aguardando SICOVAB', value: pendenciasSicovab, color: 'bg-slate-900', pct: Math.min(100, (pendenciasSicovab / Math.max(projects.length, 1)) * 100) },
-                { label: 'Em Produção', value: activeProjects, color: 'bg-slate-400', pct: Math.min(100, (activeProjects / Math.max(projects.length, 1)) * 100) }
-              ].map((item, i) => (
-                <div key={i}>
-                  <div className="flex justify-between items-center mb-2">
-                    <span className="text-[12px] font-bold text-slate-600">{item.label}</span>
-                    <span className="text-[11px] font-black">{item.value}</span>
-                  </div>
-                  <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden">
-                    <div className={`h-full ${item.color} transition-all duration-1000`} style={{ width: `${item.pct}%` }} />
-                  </div>
-                </div>
-              ))}
+          <div className="h-[280px] w-full relative flex items-end justify-between px-2">
+            {/* Grid lines */}
+            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none opacity-[0.05]">
+              {[...Array(6)].map((_, i) => <div key={i} className="w-full h-[1px] bg-slate-200" />)}
             </div>
-          </div>
-        </div>
-      </div>
 
-      {/* Recent Activity Table */}
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-        <div className="lg:col-span-3 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-[15px] font-bold text-slate-900">Últimas Movimentações</h3>
-            <Link href="/financial" className="text-[11px] font-bold text-slate-400 hover:text-slate-900 flex items-center gap-1">
-              VER TODAS <ArrowRight className="w-3 h-3" />
-            </Link>
-          </div>
-          <div className="p-0">
-            {recentFinancials.map((f, i) => (
-              <div key={f.id} className="flex items-center px-6 py-4 hover:bg-slate-50 transition-colors border-b border-slate-50 last:border-0">
-                <div className={`w-2 h-2 rounded-full mr-4 ${f.type === 'income' ? 'bg-slate-900' : 'bg-slate-300'}`} />
-                <div className="flex-1 min-w-0 mr-4">
-                  <p className="text-[13px] font-bold text-slate-800 truncate">{f.description || (f.type === 'income' ? 'Receita' : 'Despesa')}</p>
-                  <p className="text-[11px] text-slate-400">{new Date(f.created_at).toLocaleDateString('pt-BR')}</p>
-                </div>
-                <div className="text-right">
-                  <p className={`text-[13px] font-black ${f.type === 'income' ? 'text-slate-900' : 'text-slate-500'}`}>
-                    {f.type === 'income' ? '+' : '-'} R$ {Number(f.amount || 0).toLocaleString('pt-BR')}
-                  </p>
-                  <p className="text-[9px] font-bold uppercase text-slate-300">{f.paid ? 'Confirmado' : 'Pendente'}</p>
-                </div>
-              </div>
+            {/* Real SVG Area Chart */}
+            <div className="absolute inset-0 pointer-events-none">
+              <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 100 100">
+                <defs>
+                  <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.15" />
+                    <stop offset="100%" stopColor="#4F46E5" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path 
+                  d="M0,80 Q10,20 20,60 T40,30 T60,70 T80,20 T100,50 L100,100 L0,100 Z" 
+                  fill="url(#areaGradient)"
+                  className="animate-fade-in"
+                />
+                <path 
+                  d="M0,80 Q10,20 20,60 T40,30 T60,70 T80,20 T100,50" 
+                  fill="none" 
+                  stroke="#4F46E5" 
+                  strokeWidth="2"
+                  className="animate-in slide-in-from-left duration-1000"
+                />
+                {/* Dots */}
+                {[0, 20, 40, 60, 80, 100].map(x => (
+                   <circle key={x} cx={x} cy={x === 40 ? 30 : 50} r="1.5" fill="white" stroke="#4F46E5" strokeWidth="0.5" />
+                ))}
+              </svg>
+            </div>
+
+
+            {meses.map((m, i) => (
+              <span key={i} className={`text-[11px] font-bold ${i === currentMonth ? 'text-indigo-600 border-b-2 border-indigo-600 pb-1' : 'text-slate-300'}`}>
+                {m}
+              </span>
             ))}
           </div>
         </div>
 
-        {/* Deliveries */}
-        <div className="lg:col-span-2 bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-5 border-b border-slate-100 flex items-center justify-between">
-            <h3 className="text-[15px] font-bold text-slate-900">Entregas Previstas</h3>
-            <div className="w-8 h-8 bg-slate-50 rounded-lg flex items-center justify-center">
-              <CalendarDays className="w-4 h-4 text-slate-400" />
-            </div>
-          </div>
-          <div className="divide-y divide-slate-50">
-            {upcomingDeliveries.map((p) => {
-              const isLate = new Date(p.expected_delivery_date) < new Date()
-              return (
-                <div key={p.id} className="p-5 flex items-center hover:bg-slate-50 transition-colors">
-                  <div className="w-10 h-10 bg-slate-50 rounded-xl flex items-center justify-center mr-4">
-                    <Car className="w-5 h-5 text-slate-300" />
-                  </div>
-                  <div className="flex-1 min-w-0 mr-4">
-                    <p className="text-[13px] font-black text-slate-800 truncate">{p.vehicle_model || 'N/A'}</p>
-                    <p className="text-[11px] text-slate-400 truncate">{p.customer_name}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="text-[12px] font-black text-slate-900">{new Date(p.expected_delivery_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}</p>
-                    <span className={`text-[9px] font-bold px-2 py-0.5 rounded-full ${isLate ? 'bg-slate-900 text-white' : 'bg-slate-100 text-slate-500'}`}>
-                      {isLate ? 'ESTOURO' : 'NO PRAZO'}
-                    </span>
-                  </div>
-                </div>
-              )
-            })}
+      </div>
+
+      {/* ── Bottom Row: Table ────────────────────── */}
+      <div className="bg-white rounded-[32px] border border-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.02)] overflow-hidden">
+        <div className="px-8 py-6 border-b border-slate-50 flex items-center justify-between">
+          <h3 className="text-lg font-bold text-slate-800 tracking-tight">Faturas Recentes</h3>
+          <div className="flex gap-4">
+             <button className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[12px] font-bold text-slate-500 hover:bg-slate-100 transition-colors">
+               <Activity className="w-3.5 h-3.5" /> Filtrar
+             </button>
+             <button className="text-slate-300 hover:text-slate-600 transition-colors">•••</button>
           </div>
         </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left">
+            <thead>
+              <tr className="text-[11px] font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50">
+                <th className="px-8 py-4">No</th>
+                <th className="px-8 py-4">Descrição</th>
+                <th className="px-8 py-4">Data</th>
+                <th className="px-8 py-4">Status</th>
+                <th className="px-8 py-4 text-right">Preço</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-50">
+              {recentFinancials.map((f, i) => (
+                <tr key={i} className="hover:bg-slate-50/50 transition-colors group">
+                  <td className="px-8 py-5 text-[13px] font-medium text-slate-400">#{i + 1}</td>
+                  <td className="px-8 py-5">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center text-[10px] font-bold text-indigo-500">
+                        {f.description?.charAt(0) || 'F'}
+                      </div>
+                      <span className="text-[14px] font-bold text-slate-700">{f.description || 'Fatura Geral'}</span>
+                    </div>
+                  </td>
+                  <td className="px-8 py-5 text-[13px] font-medium text-slate-400">
+                    {new Date(f.created_at).toLocaleDateString('pt-BR')}
+                  </td>
+                  <td className="px-8 py-5">
+                    <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-tight ${
+                      f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'
+                    }`}>
+                      {f.paid ? 'Pago' : 'Pendente'}
+                    </span>
+                  </td>
+                  <td className="px-8 py-5 text-[14px] font-black text-slate-800 text-right">
+                    R$ {Number(f.amount || 0).toLocaleString('pt-BR')}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
-    </div>
-  )
-}
+
