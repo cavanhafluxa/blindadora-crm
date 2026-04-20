@@ -7,7 +7,7 @@ import {
   ShoppingCart, Globe, Camera, Save, 
   Mail, Phone, MapPin, Link as LinkIcon,
   Plus, X, Key, Loader2, Trash2, 
-  CheckCircle2, AlertCircle, RefreshCw
+  CheckCircle2, AlertCircle, RefreshCw, Pencil
 } from 'lucide-react'
 
 type Props = {
@@ -25,6 +25,7 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
   const [saving, setSaving] = useState(false)
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [showResetModal, setShowResetModal] = useState<{id: string, name: string} | null>(null)
+  const [showEditUser, setShowEditUser] = useState<{id: string, name: string, role: string} | null>(null)
   const [msg, setMsg] = useState<{type: 'success' | 'error', text: string} | null>(null)
   const [uploading, setUploading] = useState<string | null>(null)
 
@@ -431,6 +432,13 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
                       <td className="px-8 py-5 text-right">
                         <div className="flex justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                           <button 
+                            onClick={() => setShowEditUser({ id: member.id, name: member.full_name || '', role: member.role || 'employee' })}
+                            className="p-2.5 text-slate-400 hover:text-blue-600 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm transition-all" 
+                            title="Editar Colaborador"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          <button 
                             onClick={() => setShowResetModal({id: member.id, name: member.full_name})}
                             className="p-2.5 text-slate-400 hover:text-indigo-600 hover:bg-white rounded-xl border border-transparent hover:border-slate-100 shadow-sm transition-all" 
                             title="Resetar Senha"
@@ -485,6 +493,21 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
           onClose={() => setShowResetModal(null)} 
           onSuccess={() => {
             setMsg({ type: 'success', text: `Senha de ${showResetModal.name} alterada!` })
+            setTimeout(() => setMsg(null), 3000)
+          }}
+        />
+      )}
+
+      {/* Edit User Modal */}
+      {showEditUser && (
+        <EditUserModal 
+          userId={showEditUser.id}
+          userName={showEditUser.name}
+          initialRole={showEditUser.role}
+          onClose={() => setShowEditUser(null)} 
+          onSuccess={(newName, newRole) => {
+            setTeam(team.map(m => m.id === showEditUser.id ? { ...m, full_name: newName, role: newRole } : m))
+            setMsg({ type: 'success', text: `Dados de ${newName} atualizados!` })
             setTimeout(() => setMsg(null), 3000)
           }}
         />
@@ -658,6 +681,92 @@ function ResetPasswordModal({ userId, userName, onClose, onSuccess }: { userId: 
             </button>
             <button type="button" onClick={onClose} className="py-3 text-sm font-bold text-slate-400 hover:text-red-500 transition-colors">
               Desistir
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  )
+}
+
+function EditUserModal({ userId, userName, initialRole, onClose, onSuccess }: { 
+  userId: string, 
+  userName: string, 
+  initialRole: string,
+  onClose: () => void, 
+  onSuccess: (name: string, role: string) => void 
+}) {
+  const [form, setForm] = useState({ full_name: userName, role: initialRole })
+  const [loading, setLoading] = useState(false)
+
+  async function handleSubmit(e: React.FormEvent) {
+    e.preventDefault()
+    setLoading(true)
+    try {
+      const resp = await fetch('/api/admin/update-user', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetUserId: userId, ...form })
+      })
+      const data = await resp.json()
+      if (resp.ok) {
+        onSuccess(form.full_name, form.role)
+        onClose()
+      } else {
+        alert('Erro: ' + (data.error || 'Falha ao atualizar usuário'))
+      }
+    } catch (err) {
+      alert('Erro inesperado')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-900/60 backdrop-blur-md p-4 animate-in fade-in duration-300">
+      <div className="bg-white rounded-[40px] p-10 w-full max-w-md shadow-2xl relative border border-slate-100 overflow-hidden">
+        <div className="absolute top-0 left-0 right-0 h-2 bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-600" />
+        
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-3xl font-black text-slate-800 tracking-tighter">Editar Membro</h2>
+            <p className="text-[11px] font-black text-slate-400 mt-1 uppercase tracking-widest">Alterar Cargo ou Nome</p>
+          </div>
+          <button onClick={onClose} className="p-3 hover:bg-slate-100 rounded-2xl transition-all">
+            <X className="w-6 h-6 text-slate-400" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nome Completo</label>
+            <input 
+              required
+              type="text" 
+              value={form.full_name}
+              onChange={e => setForm({...form, full_name: e.target.value})}
+              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-50 outline-none transition-all font-bold text-slate-800" 
+            />
+          </div>
+          <div className="space-y-2">
+            <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Poder de Acesso</label>
+            <select 
+              value={form.role}
+              onChange={e => setForm({...form, role: e.target.value})}
+              className="w-full px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-50 outline-none transition-all font-bold text-slate-800 appearance-none"
+            >
+              <option value="employee">Colaborador (Produção/Comercial)</option>
+              <option value="admin">Administrador (Gestão Total)</option>
+            </select>
+          </div>
+
+          <div className="pt-6 flex gap-4">
+            <button type="button" onClick={onClose} className="flex-1 py-4 font-black uppercase text-xs tracking-widest text-slate-400 hover:text-slate-600 transition-all">
+              Cancelar
+            </button>
+            <button type="submit" disabled={loading} className="flex-[2] btn-primary py-4 rounded-[20px] flex items-center justify-center gap-2 shadow-xl shadow-blue-100">
+              {loading ? <Loader2 className="w-5 h-5 animate-spin" /> : <Save className="w-5 h-5" />}
+              Salvar Dados
             </button>
           </div>
         </form>
