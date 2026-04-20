@@ -46,6 +46,8 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
 
   const [theme,    setTheme]    = useState('light')
   const [userName, setUserName] = useState<string>('')
+  const [orgName,  setOrgName]  = useState<string>('PROblind')
+  const [orgLogo,  setOrgLogo]  = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
@@ -54,25 +56,32 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
     setTheme(saved)
     document.documentElement.setAttribute('data-theme', saved)
 
-    async function loadProfile() {
+    async function loadData() {
       const cacheKey = `user_name_${userId}`
       const cached   = localStorage.getItem(cacheKey)
       if (cached) setUserName(cached)
 
-      const { data } = await supabase
+      const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name')
+        .select('full_name, organizations(name, logo_url)')
         .eq('id', userId)
         .single()
 
-      if (data?.full_name) {
-        setUserName(data.full_name)
-        localStorage.setItem(cacheKey, data.full_name)
+      if (profile?.full_name) {
+        setUserName(profile.full_name)
+        localStorage.setItem(cacheKey, profile.full_name)
       } else if (!cached) {
         setUserName(userEmail.split('@')[0])
       }
+
+      if (profile?.organizations) {
+        // @ts-ignore
+        setOrgName(profile.organizations.name || 'Empresa')
+        // @ts-ignore
+        setOrgLogo(profile.organizations.logo_url)
+      }
     }
-    loadProfile()
+    loadData()
   }, [userId, userEmail, supabase])
 
   function toggleTheme() {
@@ -119,7 +128,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
         >
           {/* Icon mark — white, no orange */}
           <div
-            className="flex-shrink-0 flex items-center justify-center"
+            className="flex-shrink-0 flex items-center justify-center overflow-hidden"
             style={{
               width:       '34px',
               height:      '34px',
@@ -128,7 +137,11 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
               borderRadius:'7px',
             }}
           >
-            <ShieldCheck className="w-[18px] h-[18px] text-[#111111]" strokeWidth={2.5} />
+            {orgLogo ? (
+              <img src={orgLogo} alt="Logo" className="w-full h-full object-cover" />
+            ) : (
+              <ShieldCheck className="w-[18px] h-[18px] text-[#111111]" strokeWidth={2.5} />
+            )}
           </div>
 
           {/* Brand name */}
@@ -148,10 +161,11 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 letterSpacing: '-0.03em',
               }}
             >
-              PRO<span style={{ color: 'rgba(255,255,255,0.48)' }}>blind</span>
+              {orgName}
             </span>
           </div>
         </div>
+
 
         {/* ── Navigation ── */}
         <nav

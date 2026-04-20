@@ -26,8 +26,56 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
   const [showInviteModal, setShowInviteModal] = useState(false)
   const [showResetModal, setShowResetModal] = useState<{id: string, name: string} | null>(null)
   const [msg, setMsg] = useState<{type: 'success' | 'error', text: string} | null>(null)
+  const [uploading, setUploading] = useState<string | null>(null)
 
   const supabase = createClient()
+
+  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>, type: 'avatar' | 'logo') {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploading(type)
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${type}_${Math.random()}.${fileExt}`
+      const filePath = `${type}s/${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('org-assets')
+        .upload(filePath, file)
+
+      if (uploadError) throw uploadError
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('org-assets')
+        .getPublicUrl(filePath)
+
+      if (type === 'avatar') {
+        const { error: updateError } = await supabase
+          .from('profiles')
+          .update({ avatar_url: publicUrl })
+          .eq('id', profile.id)
+        if (updateError) throw updateError
+        setProfile({ ...profile, avatar_url: publicUrl })
+      } else {
+        const { error: updateError } = await supabase
+          .from('organizations')
+          .update({ logo_url: publicUrl })
+          .eq('id', org.id)
+        if (updateError) throw updateError
+        setOrg({ ...org, logo_url: publicUrl })
+      }
+
+      setMsg({ type: 'success', text: 'Imagem atualizada com sucesso!' })
+      // Forçar atualização global para o Sidebar refletir a mudança
+      window.location.reload()
+    } catch (err: any) {
+      setMsg({ type: 'error', text: err.message || 'Erro no upload.' })
+    } finally {
+      setUploading(null)
+    }
+    setTimeout(() => setMsg(null), 3000)
+  }
 
   const tabs = [
     { id: 'perfil', label: 'Perfil', icon: User },
@@ -134,12 +182,27 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
             <div className="soft-card p-8">
               <div className="flex items-center gap-6 mb-8">
                 <div className="relative group">
-                  <div className="w-24 h-24 rounded-3xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-3xl font-black shadow-inner">
-                    {profile.full_name?.charAt(0) || 'U'}
+                  <div className="w-24 h-24 rounded-3xl bg-indigo-100 flex items-center justify-center text-indigo-600 text-3xl font-black shadow-inner overflow-hidden border-4 border-white shadow-xl">
+                    {profile.avatar_url ? (
+                      <img src={profile.avatar_url} alt="Avatar" className="w-full h-full object-cover" />
+                    ) : (
+                      profile.full_name?.charAt(0) || 'U'
+                    )}
+                    {uploading === 'avatar' && (
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                        <Loader2 className="w-8 h-8 text-indigo-600 animate-spin" />
+                      </div>
+                    )}
                   </div>
-                  <button className="absolute -bottom-2 -right-2 p-2.5 bg-white rounded-xl shadow-xl border border-slate-100 text-slate-500 hover:text-indigo-600 transition-all hover:scale-110">
+                  <label className="absolute -bottom-2 -right-2 p-2.5 bg-white rounded-xl shadow-xl border border-slate-100 text-slate-500 hover:text-indigo-600 transition-all hover:scale-110 cursor-pointer">
                     <Camera className="w-4 h-4" />
-                  </button>
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'avatar')}
+                    />
+                  </label>
                 </div>
                 <div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">{profile.full_name}</h2>
@@ -230,8 +293,28 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
                   </h2>
                   <p className="text-slate-500 font-medium">Informações legais e de contato da sua blindadora.</p>
                 </div>
-                <div className="w-16 h-16 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400">
-                   <Building2 className="w-8 h-8" />
+                <div className="relative">
+                  <div className="w-20 h-20 rounded-2xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-400 overflow-hidden relative">
+                    {org.logo_url ? (
+                      <img src={org.logo_url} alt="Logo" className="w-full h-full object-cover" />
+                    ) : (
+                      <Building2 className="w-8 h-8" />
+                    )}
+                    {uploading === 'logo' && (
+                      <div className="absolute inset-0 bg-white/60 flex items-center justify-center">
+                        <Loader2 className="w-5 h-5 text-indigo-600 animate-spin" />
+                      </div>
+                    )}
+                  </div>
+                  <label className="absolute -bottom-2 -right-2 p-1.5 bg-white rounded-lg shadow-lg border border-slate-100 text-slate-500 hover:text-indigo-600 transition-all cursor-pointer">
+                    <Camera className="w-3.5 h-3.5" />
+                    <input 
+                      type="file" 
+                      className="hidden" 
+                      accept="image/*"
+                      onChange={(e) => handleFileUpload(e, 'logo')}
+                    />
+                  </label>
                 </div>
               </div>
 
