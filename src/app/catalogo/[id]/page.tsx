@@ -8,10 +8,19 @@ export const dynamic = 'force-dynamic'
 export default async function CatalogVehiclePage({ params }: { params: { id: string } }) {
   const supabase = await createClient()
 
-  // Buscamos apenas projetos marcados para publicar no catálogo
-  const { data: vehicle } = await supabase
+  // Buscamos o projeto e seus estágios com fotos (usando a relação correta: projects -> production_stages -> stage_photos)
+  const { data: vehicle, error } = await supabase
     .from('projects')
-    .select('*, stage_photos(photo_url, production_stages(stage_name))')
+    .select(`
+      *,
+      production_stages (
+        id,
+        stage_name,
+        stage_photos (
+          photo_url
+        )
+      )
+    `)
     .eq('id', params.id)
     .eq('published_to_catalog', true)
     .single()
@@ -72,20 +81,22 @@ export default async function CatalogVehiclePage({ params }: { params: { id: str
              )}
              
              {/* Fotos de Produção (Prova de Trabalho) */}
-             {vehicle.stage_photos && vehicle.stage_photos.length > 0 && (
+             {vehicle.production_stages && vehicle.production_stages.length > 0 && (
                 <div className="mt-12">
                   <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
                     <Cog className="w-5 h-5 text-amber-500" /> Transparência: Fotos da Blindagem
                   </h3>
-                  <div className="grid grid-cols-3 gap-4">
-                    {vehicle.stage_photos.map((sp: any, i: number) => (
-                      <div key={i} className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200">
-                        <img src={sp.photo_url} alt="" className="w-full h-full object-cover" />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 flex flex-col justify-end">
-                           <span className="text-white text-xs font-bold leading-tight">{sp.production_stages?.stage_name}</span>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+                    {vehicle.production_stages.map((stage: any) => 
+                      stage.stage_photos?.map((sp: any, i: number) => (
+                        <div key={`${stage.id}-${i}`} className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200">
+                          <img src={sp.photo_url} alt={stage.stage_name} className="w-full h-full object-cover" />
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 flex flex-col justify-end">
+                             <span className="text-white text-[10px] font-bold leading-tight uppercase tracking-wider">{stage.stage_name}</span>
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      ))
+                    )}
                   </div>
                 </div>
              )}
