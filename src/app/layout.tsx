@@ -1,12 +1,12 @@
 import type { Metadata } from 'next'
-import { Inter_Tight } from 'next/font/google'
+import { Space_Grotesk } from 'next/font/google'
 import './globals.css'
 
-const interTight = Inter_Tight({
+const spaceGrotesk = Space_Grotesk({
   subsets: ['latin'],
   display: 'swap',
-  variable: '--font-inter-tight',
-  weight: ['300', '400', '500', '600', '700', '800', '900'],
+  variable: '--font-space-grotesk',
+  weight: ['300', '400', '500', '600', '700'],
 })
 
 export const metadata: Metadata = {
@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={interTight.variable}>
+    <html lang="pt-BR" className={spaceGrotesk.variable}>
       <body className="font-sans antialiased">{children}</body>
     </html>
   )
