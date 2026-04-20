@@ -63,7 +63,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
 
       const { data: profile } = await supabase
         .from('profiles')
-        .select('full_name, organizations(name, logo_url)')
+        .select('full_name, avatar_url, organizations(name, logo_url)')
         .eq('id', userId)
         .single()
 
@@ -75,10 +75,17 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
       }
 
       if (profile?.organizations) {
-        // @ts-ignore
-        setOrgName(profile.organizations.name || 'Empresa')
-        // @ts-ignore
-        setOrgLogo(profile.organizations.logo_url)
+        // @ts-ignore - Handle potential array or object return
+        const orgData = Array.isArray(profile.organizations) ? profile.organizations[0] : profile.organizations
+        
+        // Priorizar nome da organização, se não for o padrão, senão usar o do perfil
+        const finalName = (orgData?.name && !['PROblind', 'PROBlind'].includes(orgData.name))
+          ? orgData.name
+          : (profile.full_name || 'PROblind')
+
+        setOrgName(finalName)
+        // Fallback para avatar do perfil se a logo da org não estiver definida
+        setOrgLogo(orgData?.logo_url || profile.avatar_url)
       }
     }
     loadData()
