@@ -193,7 +193,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
   const checkedCount = allItems.filter(([_, v]) => v.checked).length
 
   return (
-    <div className={`soft-card mb-8 overflow-hidden border-2 transition-all duration-500 ${saved ? 'border-emerald-100 bg-white' : 'border-amber-100 bg-white'}`}>
+    <div className={`soft-card mb-6 overflow-hidden border transition-all duration-500 ${saved ? 'border-emerald-100 bg-white' : 'border-amber-100 bg-white'}`}>
       {/* Lightbox Modal */}
       {selectedMedia && (
         <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-900/95 backdrop-blur-md p-4 md:p-10 animate-in fade-in duration-300">
@@ -214,21 +214,20 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" onChange={handleFileUpload} />
 
       {/* Header Bar */}
-      <div className={`p-1 bg-gradient-to-r ${saved ? 'from-emerald-500 to-teal-600' : 'from-amber-400 to-orange-500'}`} />
+      <div className={`p-0.5 bg-gradient-to-r ${saved ? 'from-emerald-500 to-teal-600' : 'from-amber-400 to-orange-500'}`} />
       
-      <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between p-6 text-left group hover:bg-slate-50 transition-colors"
+        className="w-full flex items-center justify-between p-4 text-left group hover:bg-slate-50 transition-colors"
       >
         <div className="flex items-center gap-4">
-          <div className={`w-12 h-12 rounded-2xl flex items-center justify-center shadow-inner ${saved ? 'bg-emerald-100' : 'bg-amber-100'}`}>
-            <ClipboardCheck className={`w-6 h-6 ${saved ? 'text-emerald-600' : 'text-amber-600'}`} />
+          <div className={`w-10 h-10 rounded-xl flex items-center justify-center shadow-inner ${saved ? 'bg-emerald-100' : 'bg-amber-100'}`}>
+            <ClipboardCheck className={`w-5 h-5 ${saved ? 'text-emerald-600' : 'text-amber-600'}`} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-800">Checklist de Entrada</h3>
+            <h2 className="text-base font-semibold text-slate-800">Checklist de Entrada</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className={`w-2 h-2 rounded-full animate-pulse ${saved ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-              <p className="text-xs font-semibold text-slate-500 uppercase tracking-widest">
+              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                 {saved ? `Concluído • ${checkedCount} Itens` : `Pendente • ${checkedCount}/${allItems.length} Verificados`}
               </p>
             </div>
@@ -243,10 +242,10 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
       {isOpen && (
         <div className="p-6 pt-0 space-y-8 animate-in slide-in-from-top-4 duration-500">
           {/* Odometer Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end p-5 rounded-3xl bg-slate-50 border border-slate-100 shadow-inner">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-xs font-black text-slate-400 uppercase tracking-tighter">
-                <Gauge className="w-4 h-4 text-amber-500" />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-end p-4 rounded-xl bg-slate-50 border border-slate-100 shadow-inner">
+            <div className="space-y-1.5">
+              <label className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-normal">
+                <Gauge className="w-3.5 h-3.5 text-amber-500" />
                 Odômetro de Entrada
               </label>
               <div className="relative">
@@ -255,9 +254,9 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                   placeholder="000000"
                   value={odometer}
                   onChange={e => setOdometer(e.target.value)}
-                  className="w-full text-2xl font-mono tracking-widest px-4 py-3 bg-white border-2 border-slate-200 rounded-2xl focus:border-amber-400 focus:ring-4 focus:ring-amber-50 outline-none transition-all"
+                  className="w-full text-lg font-mono tracking-widest px-4 py-2 bg-white border border-slate-200 rounded-xl focus:border-amber-400 focus:ring-4 focus:ring-amber-50 outline-none transition-all"
                 />
-                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-300">KM</span>
+                <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-300 text-sm">KM</span>
               </div>
             </div>
             <p className="text-xs text-slate-400 italic mb-1">
@@ -266,17 +265,17 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           </div>
 
           {/* Checklist Items */}
-          <div className="space-y-4">
-            <h4 className="text-sm font-black text-slate-800 uppercase tracking-widest flex items-center gap-2">
-              <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+          <div className="space-y-3">
+            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
               Itens de Vistoria Técnica
-            </h4>
+            </h3>
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {allItems.map(([key, item]) => (
                 <div 
                   key={key}
-                  className={`relative flex items-center p-1 pl-4 rounded-2xl border-2 transition-all duration-300 group ${
+                  className={`relative flex items-center p-0.5 pl-3 rounded-xl border transition-all duration-300 group ${
                     item.checked 
                       ? 'border-emerald-500 bg-emerald-50/50 shadow-sm' 
                       : 'border-slate-100 bg-white hover:border-slate-300'
@@ -288,14 +287,14 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                   {/* Text & Toggle */}
                   <button
                     onClick={() => toggle(key)}
-                    className="flex-1 py-4 flex items-center gap-4 text-left"
+                    className="flex-1 py-2.5 flex items-center gap-3 text-left"
                   >
-                    <div className={`w-6 h-6 rounded-lg border-2 flex items-center justify-center transition-all ${
+                    <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
                       item.checked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 bg-white group-hover:border-slate-400'
                     }`}>
-                      {item.checked && <CheckSquare className="w-4 h-4" />}
+                      {item.checked && <CheckSquare className="w-3.5 h-3.5" />}
                     </div>
-                    <span className={`text-sm font-bold transition-colors ${item.checked ? 'text-emerald-900' : 'text-slate-600'}`}>
+                    <span className={`text-sm font-semibold transition-colors ${item.checked ? 'text-emerald-900' : 'text-slate-600'}`}>
                       {item.label || CHECKLIST_ITEMS.find(i => i.key === key)?.label}
                     </span>
                   </button>
@@ -311,13 +310,13 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                               const url = signedUrls[key] || item.media_url
                               if (url) setSelectedMedia({url, type: item.media_type!})
                             }}
-                            className="w-12 h-12 rounded-xl border-2 border-white shadow-md overflow-hidden bg-black transition-transform hover:scale-110 active:scale-95"
+                            className="w-10 h-10 rounded-lg border-2 border-white shadow-md overflow-hidden bg-black transition-transform hover:scale-110 active:scale-95"
                           >
                             {!signedUrls[key] && !item.media_url && uploadingItem !== key ? (
-                               <Loader2 className="w-5 h-5 animate-spin text-white/50 m-auto" />
+                               <Loader2 className="w-4 h-4 animate-spin text-white/50 m-auto" />
                             ) : item.media_type === 'video' ? (
                               <div className="w-full h-full flex items-center justify-center">
-                                <PlayCircle className="w-5 h-5 text-white/80" />
+                                <PlayCircle className="w-4 h-4 text-white/80" />
                                 <video src={signedUrls[key] || item.media_url} className="absolute inset-0 w-full h-full object-cover opacity-40" muted />
                               </div>
                             ) : (
@@ -342,14 +341,14 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                             setActiveItemForUpload(key)
                             fileInputRef.current?.click()
                           }}
-                          className={`w-12 h-12 rounded-xl flex items-center justify-center transition-all ${
+                          className={`w-10 h-10 rounded-lg flex items-center justify-center transition-all ${
                             uploadingItem === key ? 'bg-indigo-100' : 'bg-slate-50 hover:bg-indigo-50 text-slate-400 hover:text-indigo-600'
                           }`}
                         >
                           {uploadingItem === key ? (
-                            <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
+                            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
                           ) : (
-                            <Camera className="w-5 h-5" />
+                            <Camera className="w-4 h-4" />
                           )}
                         </button>
                       )}
@@ -369,22 +368,22 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
               ))}
 
               {/* Add Custom Item Integration */}
-              <div className="flex items-center gap-3 p-2 pl-4 rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50/50 focus-within:bg-white focus-within:border-amber-300 transition-all">
-                <FileText className="w-5 h-5 text-slate-400" />
+              <div className="flex items-center gap-3 p-1 pl-4 rounded-xl border border-dashed border-slate-200 bg-slate-50/50 focus-within:bg-white focus-within:border-amber-300 transition-all">
+                <FileText className="w-4 h-4 text-slate-400" />
                 <input
                   type="text"
                   placeholder="Adicionar observação ou novo item..."
                   value={newCustomLabel}
                   onChange={e => setNewCustomLabel(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && addCustomItem()}
-                  className="flex-1 py-3 text-sm font-semibold bg-transparent outline-none text-slate-700 placeholder:text-slate-400"
+                  className="flex-1 py-2 text-sm font-semibold bg-transparent outline-none text-slate-700 placeholder:text-slate-400"
                 />
                 <button
                   onClick={addCustomItem}
                   disabled={!newCustomLabel.trim()}
-                  className="p-3 bg-white text-emerald-600 rounded-xl shadow-sm hover:shadow-md disabled:opacity-0 transition-all active:scale-95"
+                  className="p-2.5 bg-white text-emerald-600 rounded-lg shadow-sm hover:shadow-md disabled:opacity-0 transition-all active:scale-95"
                 >
-                  <Plus className="w-5 h-5" />
+                  <Plus className="w-4 h-4" />
                 </button>
               </div>
             </div>
