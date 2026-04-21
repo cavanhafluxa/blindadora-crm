@@ -295,6 +295,24 @@ body {
 [data-theme='dark'] .glass-bento { background: rgba(24,24,24,0.80); border: 1px solid rgba(255,255,255,0.06); }
 
 /* ============================================================
+   PREMIUM UI ELEMENTS
+   ============================================================ */
+.premium-avatar {
+  border: 2px solid #111111;
+  box-shadow: 0 0 0 2px rgba(255,255,255,0.15);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.premium-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 0 3px rgba(255,255,255,0.25);
+}
+
+.premium-logo-container {
+  border: 2px solid #111111;
+  box-shadow: 0 0 0 1.5px rgba(255,255,255,0.15);
+}
+
+/* ============================================================
    SCROLLBAR
    ============================================================ */
 ::-webkit-scrollbar             { width: 4px; height: 4px; }

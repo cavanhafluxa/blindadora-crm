@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Package, Plus, Trash2, Edit2, AlertTriangle, ArrowUp, ArrowDown, History, Upload, Loader2, Download } from 'lucide-react'
+import { Package, Plus, Trash2, Edit2, AlertTriangle, ArrowUp, ArrowDown, History, Upload, Loader2, Download, DollarSign } from 'lucide-react'
 
 type Material = {
   id: string
@@ -11,6 +11,7 @@ type Material = {
   quantity_in_stock: number
   unit_price: number | null
   minimum_stock: number
+  reserved_quantity: number
 }
 
 type Movement = {
@@ -37,7 +38,7 @@ export default function MaterialsClient({
   const supabase = createClient()
   const [materials, setMaterials] = useState<Material[]>(initialMaterials)
   const [movements, setMovements] = useState<Movement[]>([])
-  const [activeTab, setActiveTab] = useState<'materials' | 'history'>('materials')
+  const [activeTab, setActiveTab] = useState<'materials' | 'history' | 'suggestions'>('materials')
 
   const [showForm, setShowForm] = useState(false)
   const [editingId, setEditingId] = useState<string | null>(null)
@@ -50,8 +51,11 @@ export default function MaterialsClient({
   const fileInputRef = useRef<HTMLInputElement>(null)
   const [isProcessingStock, setIsProcessingStock] = useState(false)
 
-  const [form, setForm] = useState({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0' })
+  const [form, setForm] = useState({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0', reserved_quantity: '0' })
   const [saving, setSaving] = useState(false)
+
+  const [reserveModal, setReserveModal] = useState<{ id: string; name: string } | null>(null)
+  const [reserveQty, setReserveQty] = useState('0')
 
   async function loadHistory() {
     const { data } = await supabase
@@ -92,6 +96,7 @@ export default function MaterialsClient({
         sku: form.sku || null,
         unit_price: form.unit_price ? Number(form.unit_price) : null,
         minimum_stock: Number(form.minimum_stock),
+        reserved_quantity: Number(form.reserved_quantity),
       }).eq('id', editingId).select().single()
       if (data) setMaterials(prev => prev.map(m => m.id === editingId ? data as Material : m))
       setEditingId(null)
@@ -103,17 +108,25 @@ export default function MaterialsClient({
         unit_price: form.unit_price ? Number(form.unit_price) : null,
         minimum_stock: Number(form.minimum_stock),
         quantity_in_stock: Number(form.quantity_in_stock),
+        reserved_quantity: Number(form.reserved_quantity),
         organization_id: orgId,
       }).select().single()
       if (data) setMaterials(prev => [data as Material, ...prev])
     }
     setSaving(false)
     setShowForm(false)
-    setForm({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0' })
+    setForm({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0', reserved_quantity: '0' })
   }
 
   function startEdit(m: Material) {
-    setForm({ name: m.name, sku: m.sku || '', unit_price: m.unit_price?.toString() || '', minimum_stock: m.minimum_stock.toString(), quantity_in_stock: m.quantity_in_stock.toString() })
+    setForm({ 
+      name: m.name, 
+      sku: m.sku || '', 
+      unit_price: m.unit_price?.toString() || '', 
+      minimum_stock: m.minimum_stock.toString(), 
+      quantity_in_stock: m.quantity_in_stock.toString(),
+      reserved_quantity: m.reserved_quantity.toString() 
+    })
     setEditingId(m.id)
     setShowForm(true)
   }
@@ -124,62 +137,109 @@ export default function MaterialsClient({
     setMaterials(prev => prev.filter(m => m.id !== id))
   }
 
+  async function handleReserveUpdate() {
+    if (!reserveModal) return
+    setIsProcessingStock(true)
+    const qty = parseInt(reserveQty) || 0
+    
+    await supabase.from('materials').update({ reserved_quantity: qty }).eq('id', reserveModal.id)
+    setMaterials(prev => prev.map(m => m.id === reserveModal.id ? { ...m, reserved_quantity: qty } : m))
+    
+    setIsProcessingStock(false)
+    setReserveModal(null)
+  }
+
   async function handleStockUpdate() {
     if (!stockModal) return
     setIsProcessingStock(true)
-    
-    const qty = parseInt(stockQty) || 0
-    if (qty <= 0) {
+
+    const qty = parseInt(stockQty)
+    if (isNaN(qty) || qty <= 0) {
+      alert('Quantidade inválida')
       setIsProcessingStock(false)
       return
     }
 
-    const mat = materials.find(m => m.id === stockModal.id)!
-    const newQty = stockModal.op === 'add' ? mat.quantity_in_stock + qty : Math.max(0, mat.quantity_in_stock - qty)
-    
-    const orgId = await getOrgId()
+    try {
+      const orgId = await getOrgId()
+      let invoiceUrl = null
 
-    let uploadedUrl = null
-    if (stockModal.op === 'add' && stockFile) {
-      const safeName = stockFile.name.replace(/[^a-zA-Z0-9.\-_]/g, '')
-      const path = `invoices/${Date.now()}_${safeName}`
-      const { error: uploadError } = await supabase.storage.from('documents').upload(path, stockFile, { upsert: true })
-      if (!uploadError) {
-        uploadedUrl = path
+      // Handle file upload for stock entries
+      if (stockFile && stockModal.op === 'add') {
+        const fileExt = stockFile.name.split('.').pop()
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+        const path = `stock/${fileName}`
+        
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(path, stockFile)
+        
+        if (uploadError) {
+          console.error('Upload error:', uploadError)
+        } else {
+          const { data: { publicUrl } } = supabase.storage
+            .from('documents')
+            .getPublicUrl(path)
+          invoiceUrl = publicUrl
+        }
       }
-    }
 
-    // Save movement history
-    await supabase.from('stock_movements').insert({
-      organization_id: orgId,
-      material_id: stockModal.id,
-      movement_type: stockModal.op === 'add' ? 'in' : 'out',
-      quantity: qty,
-      supplier_id: stockModal.op === 'add' && stockSupplier ? stockSupplier : null,
-      project_id: stockModal.op === 'remove' && stockProject ? stockProject : null,
-      invoice_url: uploadedUrl
-    })
+      const currentMaterial = materials.find(m => m.id === stockModal.id)
+      if (!currentMaterial) throw new Error('Material não encontrado')
 
-    // Update stock quantity
-    await supabase.from('materials').update({ quantity_in_stock: newQty }).eq('id', stockModal.id)
-    
-    setMaterials(prev => prev.map(m => m.id === stockModal.id ? { ...m, quantity_in_stock: newQty } : m))
-    
-    // Refresh history if we are currently looking at it
-    if (activeTab === 'history') {
-      loadHistory()
+      const newQty = stockModal.op === 'add' 
+        ? currentMaterial.quantity_in_stock + qty 
+        : currentMaterial.quantity_in_stock - qty
+
+      if (newQty < 0) {
+        alert('Estoque insuficiente para esta saída.')
+        setIsProcessingStock(false)
+        return
+      }
+
+      // 1. Update material quantity
+      const { error: updateError } = await supabase
+        .from('materials')
+        .update({ quantity_in_stock: newQty })
+        .eq('id', stockModal.id)
+
+      if (updateError) throw updateError
+
+      // 2. Register movement
+      const { error: moveError } = await supabase.from('stock_movements').insert({
+        organization_id: orgId,
+        material_id: stockModal.id,
+        movement_type: stockModal.op === 'add' ? 'in' : 'out',
+        quantity: qty,
+        supplier_id: stockSupplier || null,
+        project_id: stockProject || null,
+        invoice_url: invoiceUrl,
+        unit_cost: stockModal.op === 'add' ? Number(currentMaterial.unit_price || 0) : null
+      })
+
+      if (moveError) throw moveError
+
+      // 3. Update local state
+      setMaterials(prev => prev.map(m => m.id === stockModal.id ? { ...m, quantity_in_stock: newQty } : m))
+      
+      // Cleanup
+      setStockModal(null)
+      setStockQty('1')
+      setStockSupplier('')
+      setStockProject('')
+      setStockFile(null)
+      
+      if (activeTab === 'history') loadHistory()
+      
+    } catch (err: any) {
+      alert('Erro ao atualizar estoque: ' + (err.message || err))
+    } finally {
+      setIsProcessingStock(false)
     }
-    
-    // Cleanup
-    setIsProcessingStock(false)
-    setStockModal(null)
-    setStockQty('1')
-    setStockSupplier('')
-    setStockProject('')
-    setStockFile(null)
   }
 
   const lowStock = materials.filter(m => m.quantity_in_stock <= m.minimum_stock)
+  const inventoryValue = materials.reduce((acc, m) => acc + (m.quantity_in_stock * (m.unit_price || 0)), 0)
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
@@ -189,9 +249,20 @@ export default function MaterialsClient({
           <p className="text-slate-500 text-sm mt-1">{materials.length} itens cadastrados</p>
         </div>
         {activeTab === 'materials' && (
-          <button className="btn-primary" onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0' }) }}>
-            <Plus className="w-4 h-4" /> Novo Material
-          </button>
+          <div className="flex gap-2">
+            <div className="soft-card px-4 py-2 bg-slate-50 flex items-center gap-3">
+              <div className="p-2 bg-indigo-100 rounded-lg">
+                <DollarSign className="w-4 h-4 text-indigo-600" />
+              </div>
+              <div>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Valor do Inventário</p>
+                <p className="text-sm font-bold text-slate-800">R$ {inventoryValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+              </div>
+            </div>
+            <button className="btn-primary" onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0', reserved_quantity: '0' }) }}>
+              <Plus className="w-4 h-4" /> Novo Material
+            </button>
+          </div>
         )}
       </div>
 
@@ -207,6 +278,12 @@ export default function MaterialsClient({
           className={`pb-3 px-4 font-semibold text-sm transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
         >
           <History className="w-4 h-4" /> Histórico (Extrato)
+        </button>
+        <button
+          onClick={() => setActiveTab('suggestions')}
+          className={`pb-3 px-4 font-semibold text-sm transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'suggestions' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+        >
+          <Package className="w-4 h-4" /> Sugestão de Compra
         </button>
       </div>
 
@@ -257,10 +334,12 @@ export default function MaterialsClient({
                   <tr className="bg-slate-50 border-b border-slate-200">
                     <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Material</th>
                     <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">SKU</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Em Estoque</th>
+                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Estoque Real</th>
+                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Reservado</th>
+                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Disponível</th>
                     <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Mín.</th>
                     <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Preço Unit.</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Movimentar</th>
+                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Ações</th>
                     <th className="px-5 py-3"></th>
                   </tr>
                 </thead>
@@ -278,7 +357,18 @@ export default function MaterialsClient({
                         </td>
                         <td className="px-5 py-3.5 text-slate-500">{m.sku || '—'}</td>
                         <td className="px-5 py-3.5 text-center">
-                          <span className={`font-bold text-lg ${isLow ? 'text-amber-600' : 'text-slate-700'}`}>{m.quantity_in_stock}</span>
+                          <span className={`font-bold text-sm ${isLow ? 'text-amber-600' : 'text-slate-700'}`}>{m.quantity_in_stock}</span>
+                        </td>
+                        <td className="px-5 py-3.5 text-center">
+                          <button onClick={() => { setReserveModal({ id: m.id, name: m.name }); setReserveQty(m.reserved_quantity.toString()) }} 
+                            className="text-xs font-medium bg-slate-100 px-2 py-1 rounded hover:bg-slate-200 transition-colors">
+                            {m.reserved_quantity}
+                          </button>
+                        </td>
+                        <td className="px-5 py-3.5 text-center">
+                          <span className={`font-bold text-sm ${m.quantity_in_stock - m.reserved_quantity < m.minimum_stock ? 'text-red-500' : 'text-slate-700'}`}>
+                            {m.quantity_in_stock - m.reserved_quantity}
+                          </span>
                         </td>
                         <td className="px-5 py-3.5 text-center text-slate-500">{m.minimum_stock}</td>
                         <td className="px-5 py-3.5 text-right text-slate-600">
@@ -296,8 +386,8 @@ export default function MaterialsClient({
                             </button>
                           </div>
                         </td>
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-1.5">
+                        <td className="px-5 py-3.5 text-right">
+                          <div className="flex items-center justify-end gap-1.5">
                             <button onClick={() => startEdit(m)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
                             <button onClick={() => handleDelete(m.id)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
                           </div>
@@ -378,6 +468,77 @@ export default function MaterialsClient({
         </div>
       )}
 
+      {activeTab === 'suggestions' && (
+        <div className="animate-in fade-in space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="soft-card p-6 bg-amber-50 border-amber-200">
+              <h3 className="text-amber-800 font-bold flex items-center gap-2 mb-2">
+                <AlertTriangle className="w-5 h-5" /> Reposição Necessária
+              </h3>
+              <p className="text-3xl font-bold text-amber-900">
+                {materials.filter(m => (m.quantity_in_stock - m.reserved_quantity) < m.minimum_stock).length}
+              </p>
+              <p className="text-sm text-amber-700 mt-1">Materiais abaixo do estoque mínimo</p>
+            </div>
+          </div>
+
+          <div className="soft-card overflow-hidden">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-200">
+                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Material</th>
+                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Estoque Disponível</th>
+                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Mínimo</th>
+                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Déficit</th>
+                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Sugestão de Compra</th>
+                  <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Custo Est. (R$)</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {materials
+                  .filter(m => (m.quantity_in_stock - m.reserved_quantity) < m.minimum_stock)
+                  .map(m => {
+                    const available = m.quantity_in_stock - m.reserved_quantity
+                    const deficit = m.minimum_stock - available
+                    const suggestion = deficit + Math.ceil(m.minimum_stock * 0.5) // Deficit + 50% extra for safety
+                    const cost = suggestion * (m.unit_price || 0)
+
+                    return (
+                      <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
+                        <td className="px-5 py-4">
+                          <p className="font-semibold text-slate-800">{m.name}</p>
+                          <p className="text-[10px] text-slate-400 font-mono">{m.sku || 'S/ SKU'}</p>
+                        </td>
+                        <td className="px-5 py-4 text-center font-medium text-slate-700">
+                          {available} 
+                          <span className="text-[10px] text-slate-400 ml-1">(Real: {m.quantity_in_stock})</span>
+                        </td>
+                        <td className="px-5 py-4 text-center text-slate-600">{m.minimum_stock}</td>
+                        <td className="px-5 py-4 text-center font-bold text-red-500">-{deficit}</td>
+                        <td className="px-5 py-4 text-center">
+                          <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">
+                             {suggestion} un
+                          </span>
+                        </td>
+                        <td className="px-5 py-4 text-right font-semibold text-slate-800">
+                          R$ {cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                      </tr>
+                    )
+                  })}
+                {materials.filter(m => (m.quantity_in_stock - m.reserved_quantity) < m.minimum_stock).length === 0 && (
+                  <tr>
+                    <td colSpan={6} className="py-12 text-center text-slate-400">
+                      ✅ Todos os materiais estão com estoque saudável.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {/* Stock movement modal */}
       {stockModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
@@ -446,6 +607,31 @@ export default function MaterialsClient({
               >
                 {isProcessingStock && <Loader2 className="w-4 h-4 animate-spin" />}
                 {isProcessingStock ? 'Salvando...' : stockModal.op === 'add' ? 'Confirmar' : 'Confirmar'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      {/* Reserve modal */}
+      {reserveModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
+          <div className="bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+            <h3 className="font-bold text-slate-800 mb-1">📅 Reservar Material</h3>
+            <p className="text-sm text-slate-500 mb-4">{reserveModal.name}</p>
+            
+            <label className="text-xs font-semibold text-slate-500 block mb-1">Quantidade Reservada</label>
+            <input type="number" min="0" value={reserveQty} onChange={e => setReserveQty(e.target.value)}
+              className="w-full px-4 py-3 text-lg font-bold text-center border border-slate-200 rounded-xl mb-6 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+            
+            <div className="flex gap-3">
+              <button onClick={() => setReserveModal(null)} className="flex-1 px-4 py-2 border border-slate-200 rounded-xl text-sm font-semibold text-slate-600 hover:bg-slate-50">Cancelar</button>
+              <button 
+                onClick={handleReserveUpdate} 
+                disabled={isProcessingStock}
+                className="flex flex-1 justify-center items-center gap-2 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 border border-indigo-700 rounded-xl text-sm font-semibold text-white disabled:opacity-50"
+              >
+                {isProcessingStock && <Loader2 className="w-4 h-4 animate-spin" />}
+                Confirmar
               </button>
             </div>
           </div>

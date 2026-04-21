@@ -40,7 +40,12 @@ export async function DELETE(req: Request) {
     if (deleteError) return NextResponse.json({ error: deleteError.message }, { status: 400 })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Remove User Error:', error)
+    return NextResponse.json({ 
+      error: 'Erro interno ao remover colaborador.',
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 })
   }
 }

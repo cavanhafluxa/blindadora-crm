@@ -2,7 +2,23 @@
 
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Plus, Trash2, DollarSign, TrendingUp, TrendingDown, CheckCircle, Clock } from 'lucide-react'
+import { Plus, Trash2, DollarSign, TrendingUp, TrendingDown, CheckCircle, Clock, Calendar } from 'lucide-react'
+import { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer,
+  Cell
+} from 'recharts'
+import { 
+  ChartContainer, 
+  ChartTooltip, 
+  ChartTooltipContent,
+  type ChartConfig 
+} from '@/components/ui/chart'
 
 type Financial = {
   id: string
@@ -14,6 +30,10 @@ type Financial = {
   payment_method: string
   category: string
   created_at: string
+  status: string
+  parent_id?: string
+  installment_number?: number
+  total_installments?: number
 }
 
 const PAYMENT_METHODS = ['pix', 'cartão', 'boleto', 'dinheiro', 'transferência', 'cheque']
@@ -32,8 +52,20 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     due_date: '',
     payment_method: 'pix',
     category: 'contrato',
+    installments: '1',
   })
   const [saving, setSaving] = useState(false)
+
+  const chartConfig = {
+    income: {
+      label: "Receitas",
+      color: "#22c55e",
+    },
+    expense: {
+      label: "Despesas",
+      color: "#ef4444",
+    },
+  } satisfies ChartConfig
 
   const income = records.filter(r => r.type === 'income')
   const expense = records.filter(r => r.type === 'expense')
@@ -55,19 +87,39 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     e.preventDefault()
     setSaving(true)
     const orgId = await getOrgId()
-    const { data, error } = await supabase.from('financials').insert({
-      type: form.type,
-      amount: Number(form.amount),
-      description: form.description || null,
-      due_date: form.due_date || null,
-      payment_method: form.payment_method,
-      category: form.category,
-      organization_id: orgId,
-    }).select().single()
+    
+    const numInstallments = parseInt(form.installments) || 1
+    const baseAmount = Number(form.amount)
+    const installmentAmount = Number((baseAmount / numInstallments).toFixed(2))
+    
+    const inserts = []
+    const baseDate = form.due_date ? new Date(form.due_date) : new Date()
+
+    // Se houver parcelas, tratamos de forma especial
+    for (let i = 0; i < numInstallments; i++) {
+      const dueDate = new Date(baseDate)
+      dueDate.setMonth(dueDate.getMonth() + i)
+      
+      inserts.push({
+        type: form.type,
+        amount: installmentAmount,
+        description: numInstallments > 1 ? `${form.description} (${i+1}/${numInstallments})` : (form.description || null),
+        due_date: dueDate.toISOString().split('T')[0],
+        payment_method: form.payment_method,
+        category: form.category,
+        organization_id: orgId,
+        installment_number: numInstallments > 1 ? i + 1 : null,
+        total_installments: numInstallments > 1 ? numInstallments : null,
+        status: 'pending'
+      })
+    }
+
+    const { data, error } = await supabase.from('financials').insert(inserts).select()
+    
     if (!error && data) {
-      setRecords(prev => [data as Financial, ...prev])
+      setRecords(prev => [...(data as Financial[]), ...prev])
       setShowForm(false)
-      setForm({ type: 'income', amount: '', description: '', due_date: '', payment_method: 'pix', category: 'contrato' })
+      setForm({ type: 'income', amount: '', description: '', due_date: '', payment_method: 'pix', category: 'contrato', installments: '1' })
     }
     setSaving(false)
   }
@@ -150,12 +202,15 @@ export default function FinancialClient({ initialData }: { initialData: Financia
               <input type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" placeholder="Ex: Entrada contrato João" />
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Vencimento</label>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Vencimento (1ª pcela)</label>
               <input type="date" value={form.due_date} onChange={e => setForm(p => ({ ...p, due_date: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
             </div>
-            <div className="col-span-2 flex gap-3 items-end">
-              <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Salvando...' : 'Adicionar'}</button>
-              <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-500 hover:text-slate-700">Cancelar</button>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Parcelas</label>
+              <input type="number" min="1" max="60" value={form.installments} onChange={e => setForm(p => ({ ...p, installments: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
+            </div>
+            <div className="md:col-span-1 lg:col-span-1 flex gap-3 items-end">
+              <button type="submit" disabled={saving} className="btn-primary w-full">{saving ? 'Salvando...' : 'Adicionar'}</button>
             </div>
           </form>
         </div>
@@ -178,7 +233,60 @@ export default function FinancialClient({ initialData }: { initialData: Financia
 
       {/* Reports Tab */}
       {tab === 'reports' ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="space-y-6">
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2 soft-card p-6">
+              <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
+                <TrendingUp className="w-4 h-4 text-green-500" /> Fluxo de Caixa Mensal
+              </h3>
+              <div className="h-[300px] w-full">
+                <ChartContainer config={chartConfig}>
+                  <BarChart data={(() => {
+                    const monthsOrder = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
+                    const data: any = {}
+                    records.forEach(r => {
+                      if (!r.due_date) return
+                      const m = monthsOrder[new Date(r.due_date).getMonth()]
+                      if (!data[m]) data[m] = { month: m, income: 0, expense: 0 }
+                      data[m][r.type] += Number(r.amount)
+                    })
+                    return monthsOrder.map(m => data[m] || { month: m, income: 0, expense: 0 })
+                  })()}>
+                    <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
+                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                    <ChartTooltip content={<ChartTooltipContent />} />
+                    <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} barSize={20} />
+                  </BarChart>
+                </ChartContainer>
+              </div>
+            </div>
+
+            <div className="soft-card p-6">
+              <h3 className="font-semibold text-slate-800 mb-6">Status dos Recebíveis</h3>
+              <div className="space-y-6">
+                {[
+                  { label: 'Em Dia', val: records.filter(r => r.type === 'income' && r.paid).length, color: 'bg-green-500', total: records.filter(r => r.type === 'income').length },
+                  { label: 'Pendentes', val: records.filter(r => r.type === 'income' && !r.paid && (r.due_date && new Date(r.due_date) >= new Date())).length, color: 'bg-amber-500', total: records.filter(r => r.type === 'income').length },
+                  { label: 'Atrasados', val: records.filter(r => r.type === 'income' && !r.paid && (r.due_date && new Date(r.due_date) < new Date())).length, color: 'bg-red-500', total: records.filter(r => r.type === 'income').length },
+                ].map(stat => (
+                  <div key={stat.label}>
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-xs font-medium text-slate-600">{stat.label}</span>
+                      <span className="text-xs font-bold text-slate-800">{stat.val}</span>
+                    </div>
+                    <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full ${stat.color} rounded-full`} style={{ width: `${(stat.val / (stat.total || 1)) * 100}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* DRE */}
           <div className="soft-card p-6">
             <h3 className="font-semibold text-slate-800 mb-4">DRE Simplificado</h3>
@@ -221,6 +329,7 @@ export default function FinancialClient({ initialData }: { initialData: Financia
               })}
             </div>
           </div>
+        </div>
         </div>
       ) : (
         /* Records list */

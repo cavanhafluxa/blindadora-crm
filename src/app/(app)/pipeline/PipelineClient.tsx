@@ -104,7 +104,7 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 relative z-10">
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-slate-100 border border-slate-200 flex items-center justify-center text-[9px] font-bold text-slate-600">
+          <div className="w-5 h-5 rounded-full bg-white text-[9px] font-bold text-slate-800 flex items-center justify-center premium-avatar">
             {assignee ? assignee.full_name.charAt(0).toUpperCase() : '?'}
           </div>
           <span className="text-[10px] font-medium text-slate-500 truncate max-w-[80px]">

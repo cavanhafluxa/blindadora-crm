@@ -95,7 +95,7 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
             {profiles.map(profile => (
               <tr key={profile.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 font-medium text-slate-800 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-xs uppercase">
+                  <div className="w-8 h-8 rounded-full bg-white text-slate-800 flex items-center justify-center font-bold text-xs uppercase premium-avatar">
                     {profile.full_name.charAt(0)}
                   </div>
                   {profile.full_name}

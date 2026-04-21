@@ -135,7 +135,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
         >
           {/* Icon mark — white, no orange */}
           <div
-            className="flex-shrink-0 flex items-center justify-center overflow-hidden"
+            className="flex-shrink-0 flex items-center justify-center overflow-hidden premium-logo-container"
             style={{
               width:       '34px',
               height:      '34px',
@@ -240,7 +240,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
           >
             {/* Avatar — white circle with dark initials */}
             <div
-              className="flex-shrink-0 rounded-full flex items-center justify-center text-xs font-black"
+              className="flex-shrink-0 rounded-full flex items-center justify-center text-xs font-black premium-avatar"
               style={{
                 width:      '30px',
                 height:     '30px',

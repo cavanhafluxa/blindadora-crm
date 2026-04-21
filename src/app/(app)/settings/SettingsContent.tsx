@@ -539,7 +539,7 @@ function InviteModal({ onClose, onSuccess }: { onClose: () => void, onSuccess: (
         })
         onClose()
       } else {
-         alert('Erro: ' + (data.error || 'Falha ao criar usuário'))
+         alert('Erro: ' + (data.error || 'Falha ao criar usuário') + (data.details ? '\nDetalhes: ' + data.details : ''))
       }
     } catch (err) {
       alert('Erro inesperado')
@@ -645,7 +645,7 @@ function ResetPasswordModal({ userId, userName, onClose, onSuccess }: { userId: 
         onClose()
       } else {
         const d = await resp.json()
-        alert('Erro: ' + (d.error || 'Falha ao redefinir'))
+        alert('Erro: ' + (d.error || 'Falha ao redefinir') + (d.details ? '\nDetalhes: ' + d.details : ''))
       }
     } catch {
       alert('Erro de conexão')
@@ -713,7 +713,7 @@ function EditUserModal({ userId, userName, initialRole, onClose, onSuccess }: {
         onSuccess(form.full_name, form.role)
         onClose()
       } else {
-        alert('Erro: ' + (data.error || 'Falha ao atualizar usuário'))
+        alert('Erro: ' + (data.error || 'Falha ao atualizar usuário') + (data.details ? '\nDetalhes: ' + data.details : ''))
       }
     } catch (err) {
       alert('Erro inesperado')

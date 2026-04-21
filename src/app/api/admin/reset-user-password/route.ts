@@ -42,7 +42,12 @@ export async function POST(req: Request) {
     if (updateError) return NextResponse.json({ error: updateError.message }, { status: 400 })
 
     return NextResponse.json({ success: true })
-  } catch (error) {
-    return NextResponse.json({ error: 'Erro interno' }, { status: 500 })
+  } catch (error: any) {
+    console.error('Reset Password Error:', error)
+    return NextResponse.json({ 
+      error: 'Erro interno ao redefinir senha.',
+      details: error.message,
+      stack: process.env.NODE_ENV === 'development' ? error.stack : undefined
+    }, { status: 500 })
   }
 }
