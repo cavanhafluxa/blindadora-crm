@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Package, Plus, Trash2, Edit2, AlertTriangle, ArrowUp, ArrowDown, History, Upload, Loader2, Download, DollarSign } from 'lucide-react'
+import { Package, Plus, Trash2, Edit2, AlertTriangle, ArrowUp, ArrowDown, History, Upload, Loader2, Download, DollarSign, Paperclip, CheckCircle } from 'lucide-react'
 
 type Material = {
   id: string
@@ -48,7 +48,9 @@ export default function MaterialsClient({
   const [stockSupplier, setStockSupplier] = useState('')
   const [stockProject, setStockProject] = useState('')
   const [stockFile, setStockFile] = useState<File | null>(null)
+  const [materialFile, setMaterialFile] = useState<File | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const materialFileInputRef = useRef<HTMLInputElement>(null)
   const [isProcessingStock, setIsProcessingStock] = useState(false)
 
   const [form, setForm] = useState({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0', reserved_quantity: '0' })
@@ -102,7 +104,27 @@ export default function MaterialsClient({
       setEditingId(null)
     } else {
       const orgId = await getOrgId()
-      const { data } = await supabase.from('materials').insert({
+      let invoiceUrl = null
+
+      // Upload invoice if provided
+      if (materialFile) {
+        const fileExt = materialFile.name.split('.').pop()
+        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+        const path = `stock/${fileName}`
+        
+        const { error: uploadError } = await supabase.storage
+          .from('documents')
+          .upload(path, materialFile)
+        
+        if (!uploadError) {
+          const { data: { publicUrl } } = supabase.storage
+            .from('documents')
+            .getPublicUrl(path)
+          invoiceUrl = publicUrl
+        }
+      }
+
+      const { data, error } = await supabase.from('materials').insert({
         name: form.name,
         sku: form.sku || null,
         unit_price: form.unit_price ? Number(form.unit_price) : null,
@@ -111,10 +133,28 @@ export default function MaterialsClient({
         reserved_quantity: Number(form.reserved_quantity),
         organization_id: orgId,
       }).select().single()
-      if (data) setMaterials(prev => [data as Material, ...prev])
+
+      if (data) {
+        setMaterials(prev => [data as Material, ...prev])
+        
+        // If initial stock provided, create a movement record
+        const initialQty = Number(form.quantity_in_stock)
+        if (initialQty > 0) {
+          await supabase.from('stock_movements').insert({
+            organization_id: orgId,
+            material_id: data.id,
+            movement_type: 'in',
+            quantity: initialQty,
+            invoice_url: invoiceUrl,
+            notes: 'Estoque Inicial'
+          })
+          if (activeTab === 'history') loadHistory()
+        }
+      }
     }
     setSaving(false)
     setShowForm(false)
+    setMaterialFile(null)
     setForm({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0', reserved_quantity: '0' })
   }
 
@@ -307,7 +347,7 @@ export default function MaterialsClient({
                 {[
                   { name: 'name', label: 'Nome do Material *', type: 'text', required: true, placeholder: 'Manta Aramida' },
                   { name: 'sku', label: 'SKU / Código', type: 'text', required: false, placeholder: 'MAT-001' },
-                  { name: 'unit_price', label: 'Preço Unitário (R$)', type: 'number', required: false, placeholder: '250,00' },
+                  { name: 'unit_price', label: 'Preço Unitário (R$)', type: 'text', required: false, placeholder: '250,00' },
                   { name: 'minimum_stock', label: 'Estoque Mínimo', type: 'number', required: false, placeholder: '5' },
                   ...(!editingId ? [{ name: 'quantity_in_stock', label: 'Qtd. Inicial em Estoque', type: 'number', required: false, placeholder: '0' }] : []),
                 ].map(f => (
@@ -318,9 +358,28 @@ export default function MaterialsClient({
                       className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
                   </div>
                 ))}
+                {!editingId && (
+                  <div className="flex flex-col justify-end">
+                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">Nota Fiscal (Opcional)</label>
+                    <input type="file" ref={materialFileInputRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setMaterialFile(e.target.files?.[0] || null)} />
+                    <button 
+                      type="button"
+                      onClick={() => materialFileInputRef.current?.click()}
+                      className={`flex items-center justify-center gap-2 px-4 py-2.5 text-sm border-2 border-dashed rounded-xl transition-all ${materialFile ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50'}`}
+                    >
+                      {materialFile ? <CheckCircle className="w-4 h-4" /> : <Paperclip className="w-4 h-4" />}
+                      <span className="max-w-[120px] truncate">
+                        {materialFile ? materialFile.name : 'Anexar Nota'}
+                      </span>
+                    </button>
+                  </div>
+                )}
                 <div className="flex gap-4 items-end col-span-2 md:col-span-1">
-                  <button type="submit" disabled={saving} className="btn-primary py-3">{saving ? 'Salvando...' : editingId ? 'Atualizar' : 'Adicionar'}</button>
-                  <button type="button" onClick={() => setShowForm(false)} className="px-5 py-3 text-base text-slate-500 font-medium">Cancelar</button>
+                  <button type="submit" disabled={saving} className="btn-primary py-2.5 px-6 min-w-[120px] flex items-center justify-center gap-2">
+                    {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                    {saving ? 'Salvando...' : editingId ? 'Atualizar' : 'Adicionar'}
+                  </button>
+                  <button type="button" onClick={() => setShowForm(false)} className="px-5 py-2.5 text-sm text-slate-500 font-medium">Cancelar</button>
                 </div>
               </form>
             </div>
@@ -565,13 +624,16 @@ export default function MaterialsClient({
                 </div>
                 <div>
                   <label className="text-xs font-semibold text-slate-500 block mb-1">Nota Fiscal / Comprovante</label>
-                  <input type="file" ref={fileInputRef} className="hidden" onChange={e => setStockFile(e.target.files?.[0] || null)} />
+                  <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setStockFile(e.target.files?.[0] || null)} />
                   <button 
+                    type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className="w-full flex items-center justify-center gap-2 px-3 py-2 text-sm border border-dashed border-slate-300 rounded-lg text-slate-600 hover:bg-slate-50 hover:border-slate-400 transition-colors"
+                    className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm border-2 border-dashed rounded-xl transition-all ${stockFile ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50'}`}
                   >
-                    <Upload className="w-4 h-4" />
-                    {stockFile ? stockFile.name : 'Anexar Arquivo'}
+                    {stockFile ? <CheckCircle className="w-4 h-4" /> : <Paperclip className="w-4 h-4" />}
+                    <span className="max-w-[150px] truncate">
+                      {stockFile ? stockFile.name : 'Anexar Arquivo'}
+                    </span>
                   </button>
                 </div>
               </div>
