@@ -19,6 +19,8 @@ import {
   ChartTooltipContent,
   type ChartConfig 
 } from '@/components/ui/chart'
+import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
+import { cn } from '@/lib/utils'
 
 type Financial = {
   id: string
@@ -53,6 +55,7 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     payment_method: 'pix',
     category: 'contrato',
     installments: '1',
+    status: 'pending',
   })
   const [saving, setSaving] = useState(false)
 
@@ -110,7 +113,8 @@ export default function FinancialClient({ initialData }: { initialData: Financia
         organization_id: orgId,
         installment_number: numInstallments > 1 ? i + 1 : null,
         total_installments: numInstallments > 1 ? numInstallments : null,
-        status: 'pending'
+        status: form.status,
+        paid: form.status === 'paid'
       })
     }
 
@@ -124,9 +128,16 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     setSaving(false)
   }
 
-  async function togglePaid(id: string, current: boolean) {
-    await supabase.from('financials').update({ paid: !current }).eq('id', id)
-    setRecords(prev => prev.map(r => r.id === id ? { ...r, paid: !current } : r))
+  async function updateStatus(id: string, newStatus: string) {
+    const isPaid = newStatus === 'paid'
+    const { error } = await supabase
+      .from('financials')
+      .update({ status: newStatus, paid: isPaid })
+      .eq('id', id)
+    
+    if (!error) {
+      setRecords(prev => prev.map(r => r.id === id ? { ...r, status: newStatus, paid: isPaid } : r))
+    }
   }
 
   async function handleDelete(id: string) {
@@ -208,6 +219,18 @@ export default function FinancialClient({ initialData }: { initialData: Financia
             <div>
               <label className="text-xs font-medium text-slate-600 block mb-1">Parcelas</label>
               <input type="number" min="1" max="60" value={form.installments} onChange={e => setForm(p => ({ ...p, installments: e.target.value }))} className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
+            </div>
+            <div>
+              <label className="text-xs font-medium text-slate-600 block mb-1">Status Inicial</label>
+              <NativeSelect 
+                value={form.status} 
+                onChange={e => setForm(p => ({ ...p, status: e.target.value }))}
+                className="h-[38px] text-sm"
+              >
+                <option value="pending">Não pago</option>
+                <option value="paid">Pago</option>
+                <option value="overdue">Em atraso</option>
+              </NativeSelect>
             </div>
             <div className="md:col-span-1 lg:col-span-1 flex gap-3 items-end">
               <button type="submit" disabled={saving} className="btn-primary w-full">{saving ? 'Salvando...' : 'Adicionar'}</button>
@@ -351,12 +374,26 @@ export default function FinancialClient({ initialData }: { initialData: Financia
             <div className="divide-y divide-slate-100">
               {filtered.map(r => {
                 const isOverdue = r.due_date && !r.paid && new Date(r.due_date) < new Date()
+                const currentStatus = r.paid ? 'paid' : (r.status === 'overdue' || isOverdue ? 'overdue' : 'pending')
+                
                 return (
-                  <div key={r.id} className={`flex items-center gap-6 p-6 hover:bg-white/40 transition-colors ${isOverdue ? 'bg-red-50/50' : ''}`}>
-                    <button onClick={() => togglePaid(r.id, r.paid)}
-                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors ${r.paid ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 hover:border-green-400'}`}>
-                      {r.paid && <CheckCircle className="w-5 h-5" />}
-                    </button>
+                  <div key={r.id} className={`flex items-center gap-4 py-3.5 px-6 hover:bg-white/40 transition-colors ${currentStatus === 'overdue' ? 'bg-red-50/50' : ''}`}>
+                    <div className="flex-shrink-0">
+                      <NativeSelect 
+                        value={currentStatus} 
+                        onChange={(e) => updateStatus(r.id, e.target.value)}
+                        className={cn(
+                          "w-[110px] text-[10px] font-bold uppercase tracking-wider h-8",
+                          currentStatus === 'paid' ? "bg-green-50 border-green-200 text-green-700" : 
+                          currentStatus === 'overdue' ? "bg-red-50 border-red-200 text-red-700" : 
+                          "bg-slate-50 border-slate-200 text-slate-600"
+                        )}
+                      >
+                        <NativeSelectOption value="pending">Não pago</NativeSelectOption>
+                        <NativeSelectOption value="paid">Pago</NativeSelectOption>
+                        <NativeSelectOption value="overdue">Em atraso</NativeSelectOption>
+                      </NativeSelect>
+                    </div>
                     <div className="flex-1 min-w-0">
                       <p className={`text-base font-medium ${r.paid ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                         {r.description || `${r.type === 'income' ? 'Receita' : 'Despesa'} — ${r.category}`}

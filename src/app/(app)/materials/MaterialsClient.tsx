@@ -348,7 +348,7 @@ export default function MaterialsClient({
                     const isLow = m.quantity_in_stock <= m.minimum_stock
                     return (
                       <tr key={m.id} className={`hover:bg-slate-50 transition-colors ${isLow ? 'bg-amber-50/30' : ''}`}>
-                        <td className="px-6 py-4.5">
+                        <td className="px-6 py-2.5">
                           <div className="flex items-center gap-3">
                             <Package className="w-5 h-5 text-slate-400" />
                             <span className="font-medium text-slate-700">{m.name}</span>
@@ -386,7 +386,7 @@ export default function MaterialsClient({
                             </button>
                           </div>
                         </td>
-                        <td className="px-6 py-4.5 text-right">
+                        <td className="px-6 py-2.5 text-right">
                           <div className="flex items-center justify-end gap-2">
                             <button onClick={() => startEdit(m)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
                             <button onClick={() => handleDelete(m.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
@@ -420,14 +420,14 @@ export default function MaterialsClient({
                 <tbody className="divide-y divide-slate-100">
                   {movements.map(m => (
                     <tr key={m.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-6 py-4.5 text-sm text-slate-500">
+                      <td className="px-6 py-3 text-sm text-slate-500">
                         {new Date(m.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
                       </td>
-                      <td className="px-6 py-4.5">
+                      <td className="px-6 py-3">
                          <div className="font-medium text-slate-700">{m.materials?.name}</div>
                          <div className="text-[10px] text-slate-400">{m.materials?.sku || 'S/ SKU'}</div>
                       </td>
-                      <td className="px-6 py-4.5 text-center">
+                      <td className="px-6 py-3 text-center">
                         <span className={`inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-full text-xs ${m.movement_type === 'in' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                           {m.movement_type === 'in' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                           {m.quantity}
@@ -505,7 +505,7 @@ export default function MaterialsClient({
 
                     return (
                       <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-6 py-5">
+                        <td className="px-6 py-3.5">
                           <p className="font-semibold text-slate-800">{m.name}</p>
                           <p className="text-[10px] text-slate-400 font-mono">{m.sku || 'S/ SKU'}</p>
                         </td>
