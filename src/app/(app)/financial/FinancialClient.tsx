@@ -19,6 +19,7 @@ import {
   Paperclip,
   Upload,
   Download,
+  X,
   Loader2
 } from 'lucide-react'
 import { 
