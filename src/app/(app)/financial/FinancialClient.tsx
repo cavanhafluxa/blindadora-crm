@@ -1,21 +1,25 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { 
-  Plus, 
-  Trash2, 
-  TrendingUp, 
-  TrendingDown, 
+  Plus,
+  Trash2,
+  TrendingUp,
+  TrendingDown,
   CheckCircle, 
   Wallet,
   Receipt,
   CreditCard,
   ShoppingBag,
   Home,
-  Tool,
+  Wrench,
   ArrowUpRight,
-  ArrowDownRight
+  ArrowDownRight,
+  Paperclip,
+  Upload,
+  Download,
+  Loader2
 } from 'lucide-react'
 import { 
   BarChart, 
@@ -50,6 +54,7 @@ type Financial = {
   parent_id?: string
   installment_number?: number
   total_installments?: number
+  invoice_url?: string | null
 }
 
 const PAYMENT_METHODS = ['pix', 'cartão', 'boleto', 'dinheiro', 'transferência', 'cheque']
@@ -58,6 +63,7 @@ const CATEGORIES_EXPENSE = ['material', 'mão de obra', 'aluguel', 'fornecedor',
 
 export default function FinancialClient({ initialData }: { initialData: Financial[] }) {
   const supabase = createClient()
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const [records, setRecords] = useState<Financial[]>(initialData)
   const [tab, setTab] = useState<'all' | 'income' | 'expense' | 'reports'>('all')
   const [showForm, setShowForm] = useState(false)
@@ -71,6 +77,7 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     installments: '1',
     status: 'pending',
   })
+  const [invoiceFile, setInvoiceFile] = useState<File | null>(null)
   const [saving, setSaving] = useState(false)
 
   const chartConfig = {
@@ -112,6 +119,23 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     const inserts = []
     const baseDate = form.due_date ? new Date(form.due_date) : new Date()
 
+    let invoiceUrl = null
+    if (invoiceFile) {
+      const fileExt = invoiceFile.name.split('.').pop()
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`
+      const path = `financial/${fileName}`
+      
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('documents')
+        .upload(path, invoiceFile)
+      
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+      } else {
+        invoiceUrl = path
+      }
+    }
+
     // Se houver parcelas, tratamos de forma especial
     for (let i = 0; i < numInstallments; i++) {
       const dueDate = new Date(baseDate)
@@ -128,7 +152,8 @@ export default function FinancialClient({ initialData }: { initialData: Financia
         installment_number: numInstallments > 1 ? i + 1 : null,
         total_installments: numInstallments > 1 ? numInstallments : null,
         status: form.status,
-        paid: form.status === 'paid'
+        paid: form.status === 'paid',
+        invoice_url: invoiceUrl
       })
     }
 
@@ -137,7 +162,8 @@ export default function FinancialClient({ initialData }: { initialData: Financia
     if (!error && data) {
       setRecords(prev => [...(data as Financial[]), ...prev])
       setShowForm(false)
-      setForm({ type: 'income', amount: '', description: '', due_date: '', payment_method: 'pix', category: 'contrato', installments: '1' })
+      setInvoiceFile(null)
+      setForm({ type: 'income', amount: '', description: '', due_date: '', payment_method: 'pix', category: 'contrato', installments: '1', status: 'pending' })
     }
     setSaving(false)
   }
@@ -260,8 +286,36 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                 <option value="overdue">Em atraso</option>
               </NativeSelect>
             </div>
+            <div className="flex flex-col justify-end">
+               <label className="text-xs font-medium text-slate-600 block mb-1">Nota Fiscal / Anexo</label>
+               <input 
+                 type="file" 
+                 ref={fileInputRef} 
+                 className="hidden" 
+                 accept=".pdf,.jpg,.jpeg,.png" 
+                 onChange={e => setInvoiceFile(e.target.files?.[0] || null)} 
+               />
+               <button 
+                 type="button"
+                 onClick={() => fileInputRef.current?.click()}
+                 className={cn(
+                   "flex items-center justify-center gap-2 px-3 py-2 text-sm border-2 border-dashed rounded-xl transition-all",
+                   invoiceFile 
+                    ? "border-indigo-200 bg-indigo-50 text-indigo-700" 
+                    : "border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50"
+                 )}
+               >
+                 {invoiceFile ? <CheckCircle className="w-4 h-4" /> : <Paperclip className="w-4 h-4" />}
+                 <span className="max-w-[100px] truncate">
+                   {invoiceFile ? invoiceFile.name : 'Anexar'}
+                 </span>
+               </button>
+            </div>
             <div className="md:col-span-1 lg:col-span-1 flex gap-3 items-end">
-              <button type="submit" disabled={saving} className="btn-primary w-full">{saving ? 'Salvando...' : 'Adicionar'}</button>
+              <button type="submit" disabled={saving} className="btn-primary w-full h-[38px] flex items-center justify-center gap-2">
+                {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                {saving ? 'Salvando...' : 'Adicionar'}
+              </button>
             </div>
           </form>
         </div>
@@ -413,7 +467,7 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                   if (r.type === 'income') return <ArrowUpRight className="w-5 h-5 text-emerald-500" />
                   if (r.category === 'material') return <ShoppingBag className="w-5 h-5 text-indigo-500" />
                   if (r.category === 'aluguel') return <Home className="w-5 h-5 text-rose-500" />
-                  if (r.category === 'mão de obra') return <Tool className="w-5 h-5 text-amber-500" />
+                  if (r.category === 'mão de obra') return <Wrench className="w-5 h-5 text-amber-500" />
                   return <Receipt className="w-5 h-5 text-slate-500" />
                 }
 
@@ -456,6 +510,20 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                           <>
                             <span className="w-1 h-1 rounded-full bg-slate-200"></span>
                             <span className="text-xs font-medium">Vence {new Date(r.due_date).toLocaleDateString('pt-BR')}</span>
+                          </>
+                        )}
+                        {r.invoice_url && (
+                          <>
+                            <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                            <a 
+                              href={`https://ncfozqgrdfkbaexixzta.supabase.co/storage/v1/object/public/documents/${r.invoice_url}`} 
+                              target="_blank" 
+                              rel="noreferrer"
+                              className="inline-flex items-center gap-1 text-[10px] font-bold text-indigo-500 hover:text-indigo-700 transition-colors bg-indigo-50 px-2 py-0.5 rounded-full"
+                            >
+                              <Paperclip className="w-3 h-3" />
+                              NOTA FISCAL
+                            </a>
                           </>
                         )}
                       </div>
