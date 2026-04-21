@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Package, Plus, Trash2, Edit2, AlertTriangle, ArrowUp, ArrowDown, History, Upload, Loader2, Download, DollarSign, Paperclip, CheckCircle } from 'lucide-react'
+import { Package, Plus, Trash2, Edit2, AlertTriangle, ArrowUp, ArrowDown, History, Upload, Loader2, Download, DollarSign, Paperclip, CheckCircle, X } from 'lucide-react'
 
 type Material = {
   id: string
@@ -365,12 +365,23 @@ export default function MaterialsClient({
                     <button 
                       type="button"
                       onClick={() => materialFileInputRef.current?.click()}
-                      className={`flex items-center justify-center gap-2 px-4 py-2.5 text-sm border-2 border-dashed rounded-xl transition-all ${materialFile ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50'}`}
+                      className={`flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all ${materialFile ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}
                     >
-                      {materialFile ? <CheckCircle className="w-4 h-4" /> : <Paperclip className="w-4 h-4" />}
-                      <span className="max-w-[120px] truncate">
+                      <Upload className={`w-4 h-4 ${materialFile ? 'text-indigo-600' : 'text-slate-400'}`} />
+                      <span className="text-xs font-bold truncate max-w-[150px]">
                         {materialFile ? materialFile.name : 'Anexar Nota'}
                       </span>
+                      {materialFile && (
+                        <div 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setMaterialFile(null);
+                          }}
+                          className="ml-auto p-1 hover:bg-indigo-100 rounded-md transition-colors cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5 text-indigo-400" />
+                        </div>
+                      )}
                     </button>
                   </div>
                 )}
@@ -628,12 +639,23 @@ export default function MaterialsClient({
                   <button 
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
-                    className={`w-full flex items-center justify-center gap-2 px-3 py-2.5 text-sm border-2 border-dashed rounded-xl transition-all ${stockFile ? 'border-indigo-200 bg-indigo-50 text-indigo-700' : 'border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50'}`}
+                    className={`w-full flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all ${stockFile ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}
                   >
-                    {stockFile ? <CheckCircle className="w-4 h-4" /> : <Paperclip className="w-4 h-4" />}
-                    <span className="max-w-[150px] truncate">
+                    <Upload className={`w-4 h-4 ${stockFile ? 'text-indigo-600' : 'text-slate-400'}`} />
+                    <span className="text-xs font-bold truncate max-w-[150px]">
                       {stockFile ? stockFile.name : 'Anexar Arquivo'}
                     </span>
+                    {stockFile && (
+                      <div 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setStockFile(null);
+                        }}
+                        className="ml-auto p-1 hover:bg-indigo-100 rounded-md transition-colors cursor-pointer"
+                      >
+                        <X className="w-3.5 h-3.5 text-indigo-400" />
+                      </div>
+                    )}
                   </button>
                 </div>
               </div>

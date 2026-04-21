@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { DollarSign, Package, ShoppingCart, Plus, Trash2, TrendingUp, TrendingDown, Loader2, Receipt } from 'lucide-react'
+import { DollarSign, Package, ShoppingCart, Plus, Trash2, TrendingUp, TrendingDown, Loader2, Receipt, Wrench, Truck, MoreHorizontal, ChevronDown, Upload, X } from 'lucide-react'
 
 type Purchase = {
   id: string
@@ -16,12 +16,14 @@ type Purchase = {
   notes: string | null
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  material: '🔩 Material',
-  service: '🛠️ Serviço',
-  logistics: '🚚 Logística',
-  other: '📦 Outro',
-}
+const CATEGORIES = {
+  material: { label: 'Material', icon: Package, color: 'text-indigo-500', bg: 'bg-indigo-50' },
+  service: { label: 'Serviço', icon: Wrench, color: 'text-amber-500', bg: 'bg-amber-50' },
+  logistics: { label: 'Logística', icon: Truck, color: 'text-orange-500', bg: 'bg-orange-50' },
+  other: { label: 'Outro', icon: MoreHorizontal, color: 'text-slate-500', bg: 'bg-slate-50' },
+} as const;
+
+type CategoryKey = keyof typeof CATEGORIES;
 
 export default function ProjectCostPanel({
   projectId,
@@ -39,7 +41,8 @@ export default function ProjectCostPanel({
   const supabase = createClient()
   const [purchases, setPurchases] = useState<Purchase[]>(initialPurchases)
   const [showForm, setShowForm] = useState(false)
-  const [saving, setSaving] = useState(false)
+  const [saving, setSaving] = useState(false);
+  const [showCategorySelect, setShowCategorySelect] = useState(false);
   const [form, setForm] = useState({
     description: '',
     supplier_name: '',
@@ -48,6 +51,7 @@ export default function ProjectCostPanel({
     purchase_date: new Date().toISOString().split('T')[0],
     category: 'material',
     notes: '',
+    attachment: null as File | null
   })
 
   const totalPurchases = purchases.reduce((acc, p) => acc + Number(p.total_price), 0)
@@ -55,28 +59,71 @@ export default function ProjectCostPanel({
   const margin = contractValue - totalCost
   const marginPct = contractValue > 0 ? Math.round((margin / contractValue) * 100) : 0
 
-  async function handleAddPurchase(e: React.FormEvent) {
-    e.preventDefault()
-    setSaving(true)
-    const { data } = await supabase.from('project_purchases').insert({
-      project_id: projectId,
-      organization_id: organizationId,
-      description: form.description,
-      supplier_name: form.supplier_name || null,
-      quantity: Number(form.quantity),
-      unit_price: Number(form.unit_price),
-      purchase_date: form.purchase_date,
-      category: form.category,
-      notes: form.notes || null,
-    }).select().single()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.description || !form.unit_price) return;
 
-    if (data) {
-      setPurchases(prev => [data as Purchase, ...prev])
-      setShowForm(false)
-      setForm({ description: '', supplier_name: '', quantity: '1', unit_price: '', purchase_date: new Date().toISOString().split('T')[0], category: 'material', notes: '' })
+    setSaving(true);
+    try {
+      let invoice_url = null;
+
+      if (form.attachment) {
+        const fileExt = form.attachment.name.split('.').pop();
+        const fileName = `${Math.random().toString(36).substring(2)}-${Date.now()}.${fileExt}`;
+        const filePath = `purchases/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('project_attachments')
+          .upload(filePath, form.attachment);
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('project_attachments')
+          .getPublicUrl(filePath);
+        
+        invoice_url = publicUrl;
+      }
+
+      const total_price = Number(form.quantity) * Number(form.unit_price);
+      
+      const { data, error } = await supabase
+        .from('project_purchases')
+        .insert([{
+          project_id: projectId,
+          organization_id: organizationId,
+          description: form.description,
+          supplier_name: form.supplier_name,
+          quantity: Number(form.quantity),
+          unit_price: Number(form.unit_price),
+          category: form.category,
+          purchase_date: form.purchase_date,
+          invoice_url: invoice_url
+        }])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setPurchases([data, ...purchases]);
+      setForm({
+        description: '',
+        supplier_name: '',
+        quantity: '1',
+        unit_price: '',
+        category: 'material',
+        purchase_date: new Date().toISOString().split('T')[0],
+        attachment: null,
+        notes: ''
+      });
+      setShowForm(false);
+    } catch (error) {
+      console.error('Error adding purchase:', error);
+      alert('Erro ao adicionar custo');
+    } finally {
+      setSaving(false);
     }
-    setSaving(false)
-  }
+  };
 
   async function handleDelete(id: string) {
     if (!confirm('Excluir este item de custo?')) return
@@ -141,7 +188,7 @@ export default function ProjectCostPanel({
 
       {/* Formulário de Nova Compra */}
       {showForm && (
-        <form onSubmit={handleAddPurchase} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-5 space-y-4">
+        <form onSubmit={handleSubmit} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-5 space-y-4">
           <h3 className="font-semibold text-slate-700 text-sm">Nova Compra Específica</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -156,9 +203,53 @@ export default function ProjectCostPanel({
             </div>
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Categoria</label>
-              <select value={form.category} onChange={e => setForm(p => ({ ...p, category: e.target.value }))} className="input-field w-full">
-                {Object.entries(CATEGORY_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-              </select>
+              <div className="relative">
+                <button 
+                  type="button"
+                  onClick={() => setShowCategorySelect(!showCategorySelect)}
+                  className="input-field w-full flex items-center gap-3 !pl-3 pr-10 font-semibold text-left h-[42px]"
+                >
+                  <div className={`w-7 h-7 rounded-lg border border-black/5 flex items-center justify-center ${CATEGORIES[form.category as CategoryKey]?.bg} ${CATEGORIES[form.category as CategoryKey]?.color}`}>
+                    {(() => {
+                      const Icon = CATEGORIES[form.category as CategoryKey]?.icon || Package;
+                      return <Icon className="w-4 h-4" />;
+                    })()}
+                  </div>
+                  <span className="text-[13px]">{CATEGORIES[form.category as CategoryKey]?.label}</span>
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400">
+                    <ChevronDown className={`w-4 h-4 transition-transform ${showCategorySelect ? 'rotate-180' : ''}`} />
+                  </div>
+                </button>
+
+                {showCategorySelect && (
+                  <>
+                    <div className="fixed inset-0 z-10" onClick={() => setShowCategorySelect(false)} />
+                    <div className="absolute top-[calc(100%+6px)] left-0 w-full bg-white border border-slate-200 rounded-xl shadow-xl shadow-slate-200/50 z-20 py-1.5 overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+                      {Object.entries(CATEGORIES).map(([k, { label, icon: Icon, bg, color }]) => (
+                        <button
+                          key={k}
+                          type="button"
+                          onClick={() => {
+                            setForm(p => ({ ...p, category: k }));
+                            setShowCategorySelect(false);
+                          }}
+                          className={`w-full flex items-center gap-3 px-3 py-2 hover:bg-slate-50 transition-colors text-left ${form.category === k ? 'bg-slate-50/80' : ''}`}
+                        >
+                          <div className={`w-8 h-8 rounded-lg border border-black/5 flex items-center justify-center ${bg} ${color}`}>
+                            <Icon className="w-4 h-4" />
+                          </div>
+                          <span className={`text-sm font-semibold ${form.category === k ? 'text-slate-900' : 'text-slate-600'}`}>{label}</span>
+                          {form.category === k && (
+                            <div className="ml-auto w-5 h-5 rounded-full bg-slate-100 flex items-center justify-center">
+                              <div className="w-1.5 h-1.5 rounded-full bg-slate-600" />
+                            </div>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
             </div>
             <div>
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Data da Compra</label>
@@ -172,6 +263,42 @@ export default function ProjectCostPanel({
               <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Valor Unitário (R$) *</label>
               <input required type="number" min="0" step="0.01" value={form.unit_price} onChange={e => setForm(p => ({ ...p, unit_price: e.target.value }))}
                 placeholder="0,00" className="input-field w-full font-bold text-emerald-700" />
+            </div>
+            <div>
+              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Comprovante</label>
+              <div className="relative">
+                <input 
+                  type="file" 
+                  id="cost-attachment"
+                  className="hidden" 
+                  accept="image/*,application/pdf"
+                  onChange={e => {
+                    const file = e.target.files?.[0];
+                    if (file) setForm(p => ({ ...p, attachment: file }));
+                  }}
+                />
+                <label 
+                  htmlFor="cost-attachment"
+                  className={`flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all ${form.attachment ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}
+                >
+                  <Upload className={`w-4 h-4 ${form.attachment ? 'text-indigo-600' : 'text-slate-400'}`} />
+                  <span className="text-xs font-bold truncate max-w-[200px]">
+                    {form.attachment ? form.attachment.name : 'Anexar Comprovante'}
+                  </span>
+                  {form.attachment && (
+                    <button 
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        setForm(p => ({ ...p, attachment: null }));
+                      }}
+                      className="ml-auto p-1 hover:bg-indigo-100 rounded-md transition-colors"
+                    >
+                      <X className="w-3.5 h-3.5 text-indigo-400" />
+                    </button>
+                  )}
+                </label>
+              </div>
             </div>
           </div>
           <div className="flex gap-3">
@@ -194,21 +321,37 @@ export default function ProjectCostPanel({
             {purchases.map(p => (
               <div key={p.id} className="flex items-center justify-between p-3 bg-white border border-slate-100 rounded-xl hover:border-slate-200 transition-colors group">
                 <div className="flex items-center gap-3 flex-1 min-w-0">
-                  <div className="w-8 h-8 bg-slate-50 rounded-lg border border-slate-200 flex items-center justify-center flex-shrink-0 text-sm">
-                    {CATEGORY_LABELS[p.category]?.split(' ')[0] || '📦'}
+                  <div className={`w-10 h-10 rounded-xl border flex items-center justify-center flex-shrink-0 transition-all group-hover:scale-110 ${CATEGORIES[p.category as CategoryKey]?.bg || 'bg-slate-50'} ${CATEGORIES[p.category as CategoryKey]?.color || 'text-slate-400'} border-black/5 shadow-sm`}>
+                    {(() => {
+                      const Icon = CATEGORIES[p.category as CategoryKey]?.icon || Package;
+                      return <Icon className="w-4 h-4" />;
+                    })()}
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-semibold text-slate-800 truncate">{p.description}</p>
-                    <p className="text-[10px] text-slate-400">
+                    <p className="text-base font-bold text-slate-900 truncate tracking-tight">{p.description}</p>
+                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">
                       {p.supplier_name && <>{p.supplier_name} · </>}
                       {p.quantity}x R$ {Number(p.unit_price).toLocaleString('pt-BR')} ·{' '}
                       {new Date(p.purchase_date).toLocaleDateString('pt-BR')}
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 flex-shrink-0">
-                  <span className="text-sm font-bold text-slate-800">R$ {Number(p.total_price).toLocaleString('pt-BR')}</span>
-                  <button onClick={() => handleDelete(p.id)} className="opacity-0 group-hover:opacity-100 text-slate-300 hover:text-red-500 transition-all">
+                <div className="flex items-center gap-2 flex-shrink-0">
+                  <span className="text-base font-black text-slate-900 mr-2">R$ {Number(p.total_price).toLocaleString('pt-BR')}</span>
+                  
+                  {p.invoice_url && (
+                    <a 
+                      href={p.invoice_url} 
+                      target="_blank" 
+                      rel="noopener noreferrer"
+                      className="p-2 hover:bg-indigo-50 rounded-lg transition-all text-slate-300 hover:text-indigo-600"
+                      title="Ver Comprovante"
+                    >
+                      <Receipt className="w-4 h-4" />
+                    </a>
+                  )}
+
+                  <button onClick={() => handleDelete(p.id)} className="opacity-0 group-hover:opacity-100 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>

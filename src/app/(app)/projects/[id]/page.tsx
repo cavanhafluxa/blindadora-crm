@@ -29,6 +29,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     { data: projectPurchases },
     { data: stockOutflows },
     { data: financials },
+    { data: project_events },
   ] = await Promise.all([
     supabase.from('projects').select('*').eq('id', id).single(),
     supabase.from('production_stages').select('*').eq('project_id', id).order('stage_order'),
@@ -39,6 +40,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     supabase.from('project_purchases').select('*').eq('project_id', id).order('purchase_date', { ascending: false }),
     supabase.from('stock_movements').select('quantity, unit_cost').eq('project_id', id).eq('movement_type', 'out'),
     supabase.from('financials').select('*').eq('project_id', id).order('created_at'),
+    supabase.from('project_events').select('*, profiles(full_name)').eq('project_id', id).order('created_at', { ascending: false }),
   ])
 
   if (!project) notFound()
@@ -256,21 +258,40 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             <p className="text-xs text-slate-400">{new Date(project.created_at).toLocaleString('pt-BR')}</p>
           </div>
 
-          {project.entry_completed_at && (
+          {(project_events || []).map((event: any) => {
+            const isCompleted = event.description.includes('Concluída') || event.description.includes('100%');
+            const isChecklist = event.event_type === 'checklist_completed';
+            
+            return (
+              <div key={event.id} className="relative">
+                <div className={`absolute -left-7 top-1 w-2.5 h-2.5 rounded-full ring-4 ${
+                  isChecklist ? 'bg-blue-500 ring-blue-50' :
+                  isCompleted ? 'bg-emerald-500 ring-emerald-50' : 
+                  'bg-indigo-500 ring-indigo-50'
+                }`}></div>
+                <div className="flex flex-col gap-0.5">
+                  <p className="text-sm font-semibold text-slate-800">{event.description}</p>
+                  <div className="flex items-center gap-2 text-xs text-slate-400 font-medium">
+                    <span>{new Date(event.created_at).toLocaleString('pt-BR')}</span>
+                    {event.profiles?.full_name && (
+                      <>
+                        <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                        <span className="text-indigo-600 font-bold">Por: {event.profiles.full_name}</span>
+                      </>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+
+          {project.entry_completed_at && !project_events?.find((e: any) => e.description.includes('Checklist')) && (
             <div className="relative">
               <div className="absolute -left-7 top-1 w-2.5 h-2.5 bg-blue-500 rounded-full ring-4 ring-blue-50"></div>
               <p className="text-sm font-semibold text-slate-800">Checklist de Entrada Concluído</p>
               <p className="text-xs text-slate-400">{new Date(project.entry_completed_at).toLocaleString('pt-BR')}</p>
             </div>
           )}
-
-          {stages?.filter(s => s.status === 'completed').map((stage) => (
-            <div key={stage.id} className="relative">
-              <div className="absolute -left-7 top-1 w-2.5 h-2.5 bg-indigo-500 rounded-full ring-4 ring-indigo-50"></div>
-              <p className="text-sm font-semibold text-slate-800">Etapa Concluída: {stage.stage_name}</p>
-              <p className="text-xs text-slate-400">{stage.completed_at ? new Date(stage.completed_at).toLocaleString('pt-BR') : ''}</p>
-            </div>
-          ))}
 
           {project.status === 'concluido' && (
             <div className="relative">

@@ -299,16 +299,27 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                  type="button"
                  onClick={() => fileInputRef.current?.click()}
                  className={cn(
-                   "flex items-center justify-center gap-2 px-3 py-2 text-sm border-2 border-dashed rounded-xl transition-all",
+                   "flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all",
                    invoiceFile 
-                    ? "border-indigo-200 bg-indigo-50 text-indigo-700" 
-                    : "border-slate-200 text-slate-400 hover:border-slate-300 hover:bg-slate-50"
+                    ? "bg-indigo-50 border-indigo-200 text-indigo-700" 
+                    : "bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100"
                  )}
                >
-                 {invoiceFile ? <CheckCircle className="w-4 h-4" /> : <Paperclip className="w-4 h-4" />}
-                 <span className="max-w-[100px] truncate">
-                   {invoiceFile ? invoiceFile.name : 'Anexar'}
+                 <Upload className={cn("w-4 h-4", invoiceFile ? "text-indigo-600" : "text-slate-400")} />
+                 <span className="text-xs font-bold truncate max-w-[120px]">
+                   {invoiceFile ? invoiceFile.name : 'Anexar Nota'}
                  </span>
+                 {invoiceFile && (
+                   <div 
+                     onClick={(e) => {
+                       e.stopPropagation();
+                       setInvoiceFile(null);
+                     }}
+                     className="ml-auto p-1 hover:bg-indigo-100 rounded-md transition-colors cursor-pointer"
+                   >
+                     <X className="w-3.5 h-3.5 text-indigo-400" />
+                   </div>
+                 )}
                </button>
             </div>
             <div className="md:col-span-1 lg:col-span-1 flex gap-3 items-end">

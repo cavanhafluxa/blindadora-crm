@@ -110,7 +110,7 @@ export default function ProjectMaterials({
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            <button type="submit" className="self-end px-4 py-2 bg-indigo-600 text-white text-sm font-semibold rounded-lg hover:bg-indigo-700 transition-colors h-[38px]">
+            <button type="submit" className="self-end px-4 h-[38px] bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all">
               Confirmar
             </button>
           </div>

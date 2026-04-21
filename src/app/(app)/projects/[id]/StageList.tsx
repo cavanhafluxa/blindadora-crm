@@ -70,8 +70,9 @@ export default function StageList({
     setLoading(stageId)
     const now = new Date().toISOString()
     const extra: Partial<Stage> = {}
+    const currentStage = stages.find(s => s.id === stageId)
 
-    if (updates.status === 'in_progress' && !stages.find(s => s.id === stageId)?.started_at) {
+    if (updates.status === 'in_progress' && !currentStage?.started_at) {
       extra.started_at = now
     }
     if (updates.status === 'completed') {
@@ -92,7 +93,37 @@ export default function StageList({
       .select()
       .single()
 
-    if (data) setStages(prev => prev.map(s => s.id === stageId ? { ...s, ...data } : s))
+    if (data) {
+      setStages(prev => prev.map(s => s.id === stageId ? { ...s, ...data } : s))
+      
+      // Log event
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const { data: profile } = await supabase.from('profiles').select('organization_id, full_name').eq('id', user.id).single()
+        
+        let eventDescription = ''
+        if (updates.status) {
+          const statusLabel = STATUS_MAP[updates.status as keyof typeof STATUS_MAP]?.label || updates.status
+          eventDescription = `Etapa "${data.stage_name}" alterada para: ${statusLabel}`
+        } else if (updates.completion_percentage !== undefined) {
+          eventDescription = `Etapa "${data.stage_name}" progresso atualizado para: ${updates.completion_percentage}%`
+        } else if (updates.assigned_to !== undefined) {
+          const technician = teamMembers.find(t => t.id === updates.assigned_to)
+          eventDescription = `Etapa "${data.stage_name}" atribuída a: ${technician?.full_name || 'Ninguém'}`
+        }
+
+        if (eventDescription && profile) {
+          await supabase.from('project_events').insert({
+            project_id: projectId,
+            organization_id: profile.organization_id,
+            user_id: user.id,
+            event_type: 'stage_update',
+            description: eventDescription,
+            metadata: { stage_id: stageId, ...updates }
+          })
+        }
+      }
+    }
     setLoading(null)
   }
 
@@ -246,7 +277,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'in_progress' })}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-amber-100 text-amber-700 rounded-lg hover:bg-amber-200 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-xs font-bold bg-amber-100 text-amber-700 rounded-xl hover:bg-amber-200 transition-all disabled:opacity-50"
                           >
                             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : '▶'} Iniciar Etapa
                           </button>
@@ -255,7 +286,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'completed', completion_percentage: 100 })}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-xs font-bold bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-all disabled:opacity-50"
                           >
                             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'} Marcar Concluída
                           </button>
@@ -264,7 +295,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'pending' })}
-                            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-slate-100 text-slate-600 rounded-lg hover:bg-slate-200 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-xs font-bold bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all disabled:opacity-50"
                           >
                             ↩ Reverter
                           </button>
@@ -275,10 +306,10 @@ export default function StageList({
                             fileInputRef.current?.click()
                           }}
                           disabled={isUploading}
-                          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition-colors disabled:opacity-50 ml-auto"
+                          className="flex items-center gap-2 px-4 h-[38px] text-xs font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 ml-auto shadow-sm"
                         >
-                          {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                          {isUploading ? 'Enviando...' : 'Upload Foto'}
+                          {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                          {isUploading ? 'Enviando...' : 'Anexar Foto'}
                         </button>
                       </div>
 

@@ -262,10 +262,10 @@ export default function DocumentsSection({
               <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-colors disabled:opacity-50"
+                className="flex items-center gap-2 px-4 h-[38px] text-xs font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 shadow-sm"
               >
-                {isUploading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
-                Anexar
+                {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                {isUploading ? 'Enviando...' : 'Anexar'}
               </button>
             </div>
           </div>
@@ -330,13 +330,17 @@ export default function DocumentsSection({
                  <input type="file" ref={(ref) => { if(ref) (ref as any).uploadSicovab = () => ref.click() }} className="hidden" onChange={e => {
                    if (e.target.files && e.target.files[0]) handleFileUpload('sicovab', e.target.files[0]); e.target.value = ''
                  }} />
-                 <button onClick={() => {
-                   const node = document.querySelector('input[type="file"].hidden') as any
-                   if (node?.uploadSicovab) node.uploadSicovab()
-                 }} disabled={uploading === 'sicovab'} className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold bg-indigo-50 text-indigo-700 rounded-lg border border-indigo-100 hover:bg-indigo-100 transition-colors disabled:opacity-50">
-                    {uploading === 'sicovab' ? <Loader2 className="w-3 h-3 animate-spin" /> : <Upload className="w-3 h-3" />}
+                  <button 
+                    onClick={() => {
+                      const node = document.querySelector('input[type="file"].hidden') as any
+                      if (node?.uploadSicovab) node.uploadSicovab()
+                    }} 
+                    disabled={uploading === 'sicovab'} 
+                    className="flex items-center gap-2 px-4 h-[38px] text-xs font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 shadow-sm"
+                  >
+                    {uploading === 'sicovab' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                     Anexar Comprovante
-                 </button>
+                  </button>
                </div>
             </div>
 
