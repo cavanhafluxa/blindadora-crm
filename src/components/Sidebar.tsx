@@ -164,7 +164,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
               className="font-black text-[16px] tracking-tight whitespace-nowrap"
               style={{
                 color:       '#FFFFFF',
-                fontFamily:  "'Space Grotesk', sans-serif",
+                fontFamily:  "'DM Sans', sans-serif",
                 letterSpacing: '-0.03em',
               }}
             >
@@ -216,7 +216,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                     opacity:    expanded ? 1 : 0,
                     transition: 'max-width 0.26s ease, opacity 0.20s ease',
                     marginLeft: expanded ? '10px' : '0px',
-                    fontFamily: "'Space Grotesk', sans-serif",
+                    fontFamily: "'DM Sans', sans-serif",
                     letterSpacing: '0.01em',
                     color: isActive ? '#111111' : 'rgba(255,255,255,0.72)',
                   }}
@@ -247,7 +247,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 minWidth:   '30px',
                 background: '#FFFFFF',
                 color:      '#111111',
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "'DM Sans', sans-serif",
               }}
             >
               {initials}
@@ -264,7 +264,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
             >
               <p
                 className="text-white text-[13px] font-bold whitespace-nowrap truncate"
-                style={{ fontFamily: "'Inter Tight', sans-serif" }}
+                style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
                 {userName.split(' ')[0] || userEmail.split('@')[0]}
               </p>
@@ -299,7 +299,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 opacity:    expanded ? 1 : 0,
                 transition: 'max-width 0.26s ease, opacity 0.20s ease',
                 marginLeft: expanded ? '10px' : '0px',
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "'DM Sans', sans-serif",
                 color:      'rgba(255,255,255,0.60)',
               }}
             >
@@ -330,7 +330,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 opacity:    expanded ? 1 : 0,
                 transition: 'max-width 0.26s ease, opacity 0.20s ease',
                 marginLeft: expanded ? '10px' : '0px',
-                fontFamily: "'Space Grotesk', sans-serif",
+                fontFamily: "'DM Sans', sans-serif",
                 color:      'rgba(255,255,255,0.50)',
               }}
             >

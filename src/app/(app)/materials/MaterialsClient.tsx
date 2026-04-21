@@ -242,21 +242,21 @@ export default function MaterialsClient({
   const inventoryValue = materials.reduce((acc, m) => acc + (m.quantity_in_stock * (m.unit_price || 0)), 0)
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
-      <div className="flex justify-between items-start mb-6">
+    <div className="p-8 max-w-7xl mx-auto">
+      <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Estoque de Materiais</h1>
-          <p className="text-slate-500 text-sm mt-1">{materials.length} itens cadastrados</p>
+          <h1 className="text-3xl font-bold text-slate-800">Estoque de Materiais</h1>
+          <p className="text-slate-500 text-base mt-2">{materials.length} itens cadastrados</p>
         </div>
         {activeTab === 'materials' && (
           <div className="flex gap-2">
-            <div className="soft-card px-4 py-2 bg-slate-50 flex items-center gap-3">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <DollarSign className="w-4 h-4 text-indigo-600" />
+            <div className="soft-card px-5 py-3 bg-slate-50 flex items-center gap-4">
+              <div className="p-2.5 bg-indigo-100 rounded-lg">
+                <DollarSign className="w-5 h-5 text-indigo-600" />
               </div>
               <div>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Valor do Inventário</p>
-                <p className="text-sm font-bold text-slate-800">R$ {inventoryValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Valor do Inventário</p>
+                <p className="text-base font-bold text-slate-800">R$ {inventoryValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
             <button className="btn-primary" onClick={() => { setShowForm(!showForm); setEditingId(null); setForm({ name: '', sku: '', unit_price: '', minimum_stock: '5', quantity_in_stock: '0', reserved_quantity: '0' }) }}>
@@ -266,24 +266,24 @@ export default function MaterialsClient({
         )}
       </div>
 
-      <div className="flex gap-2 border-b border-slate-200 mb-6">
+      <div className="flex gap-4 border-b border-slate-200 mb-8">
         <button
           onClick={() => setActiveTab('materials')}
-          className={`pb-3 px-4 font-semibold text-sm transition-colors border-b-2 ${activeTab === 'materials' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+          className={`pb-4 px-5 font-semibold text-base transition-colors border-b-2 ${activeTab === 'materials' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
         >
           Materiais
         </button>
         <button
           onClick={() => setActiveTab('history')}
-          className={`pb-3 px-4 font-semibold text-sm transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+          className={`pb-4 px-5 font-semibold text-base transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'history' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
         >
-          <History className="w-4 h-4" /> Histórico (Extrato)
+          <History className="w-5 h-5" /> Histórico (Extrato)
         </button>
         <button
           onClick={() => setActiveTab('suggestions')}
-          className={`pb-3 px-4 font-semibold text-sm transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'suggestions' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
+          className={`pb-4 px-5 font-semibold text-base transition-colors border-b-2 flex items-center gap-2 ${activeTab === 'suggestions' ? 'border-indigo-500 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700 hover:border-slate-300'}`}
         >
-          <Package className="w-4 h-4" /> Sugestão de Compra
+          <Package className="w-5 h-5" /> Sugestão de Compra
         </button>
       </div>
 
@@ -291,9 +291,9 @@ export default function MaterialsClient({
         <div className="animate-in fade-in">
           {/* Low stock alert */}
           {lowStock.length > 0 && (
-            <div className="flex items-center gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl mb-6">
-              <AlertTriangle className="w-5 h-5 text-amber-500 flex-shrink-0" />
-              <p className="text-sm text-amber-700">
+            <div className="flex items-center gap-4 p-5 bg-amber-50 border border-amber-200 rounded-xl mb-8">
+              <AlertTriangle className="w-6 h-6 text-amber-500 flex-shrink-0" />
+              <p className="text-base text-amber-700">
                 <strong>{lowStock.length} item{lowStock.length > 1 ? 's' : ''}</strong> com estoque baixo: {lowStock.map(m => m.name).join(', ')}
               </p>
             </div>
@@ -301,9 +301,9 @@ export default function MaterialsClient({
 
           {/* Form */}
           {showForm && (
-            <div className="soft-card p-5 mb-6 bg-white shrink">
-              <h3 className="font-semibold text-slate-800 mb-4">{editingId ? 'Editar Material' : 'Novo Material'}</h3>
-              <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="soft-card p-7 mb-8 bg-white shrink">
+              <h3 className="font-bold text-xl text-slate-800 mb-6">{editingId ? 'Editar Material' : 'Novo Material'}</h3>
+              <form onSubmit={handleSubmit} className="grid grid-cols-2 md:grid-cols-3 gap-6">
                 {[
                   { name: 'name', label: 'Nome do Material *', type: 'text', required: true, placeholder: 'Manta Aramida' },
                   { name: 'sku', label: 'SKU / Código', type: 'text', required: false, placeholder: 'MAT-001' },
@@ -312,15 +312,15 @@ export default function MaterialsClient({
                   ...(!editingId ? [{ name: 'quantity_in_stock', label: 'Qtd. Inicial em Estoque', type: 'number', required: false, placeholder: '0' }] : []),
                 ].map(f => (
                   <div key={f.name}>
-                    <label className="text-xs font-medium text-slate-600 block mb-1">{f.label}</label>
+                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">{f.label}</label>
                     <input required={f.required} type={f.type} placeholder={f.placeholder} value={form[f.name as keyof typeof form]}
                       onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
-                      className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+                      className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
                   </div>
                 ))}
-                <div className="flex gap-3 items-end col-span-2 md:col-span-1">
-                  <button type="submit" disabled={saving} className="btn-primary">{saving ? 'Salvando...' : editingId ? 'Atualizar' : 'Adicionar'}</button>
-                  <button type="button" onClick={() => setShowForm(false)} className="px-4 py-2 text-sm text-slate-500">Cancelar</button>
+                <div className="flex gap-4 items-end col-span-2 md:col-span-1">
+                  <button type="submit" disabled={saving} className="btn-primary py-3">{saving ? 'Salvando...' : editingId ? 'Atualizar' : 'Adicionar'}</button>
+                  <button type="button" onClick={() => setShowForm(false)} className="px-5 py-3 text-base text-slate-500 font-medium">Cancelar</button>
                 </div>
               </form>
             </div>
@@ -332,15 +332,15 @@ export default function MaterialsClient({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Material</th>
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">SKU</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Estoque Real</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Reservado</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Disponível</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Mín.</th>
-                    <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Preço Unit.</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Ações</th>
-                    <th className="px-5 py-3"></th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Material</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">SKU</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Estoque Real</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Reservado</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Disponível</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Mín.</th>
+                    <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Preço Unit.</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Ações</th>
+                    <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -348,48 +348,48 @@ export default function MaterialsClient({
                     const isLow = m.quantity_in_stock <= m.minimum_stock
                     return (
                       <tr key={m.id} className={`hover:bg-slate-50 transition-colors ${isLow ? 'bg-amber-50/30' : ''}`}>
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center gap-2">
-                            <Package className="w-4 h-4 text-slate-400" />
+                        <td className="px-6 py-4.5">
+                          <div className="flex items-center gap-3">
+                            <Package className="w-5 h-5 text-slate-400" />
                             <span className="font-medium text-slate-700">{m.name}</span>
-                            {isLow && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full font-medium">Baixo</span>}
+                            {isLow && <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full font-medium">Baixo</span>}
                           </div>
                         </td>
-                        <td className="px-5 py-3.5 text-slate-500">{m.sku || '—'}</td>
-                        <td className="px-5 py-3.5 text-center">
+                        <td className="px-6 py-4.5 text-sm text-slate-500">{m.sku || '—'}</td>
+                        <td className="px-6 py-4.5 text-center">
                           <span className={`font-bold text-sm ${isLow ? 'text-amber-600' : 'text-slate-700'}`}>{m.quantity_in_stock}</span>
                         </td>
-                        <td className="px-5 py-3.5 text-center">
+                        <td className="px-6 py-4.5 text-center">
                           <button onClick={() => { setReserveModal({ id: m.id, name: m.name }); setReserveQty(m.reserved_quantity.toString()) }} 
-                            className="text-xs font-medium bg-slate-100 px-2 py-1 rounded hover:bg-slate-200 transition-colors">
+                            className="text-xs font-medium bg-slate-100 px-2.5 py-1 rounded hover:bg-slate-200 transition-colors">
                             {m.reserved_quantity}
                           </button>
                         </td>
-                        <td className="px-5 py-3.5 text-center">
+                        <td className="px-6 py-4.5 text-center">
                           <span className={`font-bold text-sm ${m.quantity_in_stock - m.reserved_quantity < m.minimum_stock ? 'text-red-500' : 'text-slate-700'}`}>
                             {m.quantity_in_stock - m.reserved_quantity}
                           </span>
                         </td>
-                        <td className="px-5 py-3.5 text-center text-slate-500">{m.minimum_stock}</td>
-                        <td className="px-5 py-3.5 text-right text-slate-600">
+                        <td className="px-6 py-4.5 text-center text-sm text-slate-500">{m.minimum_stock}</td>
+                        <td className="px-6 py-4.5 text-right text-sm text-slate-600">
                           {m.unit_price ? `R$ ${Number(m.unit_price).toLocaleString('pt-BR')}` : '—'}
                         </td>
-                        <td className="px-5 py-3.5">
-                          <div className="flex items-center justify-center gap-2">
+                        <td className="px-6 py-4.5">
+                          <div className="flex items-center justify-center gap-3">
                             <button onClick={() => setStockModal({ id: m.id, name: m.name, op: 'add' })} title="Entrada"
                               className="p-1.5 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition-colors">
-                              <ArrowUp className="w-3.5 h-3.5" />
+                              <ArrowUp className="w-4 h-4" />
                             </button>
                             <button onClick={() => setStockModal({ id: m.id, name: m.name, op: 'remove' })} title="Saída"
                               className="p-1.5 rounded-lg bg-red-50 text-red-500 hover:bg-red-100 transition-colors">
-                              <ArrowDown className="w-3.5 h-3.5" />
+                              <ArrowDown className="w-4 h-4" />
                             </button>
                           </div>
                         </td>
-                        <td className="px-5 py-3.5 text-right">
-                          <div className="flex items-center justify-end gap-1.5">
-                            <button onClick={() => startEdit(m)} className="p-1.5 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-3.5 h-3.5" /></button>
-                            <button onClick={() => handleDelete(m.id)} className="p-1.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-3.5 h-3.5" /></button>
+                        <td className="px-6 py-4.5 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <button onClick={() => startEdit(m)} className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-colors"><Edit2 className="w-4 h-4" /></button>
+                            <button onClick={() => handleDelete(m.id)} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"><Trash2 className="w-4 h-4" /></button>
                           </div>
                         </td>
                       </tr>
@@ -410,30 +410,30 @@ export default function MaterialsClient({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Data</th>
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Material</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Qtd</th>
-                    <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Origem / Destino</th>
-                    <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Comprovante</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Data</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Material</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Qtd</th>
+                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Origem / Destino</th>
+                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Comprovante</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {movements.map(m => (
                     <tr key={m.id} className="hover:bg-slate-50 transition-colors">
-                      <td className="px-5 py-3.5 text-slate-500">
+                      <td className="px-6 py-4.5 text-sm text-slate-500">
                         {new Date(m.created_at).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' })}
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-6 py-4.5">
                          <div className="font-medium text-slate-700">{m.materials?.name}</div>
                          <div className="text-[10px] text-slate-400">{m.materials?.sku || 'S/ SKU'}</div>
                       </td>
-                      <td className="px-5 py-3.5 text-center">
+                      <td className="px-6 py-4.5 text-center">
                         <span className={`inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-full text-xs ${m.movement_type === 'in' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                           {m.movement_type === 'in' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                           {m.quantity}
                         </span>
                       </td>
-                      <td className="px-5 py-3.5">
+                      <td className="px-6 py-4.5">
                         {m.movement_type === 'in' && m.supplier && (
                           <div className="text-xs text-slate-600"><span className="font-semibold">Fornecedor:</span> {m.supplier.name}</div>
                         )}
@@ -471,8 +471,8 @@ export default function MaterialsClient({
       {activeTab === 'suggestions' && (
         <div className="animate-in fade-in space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <div className="soft-card p-6 bg-amber-50 border-amber-200">
-              <h3 className="text-amber-800 font-bold flex items-center gap-2 mb-2">
+            <div className="soft-card p-8 bg-amber-50 border-amber-200">
+              <h3 className="text-amber-800 font-bold flex items-center gap-3 mb-3 text-base">
                 <AlertTriangle className="w-5 h-5" /> Reposição Necessária
               </h3>
               <p className="text-3xl font-bold text-amber-900">
@@ -486,12 +486,12 @@ export default function MaterialsClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="text-left px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Material</th>
-                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Estoque Disponível</th>
-                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Mínimo</th>
-                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Déficit</th>
-                  <th className="text-center px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Sugestão de Compra</th>
-                  <th className="text-right px-5 py-3 text-xs font-semibold text-slate-500 uppercase">Custo Est. (R$)</th>
+                  <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Material</th>
+                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Estoque Disponível</th>
+                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Mínimo</th>
+                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Déficit</th>
+                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Sugestão de Compra</th>
+                  <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Custo Est. (R$)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -505,22 +505,22 @@ export default function MaterialsClient({
 
                     return (
                       <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
-                        <td className="px-5 py-4">
+                        <td className="px-6 py-5">
                           <p className="font-semibold text-slate-800">{m.name}</p>
                           <p className="text-[10px] text-slate-400 font-mono">{m.sku || 'S/ SKU'}</p>
                         </td>
-                        <td className="px-5 py-4 text-center font-medium text-slate-700">
+                        <td className="px-6 py-5 text-center font-medium text-slate-700">
                           {available} 
                           <span className="text-[10px] text-slate-400 ml-1">(Real: {m.quantity_in_stock})</span>
                         </td>
-                        <td className="px-5 py-4 text-center text-slate-600">{m.minimum_stock}</td>
-                        <td className="px-5 py-4 text-center font-bold text-red-500">-{deficit}</td>
-                        <td className="px-5 py-4 text-center">
+                        <td className="px-6 py-5 text-center text-sm text-slate-600">{m.minimum_stock}</td>
+                        <td className="px-6 py-5 text-center font-bold text-red-500">-{deficit}</td>
+                        <td className="px-6 py-5 text-center">
                           <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">
                              {suggestion} un
                           </span>
                         </td>
-                        <td className="px-5 py-4 text-right font-semibold text-slate-800">
+                        <td className="px-6 py-5 text-right font-semibold text-slate-800">
                           R$ {cost.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </td>
                       </tr>
@@ -548,7 +548,7 @@ export default function MaterialsClient({
             
             <label className="text-xs font-semibold text-slate-500 block mb-1">Quantidade</label>
             <input type="number" min="1" value={stockQty} onChange={e => setStockQty(e.target.value)}
-              className="w-full px-4 py-3 text-lg font-bold text-center border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
+              className="w-full px-4 py-3 text-base font-bold text-center border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             
             {stockModal.op === 'add' && (
               <div className="space-y-4 mb-4">

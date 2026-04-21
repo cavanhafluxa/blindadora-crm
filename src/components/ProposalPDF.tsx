@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Image } from '@react-pdf/renderer'
 
 const styles = StyleSheet.create({
   page: { padding: 40, fontFamily: 'Helvetica', fontSize: 10, color: '#333' },
@@ -23,17 +23,28 @@ const styles = StyleSheet.create({
   signatureLine: { width: '45%', borderTop: '1px solid #111827', paddingTop: 4, textAlign: 'center' },
 })
 
-export default function ProposalPDF({ proposal }: { proposal: any }) {
+export default function ProposalPDF({ proposal, organization }: { proposal: any, organization?: any }) {
+  const companyName = organization?.name || 'PROBlind'
+  const companyDescription = organization?.description || 'Especialistas em Blindagem Automotiva'
+  const logoUrl = organization?.logo_url
+
   return (
     <Document>
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
-          <View>
-            <Text style={styles.title}>PROBlind</Text>
-            <Text style={styles.subtitle}>Especialistas em Blindagem Automotiva</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
+            {logoUrl && (
+              <Image 
+                src={logoUrl} 
+                style={{ width: 45, height: 45, borderRadius: 4, objectFit: 'contain' }} 
+              />
+            )}
+            <View>
+              <Text style={styles.title}>Proposta Comercial</Text>
+              <Text style={styles.subtitle}>{companyName}</Text>
+            </View>
           </View>
           <View style={{ alignItems: 'flex-end' }}>
-            <Text style={{ fontSize: 18, fontWeight: 'bold', color: '#111827' }}>PROPOSTA COMERCIAL</Text>
             <Text style={{ fontSize: 10, color: '#64748B', marginTop: 4 }}>ID: {proposal.id.split('-')[0]}</Text>
             <Text style={{ fontSize: 10, color: '#64748B' }}>Data: {new Date(proposal.created_at).toLocaleDateString('pt-BR')}</Text>
           </View>
@@ -93,7 +104,7 @@ export default function ProposalPDF({ proposal }: { proposal: any }) {
             <Text style={{ color: '#64748B', fontSize: 8 }}>Cliente</Text>
           </View>
           <View style={styles.signatureLine}>
-            <Text>PROBlind</Text>
+            <Text>{companyName}</Text>
             <Text style={{ color: '#64748B', fontSize: 8 }}>Departamento Comercial</Text>
           </View>
         </View>

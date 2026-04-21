@@ -31,7 +31,15 @@ const STATUS_CONFIG = {
   rejected: { label: 'Recusada', color: 'text-red-700', bg: 'bg-red-100' },
 }
 
-export default function ProposalsClient({ initialProposals, leads }: { initialProposals: Proposal[]; leads: Lead[] }) {
+export default function ProposalsClient({ 
+  initialProposals, 
+  leads,
+  organization
+}: { 
+  initialProposals: Proposal[]; 
+  leads: Lead[];
+  organization: any
+}) {
   const supabase = createClient()
   const [proposals, setProposals] = useState<Proposal[]>(initialProposals)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -244,7 +252,7 @@ export default function ProposalsClient({ initialProposals, leads }: { initialPr
                     ))}
                     
                     <PDFDownloadButton
-                      document={<ProposalPDF proposal={p} />}
+                      document={<ProposalPDF proposal={p} organization={organization} />}
                       fileName={`Proposta_${p.customer_name.replace(/\s+/g, '_')}.pdf`}
                       className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition-colors ml-2"
                     >

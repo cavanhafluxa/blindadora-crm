@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ============================================================
@@ -85,7 +85,7 @@
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
-  font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
@@ -117,12 +117,15 @@ body {
    CARD SYSTEM
    ============================================================ */
 .soft-card {
-  background: var(--color-card-bg);
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-radius: var(--radius-card);
-  border: 1px solid var(--color-card-border);
-  box-shadow: 0 2px 16px var(--color-card-shadow);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 4px 24px var(--color-card-shadow);
   transition: transform 0.25s cubic-bezier(0.34,1.56,0.64,1),
-              box-shadow 0.25s ease;
+              box-shadow 0.25s ease,
+              background 0.25s ease;
 }
 .soft-card:hover {
   transform: translateY(-2px);
@@ -192,7 +195,7 @@ body {
   border-radius: var(--radius-btn);
   font-size: 13px;
   font-weight: 700;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   border: none;
   cursor: pointer;
   display: inline-flex;
@@ -215,7 +218,7 @@ body {
   border-radius: var(--radius-btn);
   font-size: 13px;
   font-weight: 500;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   color: var(--color-foreground);
   outline: none;
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
@@ -251,7 +254,7 @@ body {
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  font-family: 'Space Grotesk', sans-serif;
+  font-family: 'DM Sans', sans-serif;
   border: 1px solid transparent;
 }
 .stage-pending     { background: rgba(148,163,184,0.10); color: #8899AA; border-color: rgba(148,163,184,0.20); }

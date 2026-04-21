@@ -110,6 +110,7 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
       .update({
         name: org.name,
         cnpj: org.cnpj,
+        description: org.description,
         address: org.address,
         website: org.website,
       })
@@ -337,6 +338,16 @@ export default function SettingsContent({ initialProfile, initialOrg, initialTea
                       placeholder="00.000.000/0001-00"
                       value={org.cnpj || ''} 
                       onChange={e => setOrg({...org, cnpj: e.target.value})}
+                      className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-50 outline-none transition-all font-bold text-slate-700" 
+                    />
+                  </div>
+                  <div className="space-y-2 md:col-span-2">
+                    <label className="text-[11px] font-black text-slate-400 uppercase tracking-widest ml-1">Descrição / Segmento (Ex: Especialistas em Blindagem)</label>
+                    <input 
+                      type="text" 
+                      placeholder="Especialistas em Blindagem Automotiva"
+                      value={org.description || ''} 
+                      onChange={e => setOrg({...org, description: e.target.value})}
                       className="w-full px-4 py-4 bg-slate-50 border border-slate-100 rounded-2xl focus:bg-white focus:ring-4 focus:ring-indigo-50 outline-none transition-all font-bold text-slate-700" 
                     />
                   </div>

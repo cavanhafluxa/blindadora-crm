@@ -136,11 +136,11 @@ export default function FinancialClient({ initialData }: { initialData: Financia
   }
 
   return (
-    <div className="p-6 max-w-6xl mx-auto">
+    <div className="p-8 max-w-[1400px] mx-auto">
       <div className="flex justify-between items-start mb-8">
         <div>
-          <h1 className="text-2xl font-bold text-slate-800">Financeiro</h1>
-          <p className="text-slate-500 text-sm mt-1">Controle de receitas, despesas e resultados</p>
+          <h1 className="text-3xl font-bold text-slate-800">Financeiro</h1>
+          <p className="text-slate-500 text-base mt-1.5">Controle de receitas, despesas e resultados</p>
         </div>
         <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
           <Plus className="w-4 h-4" /> Novo Lançamento
@@ -148,19 +148,19 @@ export default function FinancialClient({ initialData }: { initialData: Financia
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
           { label: 'Total Receitas', value: totalIncome, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
           { label: 'Recebido', value: paidIncome, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
           { label: 'Total Despesas', value: totalExpense, icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50' },
           { label: 'Resultado Líquido', value: result, icon: DollarSign, color: result >= 0 ? 'text-green-700' : 'text-red-700', bg: result >= 0 ? 'bg-green-50' : 'bg-red-50' },
         ].map(card => (
-          <div key={card.label} className={`soft-card p-5 ${card.bg}`}>
-            <div className="flex items-center gap-2 mb-2">
-              <card.icon className={`w-4 h-4 ${card.color}`} />
-              <p className="text-xs text-slate-500 font-medium">{card.label}</p>
+          <div key={card.label} className={`soft-card p-7 ${card.bg}`}>
+            <div className="flex items-center gap-3 mb-3">
+              <card.icon className={`w-5 h-5 ${card.color}`} />
+              <p className="text-sm text-slate-500 font-medium">{card.label}</p>
             </div>
-            <p className={`text-xl font-bold ${card.color}`}>
+            <p className={`text-2xl font-bold ${card.color}`}>
               R$ {Math.abs(card.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </p>
           </div>
@@ -169,8 +169,8 @@ export default function FinancialClient({ initialData }: { initialData: Financia
 
       {/* Form */}
       {showForm && (
-        <div className="soft-card p-5 mb-6">
-          <h3 className="font-semibold text-slate-800 mb-4">Novo Lançamento</h3>
+        <div className="soft-card p-7 mb-8">
+          <h3 className="text-xl font-semibold text-slate-800 mb-6">Novo Lançamento</h3>
           <form onSubmit={handleAdd} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div>
               <label className="text-xs font-medium text-slate-600 block mb-1">Tipo</label>
@@ -225,7 +225,7 @@ export default function FinancialClient({ initialData }: { initialData: Financia
           { id: 'reports', label: 'Relatório' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
-            className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            className={`px-5 py-2.5 text-base font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
             {t.label}
           </button>
         ))}
@@ -235,13 +235,13 @@ export default function FinancialClient({ initialData }: { initialData: Financia
       {tab === 'reports' ? (
         <div className="space-y-6">
           {/* Charts Row */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <div className="lg:col-span-2 soft-card p-6">
-              <h3 className="font-semibold text-slate-800 mb-4 flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-500" /> Fluxo de Caixa Mensal
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 soft-card p-8">
+              <h3 className="text-xl font-semibold text-slate-800 mb-6 flex items-center gap-2">
+                <TrendingUp className="w-5 h-5 text-green-500" /> Fluxo de Caixa Mensal
               </h3>
-              <div className="h-[300px] w-full">
-                <ChartContainer config={chartConfig}>
+              <div className="h-[350px] w-full mt-4">
+                <ChartContainer config={chartConfig} className="aspect-auto h-full w-full">
                   <BarChart data={(() => {
                     const monthsOrder = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
                     const data: any = {}
@@ -254,11 +254,22 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                     return monthsOrder.map(m => data[m] || { month: m, income: 0, expense: 0 })
                   })()}>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                    <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-                    <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
+                    <XAxis 
+                      dataKey="month" 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: '#64748b', fontSize: 10 }}
+                      dy={10}
+                    />
+                    <YAxis 
+                      axisLine={false} 
+                      tickLine={false} 
+                      tick={{ fill: '#64748b', fontSize: 10 }}
+                      tickFormatter={(value) => `R$ ${value}`}
+                    />
                     <ChartTooltip content={<ChartTooltipContent />} />
-                    <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} barSize={20} />
-                    <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} barSize={20} />
+                    <Bar dataKey="income" fill="var(--color-income)" radius={[4, 4, 0, 0]} />
+                    <Bar dataKey="expense" fill="var(--color-expense)" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ChartContainer>
               </div>
@@ -286,30 +297,30 @@ export default function FinancialClient({ initialData }: { initialData: Financia
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* DRE */}
-          <div className="soft-card p-6">
-            <h3 className="font-semibold text-slate-800 mb-4">DRE Simplificado</h3>
-            <div className="space-y-3">
-              <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                <span className="text-sm text-slate-600">Receita Bruta</span>
-                <span className="font-semibold text-green-600">R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+          <div className="soft-card p-8">
+            <h3 className="text-xl font-semibold text-slate-800 mb-6">DRE Simplificado</h3>
+            <div className="space-y-4">
+              <div className="flex justify-between items-center py-3 border-b border-slate-100">
+                <span className="text-base text-slate-600">Receita Bruta</span>
+                <span className="text-lg font-semibold text-green-600">R$ {totalIncome.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between items-center py-2 border-b border-slate-100">
-                <span className="text-sm text-slate-600">(-) Despesas</span>
-                <span className="font-semibold text-red-500">- R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
+              <div className="flex justify-between items-center py-3 border-b border-slate-100">
+                <span className="text-base text-slate-600">(-) Despesas</span>
+                <span className="text-lg font-semibold text-red-500">- R$ {totalExpense.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between items-center py-3 bg-slate-50 rounded-xl px-3">
-                <span className="text-sm font-bold text-slate-700">Resultado Líquido</span>
-                <span className={`text-lg font-bold ${result >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="flex justify-between items-center py-4 bg-slate-50 rounded-xl px-4">
+                <span className="text-base font-bold text-slate-700">Resultado Líquido</span>
+                <span className={`text-xl font-bold ${result >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   R$ {result.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </span>
               </div>
             </div>
           </div>
           {/* Por categoria */}
-          <div className="soft-card p-6">
-            <h3 className="font-semibold text-slate-800 mb-4">Receitas por Categoria</h3>
+          <div className="soft-card p-8">
+            <h3 className="text-xl font-semibold text-slate-800 mb-6">Receitas por Categoria</h3>
             <div className="space-y-2">
               {CATEGORIES_INCOME.map(cat => {
                 const total = income.filter(r => r.category === cat).reduce((s, r) => s + Number(r.amount), 0)
@@ -341,23 +352,23 @@ export default function FinancialClient({ initialData }: { initialData: Financia
               {filtered.map(r => {
                 const isOverdue = r.due_date && !r.paid && new Date(r.due_date) < new Date()
                 return (
-                  <div key={r.id} className={`flex items-center gap-4 p-4 hover:bg-slate-50 transition-colors ${isOverdue ? 'bg-red-50/50' : ''}`}>
+                  <div key={r.id} className={`flex items-center gap-6 p-6 hover:bg-white/40 transition-colors ${isOverdue ? 'bg-red-50/50' : ''}`}>
                     <button onClick={() => togglePaid(r.id, r.paid)}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors ${r.paid ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 hover:border-green-400'}`}>
-                      {r.paid && <CheckCircle className="w-4 h-4" />}
+                      className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 border-2 transition-colors ${r.paid ? 'bg-green-500 border-green-500 text-white' : 'border-slate-300 hover:border-green-400'}`}>
+                      {r.paid && <CheckCircle className="w-5 h-5" />}
                     </button>
                     <div className="flex-1 min-w-0">
-                      <p className={`text-sm font-medium ${r.paid ? 'line-through text-slate-400' : 'text-slate-800'}`}>
+                      <p className={`text-base font-medium ${r.paid ? 'line-through text-slate-400' : 'text-slate-800'}`}>
                         {r.description || `${r.type === 'income' ? 'Receita' : 'Despesa'} — ${r.category}`}
                       </p>
-                      <div className="flex items-center gap-2 mt-0.5 flex-wrap">
-                        <span className="text-xs text-slate-400 capitalize">{r.category}</span>
+                      <div className="flex items-center gap-3 mt-1 flex-wrap">
+                        <span className="text-sm text-slate-400 capitalize">{r.category}</span>
                         <span className="text-xs text-slate-300">·</span>
-                        <span className="text-xs text-slate-400 capitalize">{r.payment_method}</span>
-                        {r.due_date && <span className={`text-xs ${isOverdue ? 'text-red-500 font-medium' : 'text-slate-400'}`}>vence {new Date(r.due_date).toLocaleDateString('pt-BR')}</span>}
+                        <span className="text-sm text-slate-400 capitalize">{r.payment_method}</span>
+                        {r.due_date && <span className={`text-sm ${isOverdue ? 'text-red-500 font-medium' : 'text-slate-400'}`}>vence {new Date(r.due_date).toLocaleDateString('pt-BR')}</span>}
                       </div>
                     </div>
-                    <span className={`text-sm font-bold flex-shrink-0 ${r.type === 'income' ? 'text-green-600' : 'text-red-500'}`}>
+                    <span className={`text-lg font-bold flex-shrink-0 ${r.type === 'income' ? 'text-green-600' : 'text-red-500'}`}>
                       {r.type === 'income' ? '+' : '-'} R$ {Number(r.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                     </span>
                     <button onClick={() => handleDelete(r.id)} className="text-slate-300 hover:text-red-500 transition-colors flex-shrink-0">
