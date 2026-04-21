@@ -14,6 +14,7 @@ type Purchase = {
   purchase_date: string
   category: string
   notes: string | null
+  invoice_url: string | null
 }
 
 const CATEGORIES = {
