@@ -2,7 +2,21 @@
 
 import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { Plus, Trash2, DollarSign, TrendingUp, TrendingDown, CheckCircle, Clock, Calendar } from 'lucide-react'
+import { 
+  Plus, 
+  Trash2, 
+  TrendingUp, 
+  TrendingDown, 
+  CheckCircle, 
+  Wallet,
+  Receipt,
+  CreditCard,
+  ShoppingBag,
+  Home,
+  Tool,
+  ArrowUpRight,
+  ArrowDownRight
+} from 'lucide-react'
 import { 
   BarChart, 
   Bar, 
@@ -148,40 +162,54 @@ export default function FinancialClient({ initialData }: { initialData: Financia
 
   return (
     <div className="p-8 max-w-[1400px] mx-auto">
-      <div className="flex justify-between items-start mb-8">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-10">
         <div>
-          <h1 className="text-3xl font-bold text-slate-800">Financeiro</h1>
-          <p className="text-slate-500 text-base mt-1.5">Controle de receitas, despesas e resultados</p>
+          <h1 className="text-4xl font-black text-slate-800 tracking-tight">Financeiro</h1>
+          <p className="text-slate-400 text-lg font-medium mt-1">Gestão inteligente de fluxo de caixa e resultados</p>
         </div>
-        <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
-          <Plus className="w-4 h-4" /> Novo Lançamento
+        <button 
+          onClick={() => setShowForm(!showForm)}
+          className={cn(
+            "btn-primary px-6 py-3 rounded-2xl shadow-lg shadow-slate-200 transition-all active:scale-95",
+            showForm ? "bg-rose-500 hover:bg-rose-600" : "bg-indigo-600 hover:bg-indigo-700"
+          )}
+        >
+          {showForm ? <Trash2 className="w-4 h-4 rotate-45" /> : <Plus className="w-5 h-5" />}
+          <span className="ml-2">{showForm ? 'Fechar' : 'Novo Lançamento'}</span>
         </button>
       </div>
 
       {/* KPI Cards */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Total Receitas', value: totalIncome, icon: TrendingUp, color: 'text-green-600', bg: 'bg-green-50' },
-          { label: 'Recebido', value: paidIncome, icon: CheckCircle, color: 'text-emerald-600', bg: 'bg-emerald-50' },
-          { label: 'Total Despesas', value: totalExpense, icon: TrendingDown, color: 'text-red-600', bg: 'bg-red-50' },
-          { label: 'Resultado Líquido', value: result, icon: DollarSign, color: result >= 0 ? 'text-green-700' : 'text-red-700', bg: result >= 0 ? 'bg-green-50' : 'bg-red-50' },
+          { label: 'Total Receitas', value: totalIncome, icon: TrendingUp, color: 'text-emerald-600', bg: 'bg-emerald-500/10', iconBg: 'bg-emerald-50' },
+          { label: 'Recebido', value: paidIncome, icon: CheckCircle, color: 'text-blue-600', bg: 'bg-blue-500/10', iconBg: 'bg-blue-50' },
+          { label: 'Total Despesas', value: totalExpense, icon: TrendingDown, color: 'text-rose-600', bg: 'bg-rose-500/10', iconBg: 'bg-rose-50' },
+          { label: 'Resultado Líquido', value: result, icon: Wallet, color: result >= 0 ? 'text-indigo-600' : 'text-rose-600', bg: result >= 0 ? 'bg-indigo-500/10' : 'bg-rose-500/10', iconBg: result >= 0 ? 'bg-indigo-50' : 'bg-rose-50' },
         ].map(card => (
-          <div key={card.label} className={`soft-card p-7 ${card.bg}`}>
-            <div className="flex items-center gap-3 mb-3">
-              <card.icon className={`w-5 h-5 ${card.color}`} />
-              <p className="text-sm text-slate-500 font-medium">{card.label}</p>
+          <div key={card.label} className="soft-card p-5 flex items-center gap-4 bg-white/70 backdrop-blur-xl border border-white/40 hover:translate-y-[-2px] transition-all">
+            <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm", card.iconBg)}>
+              <card.icon className={cn("w-6 h-6", card.color)} />
             </div>
-            <p className={`text-2xl font-bold ${card.color}`}>
-              R$ {Math.abs(card.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-            </p>
+            <div>
+              <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">{card.label}</p>
+              <p className="text-xl font-bold text-slate-800 mt-1">
+                R$ {Math.abs(card.value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              </p>
+            </div>
           </div>
         ))}
       </div>
 
       {/* Form */}
       {showForm && (
-        <div className="soft-card p-7 mb-8">
-          <h3 className="text-xl font-semibold text-slate-800 mb-6">Novo Lançamento</h3>
+        <div className="soft-card p-8 mb-10 bg-white/80 backdrop-blur-2xl border border-white/50 shadow-xl shadow-slate-200/50">
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center">
+              <Plus className="w-5 h-5 text-indigo-600" />
+            </div>
+            <h3 className="text-2xl font-black text-slate-800 tracking-tight">Novo Lançamento</h3>
+          </div>
           <form onSubmit={handleAdd} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             <div>
               <label className="text-xs font-medium text-slate-600 block mb-1">Tipo</label>
@@ -240,15 +268,20 @@ export default function FinancialClient({ initialData }: { initialData: Financia
       )}
 
       {/* Tabs */}
-      <div className="flex gap-1 mb-4 bg-slate-100 p-1 rounded-xl w-fit">
+      <div className="flex gap-1.5 mb-6 bg-white/50 backdrop-blur-md border border-white/40 p-1.5 rounded-2xl w-fit shadow-sm">
         {[
           { id: 'all', label: 'Todos' },
           { id: 'income', label: 'Receitas' },
           { id: 'expense', label: 'Despesas' },
-          { id: 'reports', label: 'Relatório' },
+          { id: 'reports', label: 'Relatórios' },
         ].map(t => (
           <button key={t.id} onClick={() => setTab(t.id as any)}
-            className={`px-5 py-2.5 text-base font-medium rounded-lg transition-colors ${tab === t.id ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}>
+            className={cn(
+              "px-6 py-2.5 text-sm font-bold rounded-xl transition-all duration-300",
+              tab === t.id 
+                ? "bg-slate-800 text-white shadow-md shadow-slate-400/20" 
+                : "text-slate-400 hover:text-slate-600 hover:bg-white/50"
+            )}>
             {t.label}
           </button>
         ))}
@@ -376,41 +409,86 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                 const isOverdue = r.due_date && !r.paid && new Date(r.due_date) < new Date()
                 const currentStatus = r.paid ? 'paid' : (r.status === 'overdue' || isOverdue ? 'overdue' : 'pending')
                 
+                const getIcon = () => {
+                  if (r.type === 'income') return <ArrowUpRight className="w-5 h-5 text-emerald-500" />
+                  if (r.category === 'material') return <ShoppingBag className="w-5 h-5 text-indigo-500" />
+                  if (r.category === 'aluguel') return <Home className="w-5 h-5 text-rose-500" />
+                  if (r.category === 'mão de obra') return <Tool className="w-5 h-5 text-amber-500" />
+                  return <Receipt className="w-5 h-5 text-slate-500" />
+                }
+
+                const getIconBg = () => {
+                  if (r.type === 'income') return 'bg-emerald-50'
+                  if (r.category === 'material') return 'bg-indigo-50'
+                  if (r.category === 'aluguel') return 'bg-rose-50'
+                  if (r.category === 'mão de obra') return 'bg-amber-50'
+                  return 'bg-slate-50'
+                }
+
                 return (
-                  <div key={r.id} className={`flex items-center gap-4 py-3.5 px-6 hover:bg-white/40 transition-colors ${currentStatus === 'overdue' ? 'bg-red-50/50' : ''}`}>
-                    <div className="flex-shrink-0">
+                  <div key={r.id} className="group flex items-center gap-5 py-4 px-6 hover:bg-white/60 transition-all border-b border-slate-50 last:border-0">
+                    {/* Icon Box */}
+                    <div className={cn("w-12 h-12 rounded-2xl flex items-center justify-center flex-shrink-0 shadow-sm transition-transform group-hover:scale-105", getIconBg())}>
+                      {getIcon()}
+                    </div>
+
+                    {/* Main Info */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-3">
+                        <p className="text-base font-bold text-slate-800 truncate">
+                          {r.description || `${r.type === 'income' ? 'Receita' : 'Despesa'} — ${r.category}`}
+                        </p>
+                        {/* Status Tag */}
+                        <span className={cn(
+                          "px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider",
+                          currentStatus === 'paid' ? "bg-emerald-100 text-emerald-700" : 
+                          currentStatus === 'overdue' ? "bg-rose-100 text-rose-700" : 
+                          "bg-slate-100 text-slate-600"
+                        )}>
+                          {currentStatus === 'paid' ? 'Pago' : currentStatus === 'overdue' ? 'Atrasado' : 'Pendente'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-3 mt-1 text-slate-400">
+                        <span className="text-xs font-medium uppercase tracking-tight">{r.category}</span>
+                        <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                        <span className="text-xs">{r.payment_method}</span>
+                        {r.due_date && (
+                          <>
+                            <span className="w-1 h-1 rounded-full bg-slate-200"></span>
+                            <span className="text-xs font-medium">Vence {new Date(r.due_date).toLocaleDateString('pt-BR')}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Amount */}
+                    <div className="text-right">
+                      <p className={cn("text-lg font-black tracking-tight", r.type === 'income' ? 'text-emerald-600' : 'text-rose-500')}>
+                        {r.type === 'income' ? '+' : '-'} R$ {Number(r.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </p>
+                    </div>
+
+                    {/* Actions Selection */}
+                    <div className="flex-shrink-0 flex items-center gap-3">
                       <NativeSelect 
                         value={currentStatus} 
                         onChange={(e) => updateStatus(r.id, e.target.value)}
                         className={cn(
-                          "w-[110px] text-[10px] font-bold uppercase tracking-wider h-8",
-                          currentStatus === 'paid' ? "bg-green-50 border-green-200 text-green-700" : 
-                          currentStatus === 'overdue' ? "bg-red-50 border-red-200 text-red-700" : 
-                          "bg-slate-50 border-slate-200 text-slate-600"
+                          "w-[110px] text-[10px] font-bold uppercase tracking-wider h-8 bg-transparent border-slate-200",
+                          currentStatus === 'paid' ? "text-emerald-600" : 
+                          currentStatus === 'overdue' ? "text-rose-600" : 
+                          "text-slate-500"
                         )}
                       >
                         <NativeSelectOption value="pending">Não pago</NativeSelectOption>
                         <NativeSelectOption value="paid">Pago</NativeSelectOption>
                         <NativeSelectOption value="overdue">Em atraso</NativeSelectOption>
                       </NativeSelect>
+                      
+                      <button onClick={() => handleDelete(r.id)} className="w-8 h-8 rounded-lg flex items-center justify-center text-slate-300 hover:text-rose-500 hover:bg-rose-50 transition-all opacity-0 group-hover:opacity-100">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-base font-medium ${r.paid ? 'line-through text-slate-400' : 'text-slate-800'}`}>
-                        {r.description || `${r.type === 'income' ? 'Receita' : 'Despesa'} — ${r.category}`}
-                      </p>
-                      <div className="flex items-center gap-3 mt-1 flex-wrap">
-                        <span className="text-sm text-slate-400 capitalize">{r.category}</span>
-                        <span className="text-xs text-slate-300">·</span>
-                        <span className="text-sm text-slate-400 capitalize">{r.payment_method}</span>
-                        {r.due_date && <span className={`text-sm ${isOverdue ? 'text-red-500 font-medium' : 'text-slate-400'}`}>vence {new Date(r.due_date).toLocaleDateString('pt-BR')}</span>}
-                      </div>
-                    </div>
-                    <span className={`text-lg font-bold flex-shrink-0 ${r.type === 'income' ? 'text-green-600' : 'text-red-500'}`}>
-                      {r.type === 'income' ? '+' : '-'} R$ {Number(r.amount).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                    </span>
-                    <button onClick={() => handleDelete(r.id)} className="text-slate-300 hover:text-red-500 transition-colors flex-shrink-0">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
                   </div>
                 )
               })}
