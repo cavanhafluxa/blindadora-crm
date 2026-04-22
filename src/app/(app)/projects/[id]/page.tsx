@@ -13,6 +13,7 @@ import ContractPDF from '@/components/ContractPDF'
 import MarkAsDeliveredButton from './MarkAsDeliveredButton'
 import CatalogPublishSection from './CatalogPublishSection'
 import ProjectTimeline from './ProjectTimeline'
+import CollapsibleTimelineWrapper from './CollapsibleTimelineWrapper'
 
 export const dynamic = 'force-dynamic'
 
@@ -339,12 +340,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
       />
 
       {/* Timeline Visual de Eventos */}
-      <div className="soft-card p-6">
-        <div className="flex items-center gap-2 mb-6">
-          <Milestone className="w-5 h-5 text-slate-500" />
-          <h2 className="font-semibold text-slate-800">Linha do Tempo (Eventos)</h2>
-        </div>
-        
+      <CollapsibleTimelineWrapper>
         <div className="relative pl-6 space-y-6 before:content-[''] before:absolute before:left-2 before:top-2 before:bottom-2 before:w-0.5 before:bg-slate-100">
           
           <div className="relative">
@@ -443,7 +439,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           )}
 
         </div>
-      </div>
+      </CollapsibleTimelineWrapper>
     </div>
   )
 }
