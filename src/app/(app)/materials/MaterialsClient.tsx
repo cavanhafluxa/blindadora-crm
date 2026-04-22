@@ -295,7 +295,7 @@ export default function MaterialsClient({
                 <DollarSign className="w-5 h-5 text-indigo-600" />
               </div>
               <div>
-                <p className="text-xs text-slate-500 font-bold uppercase tracking-wider">Valor do Inventário</p>
+                <p className="text-[13px] text-slate-500 font-bold uppercase tracking-wider">Valor do Inventário</p>
                 <p className="text-base font-bold text-slate-800">R$ {inventoryValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}</p>
               </div>
             </div>
@@ -352,7 +352,7 @@ export default function MaterialsClient({
                   ...(!editingId ? [{ name: 'quantity_in_stock', label: 'Qtd. Inicial em Estoque', type: 'number', required: false, placeholder: '0' }] : []),
                 ].map(f => (
                   <div key={f.name}>
-                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">{f.label}</label>
+                    <label className="text-[13px] font-semibold text-slate-600 block mb-1.5">{f.label}</label>
                     <input required={f.required} type={f.type} placeholder={f.placeholder} value={form[f.name as keyof typeof form]}
                       onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
                       className="w-full px-4 py-2.5 text-sm border border-slate-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
@@ -360,7 +360,7 @@ export default function MaterialsClient({
                 ))}
                 {!editingId && (
                   <div className="flex flex-col justify-end">
-                    <label className="text-xs font-semibold text-slate-600 block mb-1.5">Nota Fiscal (Opcional)</label>
+                    <label className="text-[13px] font-semibold text-slate-600 block mb-1.5">Nota Fiscal (Opcional)</label>
                     <input type="file" ref={materialFileInputRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setMaterialFile(e.target.files?.[0] || null)} />
                     <button 
                       type="button"
@@ -368,7 +368,7 @@ export default function MaterialsClient({
                       className={`flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all ${materialFile ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}
                     >
                       <Upload className={`w-4 h-4 ${materialFile ? 'text-indigo-600' : 'text-slate-400'}`} />
-                      <span className="text-xs font-bold truncate max-w-[150px]">
+                      <span className="text-[13px] font-bold truncate max-w-[150px]">
                         {materialFile ? materialFile.name : 'Anexar Nota'}
                       </span>
                       {materialFile && (
@@ -402,14 +402,14 @@ export default function MaterialsClient({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Material</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">SKU</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Estoque Real</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Reservado</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Disponível</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Mín.</th>
-                    <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Preço Unit.</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Ações</th>
+                    <th className="text-left px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Material</th>
+                    <th className="text-left px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">SKU</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Estoque Real</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Reservado</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Disponível</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Mín.</th>
+                    <th className="text-right px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Preço Unit.</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Ações</th>
                     <th className="px-6 py-4"></th>
                   </tr>
                 </thead>
@@ -422,7 +422,7 @@ export default function MaterialsClient({
                           <div className="flex items-center gap-3">
                             <Package className="w-5 h-5 text-slate-400" />
                             <span className="font-medium text-slate-700">{m.name}</span>
-                            {isLow && <span className="text-xs bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full font-medium">Baixo</span>}
+                            {isLow && <span className="text-[13px] bg-amber-100 text-amber-700 px-2.5 py-0.5 rounded-full font-medium">Baixo</span>}
                           </div>
                         </td>
                         <td className="px-6 py-4.5 text-sm text-slate-500">{m.sku || '—'}</td>
@@ -431,7 +431,7 @@ export default function MaterialsClient({
                         </td>
                         <td className="px-6 py-4.5 text-center">
                           <button onClick={() => { setReserveModal({ id: m.id, name: m.name }); setReserveQty(m.reserved_quantity.toString()) }} 
-                            className="text-xs font-medium bg-slate-100 px-2.5 py-1 rounded hover:bg-slate-200 transition-colors">
+                            className="text-[13px] font-medium bg-slate-100 px-2.5 py-1 rounded hover:bg-slate-200 transition-colors">
                             {m.reserved_quantity}
                           </button>
                         </td>
@@ -480,11 +480,11 @@ export default function MaterialsClient({
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-slate-50 border-b border-slate-200">
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Data</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Material</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Qtd</th>
-                    <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Origem / Destino</th>
-                    <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Comprovante</th>
+                    <th className="text-left px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Data</th>
+                    <th className="text-left px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Material</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Qtd</th>
+                    <th className="text-left px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Origem / Destino</th>
+                    <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Comprovante</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
@@ -495,24 +495,24 @@ export default function MaterialsClient({
                       </td>
                       <td className="px-6 py-3">
                          <div className="font-medium text-slate-700">{m.materials?.name}</div>
-                         <div className="text-[10px] text-slate-400">{m.materials?.sku || 'S/ SKU'}</div>
+                         <div className="text-[13px] text-slate-400">{m.materials?.sku || 'S/ SKU'}</div>
                       </td>
                       <td className="px-6 py-3 text-center">
-                        <span className={`inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-full text-xs ${m.movement_type === 'in' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
+                        <span className={`inline-flex items-center gap-1 font-bold px-2.5 py-1 rounded-full text-[13px] ${m.movement_type === 'in' ? 'bg-green-50 text-green-700' : 'bg-red-50 text-red-700'}`}>
                           {m.movement_type === 'in' ? <ArrowUp className="w-3 h-3" /> : <ArrowDown className="w-3 h-3" />}
                           {m.quantity}
                         </span>
                       </td>
                       <td className="px-6 py-4.5">
                         {m.movement_type === 'in' && m.supplier && (
-                          <div className="text-xs text-slate-600"><span className="font-semibold">Fornecedor:</span> {m.supplier.name}</div>
+                          <div className="text-[13px] text-slate-600"><span className="font-semibold">Fornecedor:</span> {m.supplier.name}</div>
                         )}
-                        {m.movement_type === 'in' && !m.supplier && <span className="text-xs text-slate-400">Entrada Avulsa</span>}
+                        {m.movement_type === 'in' && !m.supplier && <span className="text-[13px] text-slate-400">Entrada Avulsa</span>}
                         
                         {m.movement_type === 'out' && m.project && (
-                          <div className="text-xs text-slate-600"><span className="font-semibold">Projeto:</span> {m.project.customer_name} ({m.project.vehicle_model})</div>
+                          <div className="text-[13px] text-slate-600"><span className="font-semibold">Projeto:</span> {m.project.customer_name} ({m.project.vehicle_model})</div>
                         )}
-                        {m.movement_type === 'out' && !m.project && <span className="text-xs text-slate-400">Saída Avulsa</span>}
+                        {m.movement_type === 'out' && !m.project && <span className="text-[13px] text-slate-400">Saída Avulsa</span>}
                       </td>
                       <td className="px-5 py-3.5 text-center">
                         {m.invoice_url ? (
@@ -556,12 +556,12 @@ export default function MaterialsClient({
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-slate-50 border-b border-slate-200">
-                  <th className="text-left px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Material</th>
-                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Estoque Disponível</th>
-                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Mínimo</th>
-                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Déficit</th>
-                  <th className="text-center px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Sugestão de Compra</th>
-                  <th className="text-right px-6 py-4 text-xs font-semibold text-slate-500 uppercase">Custo Est. (R$)</th>
+                  <th className="text-left px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Material</th>
+                  <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Estoque Disponível</th>
+                  <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Mínimo</th>
+                  <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Déficit</th>
+                  <th className="text-center px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Sugestão de Compra</th>
+                  <th className="text-right px-6 py-4 text-[13px] font-semibold text-slate-500 uppercase">Custo Est. (R$)</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100">
@@ -577,16 +577,16 @@ export default function MaterialsClient({
                       <tr key={m.id} className="hover:bg-slate-50/50 transition-colors">
                         <td className="px-6 py-3.5">
                           <p className="font-semibold text-slate-800">{m.name}</p>
-                          <p className="text-[10px] text-slate-400 font-mono">{m.sku || 'S/ SKU'}</p>
+                          <p className="text-[13px] text-slate-400 font-mono">{m.sku || 'S/ SKU'}</p>
                         </td>
                         <td className="px-6 py-5 text-center font-medium text-slate-700">
                           {available} 
-                          <span className="text-[10px] text-slate-400 ml-1">(Real: {m.quantity_in_stock})</span>
+                          <span className="text-[13px] text-slate-400 ml-1">(Real: {m.quantity_in_stock})</span>
                         </td>
                         <td className="px-6 py-5 text-center text-sm text-slate-600">{m.minimum_stock}</td>
                         <td className="px-6 py-5 text-center font-bold text-red-500">-{deficit}</td>
                         <td className="px-6 py-5 text-center">
-                          <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-xs font-bold">
+                          <span className="px-3 py-1 bg-indigo-50 text-indigo-700 rounded-full text-[13px] font-bold">
                              {suggestion} un
                           </span>
                         </td>
@@ -616,14 +616,14 @@ export default function MaterialsClient({
             <h3 className="font-bold text-slate-800 mb-1">{stockModal.op === 'add' ? '📦 Entrada de Estoque' : '📤 Saída para Projeto'}</h3>
             <p className="text-sm text-slate-500 mb-4">{stockModal.name}</p>
             
-            <label className="text-xs font-semibold text-slate-500 block mb-1">Quantidade</label>
+            <label className="text-[13px] font-semibold text-slate-500 block mb-1">Quantidade</label>
             <input type="number" min="1" value={stockQty} onChange={e => setStockQty(e.target.value)}
               className="w-full px-4 py-3 text-base font-bold text-center border border-slate-200 rounded-xl mb-4 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             
             {stockModal.op === 'add' && (
               <div className="space-y-4 mb-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 block mb-1">Fornecedor (Opcional)</label>
+                  <label className="text-[13px] font-semibold text-slate-500 block mb-1">Fornecedor (Opcional)</label>
                   <select
                     value={stockSupplier}
                     onChange={e => setStockSupplier(e.target.value)}
@@ -634,7 +634,7 @@ export default function MaterialsClient({
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 block mb-1">Nota Fiscal / Comprovante</label>
+                  <label className="text-[13px] font-semibold text-slate-500 block mb-1">Nota Fiscal / Comprovante</label>
                   <input type="file" ref={fileInputRef} className="hidden" accept=".pdf,.jpg,.jpeg,.png" onChange={e => setStockFile(e.target.files?.[0] || null)} />
                   <button 
                     type="button"
@@ -642,7 +642,7 @@ export default function MaterialsClient({
                     className={`w-full flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all ${stockFile ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}
                   >
                     <Upload className={`w-4 h-4 ${stockFile ? 'text-indigo-600' : 'text-slate-400'}`} />
-                    <span className="text-xs font-bold truncate max-w-[150px]">
+                    <span className="text-[13px] font-bold truncate max-w-[150px]">
                       {stockFile ? stockFile.name : 'Anexar Arquivo'}
                     </span>
                     {stockFile && (
@@ -664,7 +664,7 @@ export default function MaterialsClient({
             {stockModal.op === 'remove' && (
               <div className="space-y-4 mb-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-500 block mb-1">Destinar ao Projeto (Opcional)</label>
+                  <label className="text-[13px] font-semibold text-slate-500 block mb-1">Destinar ao Projeto (Opcional)</label>
                   <select
                     value={stockProject}
                     onChange={e => setStockProject(e.target.value)}
@@ -703,7 +703,7 @@ export default function MaterialsClient({
             <h3 className="font-bold text-slate-800 mb-1">📅 Reservar Material</h3>
             <p className="text-sm text-slate-500 mb-4">{reserveModal.name}</p>
             
-            <label className="text-xs font-semibold text-slate-500 block mb-1">Quantidade Reservada</label>
+            <label className="text-[13px] font-semibold text-slate-500 block mb-1">Quantidade Reservada</label>
             <input type="number" min="0" value={reserveQty} onChange={e => setReserveQty(e.target.value)}
               className="w-full px-4 py-3 text-lg font-bold text-center border border-slate-200 rounded-xl mb-6 focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             

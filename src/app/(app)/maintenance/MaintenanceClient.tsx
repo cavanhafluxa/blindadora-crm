@@ -167,7 +167,7 @@ export default function MaintenanceClient({
           </div>
           <form onSubmit={handleAdd} className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Tipo de Ordem</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Tipo de Ordem</label>
               <select value={form.type} onChange={e => setForm(p => ({ ...p, type: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-indigo-500 flex-1">
                 <option value="corrective">Corretiva</option>
@@ -177,7 +177,7 @@ export default function MaintenanceClient({
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Veículo / Projeto</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Veículo / Projeto</label>
               <select value={form.project_id} onChange={e => {
                 const proj = projects.find(p => p.id === e.target.value)
                 setForm(p => ({ ...p, project_id: e.target.value }))
@@ -188,24 +188,24 @@ export default function MaintenanceClient({
               </select>
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Telefone (Wa.me)</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Telefone (Wa.me)</label>
               <input type="text" value={form.customer_phone} onChange={e => setForm(p => ({ ...p, customer_phone: e.target.value }))}
                 placeholder="Ex: 11999999999"
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Data Agendada</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Data Agendada</label>
               <input type="date" value={form.scheduled_date} onChange={e => setForm(p => ({ ...p, scheduled_date: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             </div>
             <div className="md:col-span-2">
-              <label className="text-xs font-medium text-slate-600 block mb-1">Descrição</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Descrição</label>
               <input required type="text" value={form.issue_description} onChange={e => setForm(p => ({ ...p, issue_description: e.target.value }))}
                 placeholder="Ex: Vidro elétrico do motorista com falha ou O.S Base"
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" />
             </div>
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Custo (R$)</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Custo (R$)</label>
               <input type="number" value={form.cost} onChange={e => setForm(p => ({ ...p, cost: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none" placeholder="0" />
             </div>
@@ -228,8 +228,8 @@ export default function MaintenanceClient({
           let urgencyBadge = null
           if (order.status === 'scheduled' && order.scheduled_date) {
              const daysDiff = Math.ceil((new Date(order.scheduled_date).getTime() - new Date().getTime()) / 86400000)
-             if (daysDiff < 0) urgencyBadge = <span className="text-[10px] items-center gap-1 font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 flex"><AlertTriangle className="w-3 h-3"/> Atrasada</span>
-             else if (daysDiff <= 7) urgencyBadge = <span className="text-[10px] items-center gap-1 font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 flex"><Clock className="w-3 h-3"/> Em {daysDiff} dia(s)</span>
+             if (daysDiff < 0) urgencyBadge = <span className="text-[13px] items-center gap-1 font-bold px-2 py-0.5 rounded-full bg-red-100 text-red-600 flex"><AlertTriangle className="w-3 h-3"/> Atrasada</span>
+             else if (daysDiff <= 7) urgencyBadge = <span className="text-[13px] items-center gap-1 font-bold px-2 py-0.5 rounded-full bg-orange-100 text-orange-700 flex"><Clock className="w-3 h-3"/> Em {daysDiff} dia(s)</span>
           }
 
           const phoneDigits = order.customer_phone?.replace(/\\D/g, '') || ''
@@ -246,7 +246,7 @@ export default function MaintenanceClient({
                   <div className="flex items-start justify-between gap-2 flex-wrap">
                     <div>
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-[10px] font-bold uppercase tracking-wide text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{typeName}</span>
+                        <span className="text-[13px] font-bold uppercase tracking-wide text-slate-400 bg-slate-100 px-1.5 py-0.5 rounded">{typeName}</span>
                         {urgencyBadge}
                       </div>
                       <p className="font-semibold text-slate-800">{order.issue_description || 'Sem descrição'}</p>
@@ -257,17 +257,17 @@ export default function MaintenanceClient({
                         </p>
                       )}
                     </div>
-                    <span className={`text-xs font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
+                    <span className={`text-[13px] font-semibold px-2.5 py-1 rounded-full flex-shrink-0 ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
 
                   <div className="flex items-center gap-4 mt-3 pt-3 border-t border-slate-50 flex-wrap">
                     {order.scheduled_date && (
-                      <span className="text-xs text-slate-500 flex items-center gap-1">
+                      <span className="text-[13px] text-slate-500 flex items-center gap-1">
                         <Calendar className="w-3.5 h-3.5" /> {new Date(order.scheduled_date).toLocaleDateString('pt-BR')}
                       </span>
                     )}
                     {order.cost && (
-                      <span className="text-xs text-slate-500 font-medium">R$ {Number(order.cost).toLocaleString('pt-BR')}</span>
+                      <span className="text-[13px] text-slate-500 font-medium">R$ {Number(order.cost).toLocaleString('pt-BR')}</span>
                     )}
                     
                     <div className="flex-1"></div>
@@ -276,25 +276,25 @@ export default function MaintenanceClient({
                     <div className="flex flex-wrap gap-2">
                       {wppUrl && (
                         <a href={wppUrl} target="_blank" rel="noreferrer" onClick={() => markAsNotified(order.id)}
-                           className="text-xs px-3 py-1.5 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg transition-colors font-medium flex items-center gap-1.5">
+                           className="text-[13px] px-3 py-1.5 bg-green-50 text-green-700 hover:bg-green-100 border border-green-200 rounded-lg transition-colors font-medium flex items-center gap-1.5">
                           <MessageCircle className="w-3.5 h-3.5" /> Avisar via WhatsApp
                         </a>
                       )}
                       {order.status !== 'in_progress' && order.status !== 'completed' && (
                         <button onClick={() => updateStatus(order.id, 'in_progress')}
-                          className="text-xs px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors font-medium border-dashed">
+                          className="text-[13px] px-3 py-1.5 bg-amber-50 text-amber-700 hover:bg-amber-100 border border-amber-200 rounded-lg transition-colors font-medium border-dashed">
                           Começar O.S
                         </button>
                       )}
                       {order.status !== 'completed' && (
                         <button onClick={() => updateStatus(order.id, 'completed')}
-                          className="text-xs px-3 py-1.5 bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors font-medium shadow-sm">
+                          className="text-[13px] px-3 py-1.5 bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200 rounded-lg transition-colors font-medium shadow-sm">
                           Marcar Concluído
                         </button>
                       )}
                       {order.status === 'completed' && order.project_id && (
                         <button onClick={() => setRatingModal(order)}
-                          className="text-xs px-3 py-1.5 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 rounded-lg transition-colors font-medium flex items-center gap-1 shadow-sm">
+                          className="text-[13px] px-3 py-1.5 bg-yellow-50 text-yellow-700 hover:bg-yellow-100 border border-yellow-200 rounded-lg transition-colors font-medium flex items-center gap-1 shadow-sm">
                           <Star className="w-3 h-3" /> Avaliar Serviço
                         </button>
                       )}

@@ -168,7 +168,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 letterSpacing: '-0.03em',
               }}
             >
-              {orgName}
+              {userName}
             </span>
           </div>
         </div>
@@ -240,7 +240,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
           >
             {/* Avatar — white circle with dark initials */}
             <div
-              className="flex-shrink-0 rounded-full flex items-center justify-center text-xs font-black premium-avatar"
+              className="flex-shrink-0 rounded-full flex items-center justify-center text-[13px] font-black premium-avatar"
               style={{
                 width:      '30px',
                 height:     '30px',
@@ -266,10 +266,10 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 className="text-white text-[13px] font-bold whitespace-nowrap truncate"
                 style={{ fontFamily: "'DM Sans', sans-serif" }}
               >
-                {userName.split(' ')[0] || userEmail.split('@')[0]}
+                {userName || userEmail.split('@')[0]}
               </p>
               <p
-                className="text-[11px] whitespace-nowrap truncate"
+                className="text-[13px] whitespace-nowrap truncate"
                 style={{ color: 'rgba(255,255,255,0.38)' }}
               >
                 Gestor
@@ -293,7 +293,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
               : <Moon className="flex-shrink-0" style={{ width: '16px', height: '16px', minWidth: '16px', color: 'rgba(255,255,255,0.50)' }} strokeWidth={1.8} />
             }
             <span
-              className="overflow-hidden whitespace-nowrap text-[12px] font-semibold flex-shrink-0"
+              className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
               style={{
                 maxWidth:   expanded ? '140px' : '0px',
                 opacity:    expanded ? 1 : 0,
@@ -324,7 +324,7 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
               strokeWidth={1.8}
             />
             <span
-              className="overflow-hidden whitespace-nowrap text-[12px] font-semibold flex-shrink-0"
+              className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
               style={{
                 maxWidth:   expanded ? '140px' : '0px',
                 opacity:    expanded ? 1 : 0,

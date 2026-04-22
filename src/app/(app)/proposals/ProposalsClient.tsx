@@ -128,7 +128,7 @@ export default function ProposalsClient({
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Importar de Lead</label>
+                <label className="text-[13px] font-medium text-slate-600 block mb-1">Importar de Lead</label>
                 <select value={form.lead_id} onChange={e => handleLeadChange(e.target.value)}
                   className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg bg-white focus:ring-2 focus:ring-green-500 focus:outline-none">
                   <option value="">Selecionar lead (opcional)</option>
@@ -136,22 +136,22 @@ export default function ProposalsClient({
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Nome do Cliente *</label>
+                <label className="text-[13px] font-medium text-slate-600 block mb-1">Nome do Cliente *</label>
                 <input required type="text" value={form.customer_name} onChange={e => setForm(p => ({ ...p, customer_name: e.target.value }))}
                   placeholder="João Silva" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Veículo</label>
+                <label className="text-[13px] font-medium text-slate-600 block mb-1">Veículo</label>
                 <input type="text" value={form.vehicle_model} onChange={e => setForm(p => ({ ...p, vehicle_model: e.target.value }))}
                   placeholder="Toyota Hilux SW4" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Nível de Blindagem</label>
+                <label className="text-[13px] font-medium text-slate-600 block mb-1">Nível de Blindagem</label>
                 <input type="text" value={form.armor_level} onChange={e => setForm(p => ({ ...p, armor_level: e.target.value }))}
                   placeholder="IIIA" className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-600 block mb-1">Validade (dias)</label>
+                <label className="text-[13px] font-medium text-slate-600 block mb-1">Validade (dias)</label>
                 <input type="number" value={form.validity_days} onChange={e => setForm(p => ({ ...p, validity_days: e.target.value }))}
                   className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
               </div>
@@ -160,8 +160,8 @@ export default function ProposalsClient({
             {/* Line items */}
             <div>
               <div className="flex items-center justify-between mb-2">
-                <label className="text-xs font-semibold text-slate-700">Itens da Proposta</label>
-                <button type="button" onClick={addItem} className="text-xs text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"><Plus className="w-3 h-3" /> Adicionar item</button>
+                <label className="text-[13px] font-semibold text-slate-700">Itens da Proposta</label>
+                <button type="button" onClick={addItem} className="text-[13px] text-indigo-600 hover:text-indigo-700 font-medium flex items-center gap-1"><Plus className="w-3 h-3" /> Adicionar item</button>
               </div>
               <div className="space-y-2">
                 {items.map((item, idx) => (
@@ -184,7 +184,7 @@ export default function ProposalsClient({
             </div>
 
             <div>
-              <label className="text-xs font-medium text-slate-600 block mb-1">Observações</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Observações</label>
               <textarea rows={2} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl resize-none focus:ring-2 focus:ring-green-500 focus:outline-none" />
             </div>
@@ -213,13 +213,13 @@ export default function ProposalsClient({
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2 flex-wrap">
                     <p className="font-semibold text-slate-800">{p.customer_name}</p>
-                    <span className={`text-xs px-2 py-0.5 rounded-full font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
+                    <span className={`text-[13px] px-2 py-0.5 rounded-full font-medium ${cfg.bg} ${cfg.color}`}>{cfg.label}</span>
                   </div>
                   <p className="text-sm text-slate-500 mt-0.5">{p.vehicle_model || 'Veículo'} {p.armor_level ? `· ${p.armor_level}` : ''} · Válida {p.validity_days} dias</p>
                 </div>
                 <div className="text-right flex-shrink-0">
                   <p className="font-bold text-green-600">R$ {Number(p.total_value || 0).toLocaleString('pt-BR')}</p>
-                  <p className="text-xs text-slate-400 mt-0.5">{new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
+                  <p className="text-[13px] text-slate-400 mt-0.5">{new Date(p.created_at).toLocaleDateString('pt-BR')}</p>
                 </div>
                 {isExpanded ? <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0" /> : <ChevronDown className="w-4 h-4 text-slate-400 flex-shrink-0" />}
               </div>
@@ -229,7 +229,7 @@ export default function ProposalsClient({
                   {/* Items table */}
                   {p.items && p.items.length > 0 && (
                     <div>
-                      <p className="text-xs font-semibold text-slate-600 mb-2">Itens</p>
+                      <p className="text-[13px] font-semibold text-slate-600 mb-2">Itens</p>
                       <div className="space-y-1.5">
                         {(p.items as ProposalItem[]).map((item, idx) => (
                           <div key={idx} className="flex justify-between text-sm text-slate-700 bg-white rounded-lg px-3 py-2 border border-slate-100">
@@ -246,7 +246,7 @@ export default function ProposalsClient({
                   <div className="flex flex-wrap gap-2">
                     {Object.keys(STATUS_CONFIG).filter(s => s !== p.status).map(s => (
                       <button key={s} onClick={() => updateStatus(p.id, s)}
-                        className={`text-xs px-3 py-1.5 rounded-lg border border-transparent font-medium transition-colors ${(STATUS_CONFIG as any)[s].bg} ${(STATUS_CONFIG as any)[s].color} hover:opacity-80`}>
+                        className={`text-[13px] px-3 py-1.5 rounded-lg border border-transparent font-medium transition-colors ${(STATUS_CONFIG as any)[s].bg} ${(STATUS_CONFIG as any)[s].color} hover:opacity-80`}>
                         {(STATUS_CONFIG as any)[s].label}
                       </button>
                     ))}
@@ -254,7 +254,7 @@ export default function ProposalsClient({
                     <PDFDownloadButton
                       document={<ProposalPDF proposal={p} organization={organization} />}
                       fileName={`Proposta_${p.customer_name.replace(/\s+/g, '_')}.pdf`}
-                      className="text-xs px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition-colors ml-2"
+                      className="text-[13px] px-3 py-1.5 rounded-lg border border-indigo-200 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 font-bold transition-colors ml-2"
                     >
                       Exportar Proposta
                     </PDFDownloadButton>
@@ -263,13 +263,13 @@ export default function ProposalsClient({
                       <PDFDownloadButton
                         document={<ContractPDF proposal={p} />}
                         fileName={`Contrato_${p.customer_name.replace(/\s+/g, '_')}.pdf`}
-                        className="text-xs px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold transition-colors"
+                        className="text-[13px] px-3 py-1.5 rounded-lg border border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100 font-bold transition-colors"
                       >
                         📄 Gerar Contrato
                       </PDFDownloadButton>
                     )}
 
-                    <button onClick={() => handleDelete(p.id)} className="text-xs px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 ml-auto font-medium">
+                    <button onClick={() => handleDelete(p.id)} className="text-[13px] px-3 py-1.5 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 ml-auto font-medium">
                       <Trash2 className="w-3.5 h-3.5 inline mr-1" />Excluir
                     </button>
                   </div>

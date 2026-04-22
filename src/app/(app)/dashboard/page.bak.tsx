@@ -243,7 +243,7 @@ export default async function DashboardPage() {
             }}
           >
             <p
-              className="text-[11px] font-semibold uppercase tracking-widest mb-3"
+              className="text-[13px] font-semibold uppercase tracking-widest mb-3"
               style={{ color: '#AAAAAA', letterSpacing: '0.08em', fontFamily: "'Inter Tight', sans-serif" }}
             >
               {kpi.label}
@@ -255,7 +255,7 @@ export default async function DashboardPage() {
               >
                 {kpi.value}
               </div>
-              <p className="text-[11px] font-medium" style={{ color: '#BBBBBB' }}>{kpi.sub}</p>
+              <p className="text-[13px] font-medium" style={{ color: '#BBBBBB' }}>{kpi.sub}</p>
             </div>
           </div>
         ))}
@@ -283,7 +283,7 @@ export default async function DashboardPage() {
               >
                 Visão Mensal
               </h2>
-              <p className="text-[12px] font-medium mt-0.5" style={{ color: '#888888' }}>
+              <p className="text-[13px] font-medium mt-0.5" style={{ color: '#888888' }}>
                 Faturamento mês a mês — {currentYear}
               </p>
             </div>
@@ -292,7 +292,7 @@ export default async function DashboardPage() {
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5">
                 <div style={{ width: '8px', height: '8px', borderRadius: '2px', background: '#111111' }} />
-                <span className="text-[11px] font-semibold" style={{ color: '#888888' }}>Faturado</span>
+                <span className="text-[13px] font-semibold" style={{ color: '#888888' }}>Faturado</span>
               </div>
               <div
                 className="px-2.5 py-1"
@@ -390,7 +390,7 @@ export default async function DashboardPage() {
           >
             <div>
               <p
-                className="text-[10px] font-semibold uppercase tracking-widest mb-2"
+                className="text-[13px] font-semibold uppercase tracking-widest mb-2"
                 style={{ color: 'rgba(255,255,255,0.38)', letterSpacing: '0.08em', fontFamily: "'Inter Tight', sans-serif" }}
               >
                 Modelo Mais Blindado
@@ -401,7 +401,7 @@ export default async function DashboardPage() {
               >
                 {topModels[0]?.[0]?.slice(0, 18) || 'N/A'}
               </div>
-              <p className="text-[11px] font-medium" style={{ color: 'rgba(255,255,255,0.40)' }}>
+              <p className="text-[13px] font-medium" style={{ color: 'rgba(255,255,255,0.40)' }}>
                 {topModels[0]?.[1] || 0} unidades blindadas
               </p>
             </div>
@@ -441,9 +441,9 @@ export default async function DashboardPage() {
               {/* Sicovab */}
               <div>
                 <div className="flex justify-between mb-1.5">
-                  <span className="text-[12px] font-semibold" style={{ color: '#444444' }}>Aguardando SICOVAB</span>
+                  <span className="text-[13px] font-semibold" style={{ color: '#444444' }}>Aguardando SICOVAB</span>
                   <span
-                    className="text-[12px] font-black"
+                    className="text-[13px] font-black"
                     style={{
                       background:   '#111111',
                       color:        '#FFFFFF',
@@ -472,9 +472,9 @@ export default async function DashboardPage() {
               {/* Leads perdidos */}
               <div>
                 <div className="flex justify-between mb-1.5">
-                  <span className="text-[12px] font-semibold" style={{ color: '#444444' }}>Leads Perdidos</span>
+                  <span className="text-[13px] font-semibold" style={{ color: '#444444' }}>Leads Perdidos</span>
                   <span
-                    className="text-[12px] font-black"
+                    className="text-[13px] font-black"
                     style={{
                       background:   '#EEEEEE',
                       color:        '#555555',
@@ -503,9 +503,9 @@ export default async function DashboardPage() {
               {/* Em produção */}
               <div>
                 <div className="flex justify-between mb-1.5">
-                  <span className="text-[12px] font-semibold" style={{ color: '#444444' }}>Em Produção</span>
+                  <span className="text-[13px] font-semibold" style={{ color: '#444444' }}>Em Produção</span>
                   <span
-                    className="text-[12px] font-black"
+                    className="text-[13px] font-black"
                     style={{
                       background:   '#EEEEEE',
                       color:        '#555555',
@@ -561,13 +561,13 @@ export default async function DashboardPage() {
               >
                 Últimas Movimentações
               </h2>
-              <p className="text-[12px] font-medium mt-0.5" style={{ color: '#888888' }}>
+              <p className="text-[13px] font-medium mt-0.5" style={{ color: '#888888' }}>
                 Financeiro · registros recentes
               </p>
             </div>
             <Link
               href="/financial"
-              className="flex items-center gap-1 text-[12px] font-bold"
+              className="flex items-center gap-1 text-[13px] font-bold"
               style={{ color: '#111111', fontFamily: "'Inter Tight', sans-serif" }}
             >
               Ver tudo <ArrowRight className="w-3.5 h-3.5" />
@@ -587,7 +587,7 @@ export default async function DashboardPage() {
             {['Descrição', 'Data', 'Valor', 'Status'].map((h, i) => (
               <span
                 key={i}
-                className="text-[10px] font-bold uppercase tracking-widest"
+                className="text-[13px] font-bold uppercase tracking-widest"
                 style={{ color: '#BBBBBB', letterSpacing: '0.07em', fontFamily: "'Inter Tight', sans-serif" }}
               >
                 {h}
@@ -634,7 +634,7 @@ export default async function DashboardPage() {
 
                   {/* Data */}
                   <span
-                    className="text-[11px] font-medium whitespace-nowrap"
+                    className="text-[13px] font-medium whitespace-nowrap"
                     style={{ color: '#AAAAAA', fontFamily: "'Inter Tight', sans-serif" }}
                   >
                     {new Date(f.created_at).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}
@@ -698,7 +698,7 @@ export default async function DashboardPage() {
               >
                 Próximas Entregas
               </h2>
-              <p className="text-[12px] font-medium mt-0.5" style={{ color: '#888888' }}>
+              <p className="text-[13px] font-medium mt-0.5" style={{ color: '#888888' }}>
                 Previsão — próximos 30 dias
               </p>
             </div>
@@ -754,7 +754,7 @@ export default async function DashboardPage() {
                         {p.vehicle_model || 'Não Informado'}
                       </h4>
                       <p
-                        className="text-[11px] font-medium truncate"
+                        className="text-[13px] font-medium truncate"
                         style={{ color: '#AAAAAA' }}
                       >
                         {p.customer_name}
@@ -764,7 +764,7 @@ export default async function DashboardPage() {
 
                   <div className="flex flex-col items-end gap-1 flex-shrink-0 ml-2">
                     <span
-                      className="text-[12px] font-bold"
+                      className="text-[13px] font-bold"
                       style={{ color: '#333333', fontFamily: "'Inter Tight', sans-serif" }}
                     >
                       {new Date(p.expected_delivery_date).toLocaleDateString('pt-BR', { day: '2-digit', month: 'short' })}

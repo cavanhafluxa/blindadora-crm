@@ -83,9 +83,9 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
 
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold tracking-wider">
+          <thead className="bg-slate-50 border-b border-slate-200 text-[13px] uppercase text-slate-500 font-bold tracking-wider">
             <tr>
-              <th className="px-6 py-4">Nome Completo</th>
+              <th className="px-6 py-4">Nome do usuário</th>
               <th className="px-6 py-4">E-mail de Acesso</th>
               <th className="px-6 py-4">Nível de Permissão</th>
               <th className="px-6 py-4">Status</th>
@@ -95,21 +95,21 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
             {profiles.map(profile => (
               <tr key={profile.id} className="hover:bg-slate-50 transition-colors">
                 <td className="px-6 py-4 font-medium text-slate-800 flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full bg-white text-slate-800 flex items-center justify-center font-bold text-xs uppercase premium-avatar">
+                  <div className="w-8 h-8 rounded-full bg-white text-slate-800 flex items-center justify-center font-bold text-[13px] uppercase premium-avatar">
                     {profile.full_name.charAt(0)}
                   </div>
                   {profile.full_name}
                 </td>
                 <td className="px-6 py-4 text-slate-500">{profile.email || 'Não definido'}</td>
                 <td className="px-6 py-4">
-                  <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                  <span className={`px-2.5 py-1 rounded-full text-[13px] font-bold uppercase tracking-wider ${
                     profile.role === 'admin' ? 'bg-purple-100 text-purple-700' : 'bg-slate-100 text-slate-600'
                   }`}>
                     {profile.role === 'admin' ? 'Administrador' : 'Colaborador'}
                   </span>
                 </td>
                 <td className="px-6 py-4">
-                  <span className="flex items-center gap-1.5 text-xs font-bold text-emerald-600">
+                  <span className="flex items-center gap-1.5 text-[13px] font-bold text-emerald-600">
                     <div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>
                     Ativo
                   </span>
@@ -132,7 +132,7 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
             
             <form onSubmit={handleAddUser} className="space-y-4">
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome Completo</label>
+                <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nome do usuário</label>
                 <div className="relative">
                   <User className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                   <input
@@ -146,7 +146,7 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">E-mail (Login)</label>
+                <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">E-mail (Login)</label>
                 <div className="relative">
                   <Mail className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                   <input
@@ -160,7 +160,7 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Senha de Acesso</label>
+                <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Senha de Acesso</label>
                 <div className="relative">
                   <Key className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                   <input
@@ -174,7 +174,7 @@ export default function TeamClient({ initialProfiles }: { initialProfiles: Profi
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nível de Permissão</label>
+                <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nível de Permissão</label>
                 <div className="relative">
                   <Shield className="absolute left-3 top-3.5 w-4 h-4 text-slate-400" />
                   <select

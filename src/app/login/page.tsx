@@ -29,14 +29,14 @@ export default async function LoginPage({
       </div>
 
       <div className="absolute top-8 right-8 z-10">
-        <span className="text-white/50 font-mono text-xs tracking-widest uppercase">V1.0 // TEMA ESCURO</span>
+        <span className="text-white/50 font-mono text-[13px] tracking-widest uppercase">V1.0 // TEMA ESCURO</span>
       </div>
 
       {/* The Glassmorphism Form Container */}
       <div className="relative z-10 w-full max-w-sm px-6 py-10 bg-[#0A0A0A]/60 backdrop-blur-3xl border border-white/10 rounded-[2rem] shadow-2xl flex flex-col items-center">
         
         <div className="w-full mb-8">
-          <span className="inline-block px-2 py-1 bg-white/10 rounded text-[10px] uppercase tracking-[0.2em] font-bold text-white/70 mb-4">
+          <span className="inline-block px-2 py-1 bg-white/10 rounded text-[13px] uppercase tracking-[0.2em] font-bold text-white/70 mb-4">
             PROBlind CRM
           </span>
           <h1 className="text-3xl font-bold text-white mb-2 tracking-tight">
@@ -50,14 +50,14 @@ export default async function LoginPage({
         {/* Divider */}
         <div className="w-full flex items-center gap-4 mb-8 opacity-40">
           <div className="h-[1px] flex-1 bg-gradient-to-r from-transparent to-white/50"></div>
-          <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase">Acesso Seguro</span>
+          <span className="text-[13px] font-bold tracking-[0.2em] text-white uppercase">Acesso Seguro</span>
           <div className="h-[1px] flex-1 bg-gradient-to-l from-transparent to-white/50"></div>
         </div>
 
         {/* Form elements */}
         <form className="w-full space-y-6">
           <div>
-            <label className="block text-[10px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="email">
+            <label className="block text-[13px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="email">
               E-mail
             </label>
             <input
@@ -72,7 +72,7 @@ export default async function LoginPage({
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="password">
+            <label className="block text-[13px] font-bold tracking-widest text-white/50 uppercase mb-2 ml-1" htmlFor="password">
               Senha
             </label>
             <input
@@ -87,7 +87,7 @@ export default async function LoginPage({
           </div>
 
           {resolvedParams?.error && (
-            <div className="p-3 bg-red-500/20 text-red-300 rounded-xl text-xs font-semibold tracking-wide border border-red-500/30 text-center">
+            <div className="p-3 bg-red-500/20 text-red-300 rounded-xl text-[13px] font-semibold tracking-wide border border-red-500/30 text-center">
               {resolvedParams.error}
             </div>
           )}
@@ -105,7 +105,7 @@ export default async function LoginPage({
       
       {/* Decorative text at bottom */}
       <div className="absolute bottom-8 left-8 z-10">
-        <span className="text-white/30 font-mono text-xs tracking-widest uppercase">CONEXÃO_SEGURA_</span>
+        <span className="text-white/30 font-mono text-[13px] tracking-widest uppercase">CONEXÃO_SEGURA_</span>
       </div>
     </div>
   )

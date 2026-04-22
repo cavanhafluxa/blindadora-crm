@@ -84,14 +84,14 @@ export default function SuppliersClient({ initialSuppliers }: { initialSuppliers
               { name: 'payment_terms', label: 'Condições de Pagamento', required: false, placeholder: '30/60/90 dias' },
             ].map(f => (
               <div key={f.name}>
-                <label className="text-xs font-medium text-slate-600 block mb-1">{f.label}</label>
+                <label className="text-[13px] font-medium text-slate-600 block mb-1">{f.label}</label>
                 <input required={f.required} type="text" placeholder={f.placeholder} value={form[f.name as keyof typeof form]}
                   onChange={e => setForm(p => ({ ...p, [f.name]: e.target.value }))}
                   className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-green-500 focus:outline-none" />
               </div>
             ))}
             <div className="col-span-2 md:col-span-3">
-              <label className="text-xs font-medium text-slate-600 block mb-1">Observações</label>
+              <label className="text-[13px] font-medium text-slate-600 block mb-1">Observações</label>
               <textarea rows={2} value={form.notes} onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg resize-none focus:ring-2 focus:ring-green-500 focus:outline-none" />
             </div>
@@ -115,7 +115,7 @@ export default function SuppliersClient({ initialSuppliers }: { initialSuppliers
                 </div>
                 <div>
                   <p className="font-semibold text-slate-800">{s.name}</p>
-                  {s.cnpj && <p className="text-xs text-slate-500">{s.cnpj}</p>}
+                  {s.cnpj && <p className="text-[13px] text-slate-500">{s.cnpj}</p>}
                 </div>
               </div>
               <div className="flex gap-1.5">
@@ -128,7 +128,7 @@ export default function SuppliersClient({ initialSuppliers }: { initialSuppliers
               {s.phone && <p className="text-sm text-slate-600 flex items-center gap-2"><Phone className="w-3.5 h-3.5 text-slate-400" />{s.phone}</p>}
               {s.email && <p className="text-sm text-slate-600 flex items-center gap-2"><Mail className="w-3.5 h-3.5 text-slate-400" />{s.email}</p>}
               {s.payment_terms && <p className="text-sm text-slate-500 mt-2 italic">💳 {s.payment_terms}</p>}
-              {s.notes && <p className="text-xs text-slate-400 mt-1">{s.notes}</p>}
+              {s.notes && <p className="text-[13px] text-slate-400 mt-1">{s.notes}</p>}
             </div>
           </div>
         ))}

@@ -23,11 +23,11 @@ export default function Error({
         </p>
         
         <div className="bg-white rounded-lg p-4 mb-6 border border-red-100 text-left overflow-auto max-h-40">
-          <p className="text-xs font-mono text-red-500 break-all">
+          <p className="text-[13px] font-mono text-red-500 break-all">
             <strong>Erro Detalhado:</strong> {error.message || 'Erro desconhecido'}
           </p>
           {error.digest && (
-            <p className="text-[10px] font-mono text-slate-400 mt-2">
+            <p className="text-[13px] font-mono text-slate-400 mt-2">
               Digest: {error.digest}
             </p>
           )}

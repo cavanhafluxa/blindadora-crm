@@ -46,7 +46,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLog[] }
 
       <div className="overflow-hidden rounded-2xl border border-slate-200">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-50 border-b border-slate-200 text-xs uppercase text-slate-500 font-bold tracking-wider">
+          <thead className="bg-slate-50 border-b border-slate-200 text-[13px] uppercase text-slate-500 font-bold tracking-wider">
             <tr>
               <th className="px-6 py-4">Data e Hora</th>
               <th className="px-6 py-4">Usuário</th>
@@ -75,7 +75,7 @@ export default function AuditClient({ initialLogs }: { initialLogs: AuditLog[] }
                     </div>
                   </td>
                   <td className="px-6 py-4">
-                    <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${getActionStyle(log.action)}`}>
+                    <span className={`px-2.5 py-1 rounded-full text-[13px] font-bold uppercase tracking-wider ${getActionStyle(log.action)}`}>
                       {log.action}
                     </span>
                   </td>

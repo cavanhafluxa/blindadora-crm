@@ -170,10 +170,10 @@ export default async function DashboardPage() {
                 <p className="text-[13px] font-semibold text-slate-400 mb-1">{kpi.label}</p>
                 <h3 className="text-2xl font-black text-slate-900 tracking-tight mb-2">{kpi.value}</h3>
                 <div className="flex items-center gap-1.5">
-                  <span className={`text-[11px] font-bold ${kpi.trend.startsWith('+') ? 'text-emerald-500' : 'text-rose-500'}`}>
+                  <span className={`text-[13px] font-bold ${kpi.trend.startsWith('+') ? 'text-emerald-500' : 'text-rose-500'}`}>
                     {kpi.trend.startsWith('+') ? '↑' : '↓'} {kpi.trend}
                   </span>
-                  <span className="text-[11px] text-slate-400 font-medium">{kpi.sub}</span>
+                  <span className="text-[13px] text-slate-400 font-medium">{kpi.sub}</span>
                 </div>
               </div>
               <div 
@@ -200,10 +200,10 @@ export default async function DashboardPage() {
         <CardHeader className="px-8 py-6 border-b border-slate-50 flex flex-row items-center justify-between space-y-0">
           <div className="grid gap-1">
             <CardTitle className="text-lg font-bold text-slate-800">Faturas Recentes</CardTitle>
-            <CardDescription className="text-xs font-medium text-slate-500">Últimas movimentações financeiras no escritório</CardDescription>
+            <CardDescription className="text-[13px] font-medium text-slate-500">Últimas movimentações financeiras no escritório</CardDescription>
           </div>
           <div className="flex gap-4">
-             <button className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[12px] font-bold text-slate-500 hover:bg-slate-100 transition-colors">
+             <button className="flex items-center gap-2 px-4 py-2 bg-slate-50 rounded-xl text-[13px] font-bold text-slate-500 hover:bg-slate-100 transition-colors">
                <Activity className="w-3.5 h-3.5" /> Filtrar
              </button>
           </div>
@@ -213,7 +213,7 @@ export default async function DashboardPage() {
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
-                <tr className="text-[11px] font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50">
+                <tr className="text-[13px] font-bold text-slate-300 uppercase tracking-widest bg-slate-50/50">
                   <th className="px-8 py-4">No</th>
                   <th className="px-8 py-4">Descrição</th>
                   <th className="px-8 py-4">Data</th>
@@ -227,7 +227,7 @@ export default async function DashboardPage() {
                     <td className="px-8 py-5 text-[13px] font-medium text-slate-400">#{i + 1}</td>
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[10px] font-bold text-slate-800 premium-avatar">
+                        <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-[13px] font-bold text-slate-800 premium-avatar">
                           {f.description?.charAt(0) || 'F'}
                         </div>
                         <span className="text-[14px] font-bold text-slate-700">{f.description || 'Fatura Geral'}</span>
@@ -237,7 +237,7 @@ export default async function DashboardPage() {
                       {new Date(f.created_at).toLocaleDateString('pt-BR')}
                     </td>
                     <td className="px-8 py-5">
-                      <span className={`px-4 py-1.5 rounded-full text-[11px] font-black uppercase tracking-tight ${
+                      <span className={`px-4 py-1.5 rounded-full text-[13px] font-black uppercase tracking-tight ${
                         f.paid ? 'bg-emerald-50 text-emerald-500' : 'bg-rose-50 text-rose-500'
                       }`}>
                         {f.paid ? 'Pago' : 'Pendente'}

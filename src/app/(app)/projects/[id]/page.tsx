@@ -161,7 +161,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               
               <div className="sm:text-right shrink-0">
                 <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1.5 leading-none">Valor do Projeto</p>
-                <div className="text-xl font-black text-slate-800 leading-none tracking-tight">
+                <div className="text-xl font-black text-emerald-600 leading-none tracking-tight">
                   {project.contract_value ? `R$ ${Number(project.contract_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'A definir'}
                 </div>
               </div>

@@ -72,7 +72,7 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
       <div className="flex justify-between items-start mb-3 relative z-10">
         <p className="font-semibold text-slate-800 text-sm truncate flex-1 group-hover:text-indigo-600 transition-colors">{lead.customer_name}</p>
         {lead.qualification_score !== undefined && lead.qualification_score !== null && (
-          <span title={`Score: ${lead.qualification_score}`} className="text-[10px] font-bold px-2 py-1 rounded-full flex-shrink-0 ml-2 shadow-sm border" style={{
+          <span title={`Score: ${lead.qualification_score}`} className="text-[13px] font-bold px-2 py-1 rounded-full flex-shrink-0 ml-2 shadow-sm border" style={{
             backgroundColor: lead.qualification_score > 70 ? '#fef2f2' : lead.qualification_score > 30 ? '#fefce8' : '#f8fafc',
             borderColor: lead.qualification_score > 70 ? '#fca5a5' : lead.qualification_score > 30 ? '#fde047' : '#e2e8f0',
             color: lead.qualification_score > 70 ? '#ef4444' : lead.qualification_score > 30 ? '#eab308' : '#64748b'
@@ -84,19 +84,19 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
       
       <div className="space-y-1.5 mb-3 relative z-10">
         {lead.vehicle_model && (
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-[13px] text-slate-500">
             <Car className="w-3.5 h-3.5 opacity-70" />
             <span className="truncate">{lead.vehicle_model} {lead.armor_type ? `(${lead.armor_type})` : ''}</span>
           </div>
         )}
         {lead.customer_phone && (
-          <div className="flex items-center gap-2 text-xs text-slate-500">
+          <div className="flex items-center gap-2 text-[13px] text-slate-500">
             <Phone className="w-3.5 h-3.5 opacity-70" />
             <span>{lead.customer_phone}</span>
           </div>
         )}
         {lead.created_at && (
-          <div className="text-[10px] text-slate-400 mt-2 border-t pt-1 border-slate-100">
+          <div className="text-[13px] text-slate-400 mt-2 border-t pt-1 border-slate-100">
             Criado em {new Date(lead.created_at).toLocaleDateString('pt-BR')}
           </div>
         )}
@@ -104,20 +104,20 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
 
       <div className="flex items-center justify-between pt-3 border-t border-slate-100 relative z-10">
         <div className="flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-white text-[9px] font-bold text-slate-800 flex items-center justify-center premium-avatar">
+          <div className="w-5 h-5 rounded-full bg-white text-[13px] font-bold text-slate-800 flex items-center justify-center premium-avatar">
             {assignee ? assignee.full_name.charAt(0).toUpperCase() : '?'}
           </div>
-          <span className="text-[10px] font-medium text-slate-500 truncate max-w-[80px]">
+          <span className="text-[13px] font-medium text-slate-500 truncate max-w-[80px]">
             {assignee ? assignee.full_name.split(' ')[0] : 'Indefinido'}
           </span>
         </div>
         
         {lead.quoted_value ? (
-          <div className="text-xs font-bold text-emerald-600">
+          <div className="text-[13px] font-bold text-emerald-600">
             R$ {Number(lead.quoted_value).toLocaleString('pt-BR')}
           </div>
         ) : (
-          <div className="text-[10px] text-slate-400 font-medium">Sem valor</div>
+          <div className="text-[13px] text-slate-400 font-medium">Sem valor</div>
         )}
       </div>
     </div>
@@ -134,7 +134,7 @@ function KanbanColumn({ stage, leads, onLeadClick, teamMembers }: { stage: typeo
           <div className={`w-2.5 h-2.5 rounded-full shadow-sm ${stage.dot}`} />
           <h3 className="text-sm font-bold text-slate-700">{stage.label}</h3>
         </div>
-        <span className="text-xs font-bold text-slate-500 bg-white shadow-sm border border-slate-200 px-2.5 py-1 rounded-full">{leads.length}</span>
+        <span className="text-[13px] font-bold text-slate-500 bg-white shadow-sm border border-slate-200 px-2.5 py-1 rounded-full">{leads.length}</span>
       </div>
       <div className="flex-1 overflow-y-auto px-3 pb-3 space-y-3 custom-scrollbar">
         <SortableContext items={leads.map(l => l.id)}>
@@ -368,30 +368,30 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
 
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
           <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
-            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Prospectados</p>
+            <p className="text-[13px] uppercase font-bold text-slate-500 tracking-wider">Prospectados</p>
             <p className="text-2xl font-black text-slate-800">{metrics.prospectados}</p>
           </div>
           <div className="p-3 bg-slate-50 rounded-2xl border border-slate-100 flex flex-col justify-center">
-            <p className="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Orçados</p>
+            <p className="text-[13px] uppercase font-bold text-slate-500 tracking-wider">Orçados</p>
             <p className="text-2xl font-black text-blue-600">{metrics.orcados}</p>
           </div>
           <div className="p-3 bg-emerald-50 rounded-2xl border border-emerald-100 flex flex-col justify-center">
-            <p className="text-[10px] uppercase font-bold text-emerald-600 tracking-wider">Fechados</p>
+            <p className="text-[13px] uppercase font-bold text-emerald-600 tracking-wider">Fechados</p>
             <p className="text-2xl font-black text-emerald-700">{metrics.fechados}</p>
           </div>
           <div className="p-3 bg-slate-900 rounded-2xl flex flex-col justify-center text-white">
-            <p className="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Conversão</p>
+            <p className="text-[13px] uppercase font-bold text-slate-400 tracking-wider">Conversão</p>
             <p className="text-2xl font-black">{metrics.conv}%</p>
           </div>
           <div className="p-3 bg-white rounded-2xl border border-slate-200 flex items-center divide-x divide-slate-100">
              <div className="flex-1 flex flex-col items-center justify-center">
                 <Shield className="w-4 h-4 text-indigo-600 mb-1" />
-                <span className="text-[10px] font-bold text-slate-400">BLIN</span>
+                <span className="text-[13px] font-bold text-slate-400">BLIN</span>
                 <span className="text-sm font-black text-slate-800">{metrics.vBlindagem}</span>
              </div>
              <div className="flex-1 flex flex-col items-center justify-center">
                 <Wrench className="w-4 h-4 text-amber-500 mb-1" />
-                <span className="text-[10px] font-bold text-slate-400">MANUT</span>
+                <span className="text-[13px] font-bold text-slate-400">MANUT</span>
                 <span className="text-sm font-black text-slate-800">{metrics.vManutencao}</span>
              </div>
           </div>
@@ -432,7 +432,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
             <form onSubmit={handleSaveLead} className="overflow-y-auto pr-2 pb-4 space-y-6 flex-1 custom-scrollbar">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nome do Cliente *</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nome do Cliente *</label>
                   <input
                     type="text" required
                     value={currentLead.customer_name}
@@ -441,7 +441,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Negócio *</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Tipo de Negócio *</label>
                   <select
                     required
                     value={currentLead.type || 'blindagem'}
@@ -454,7 +454,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                 </div>
                 
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Telefone</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Telefone</label>
                   <input
                     type="tel"
                     value={currentLead.customer_phone || ''}
@@ -463,7 +463,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">E-mail</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">E-mail</label>
                   <input
                     type="email"
                     value={currentLead.customer_email || ''}
@@ -472,7 +472,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">CPF/CNPJ</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">CPF/CNPJ</label>
                   <input
                     type="text"
                     value={currentLead.customer_cpf || ''}
@@ -481,7 +481,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Modelo do Veículo</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Modelo do Veículo</label>
                   <input
                     type="text"
                     value={currentLead.vehicle_model || ''}
@@ -490,7 +490,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Nível de Blindagem</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Nível de Blindagem</label>
                   <input
                     type="text"
                     value={currentLead.armor_type || ''}
@@ -499,7 +499,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Valor Orçado (R$)</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Valor Orçado (R$)</label>
                   <input
                     type="number"
                     value={currentLead.quoted_value || ''}
@@ -508,7 +508,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                   />
                 </div>
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Resp. pela Negociação</label>
+                  <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-2">Resp. pela Negociação</label>
                   <select
                     value={currentLead.assigned_to || ''}
                     onChange={e => setCurrentLead(prev => ({ ...prev, assigned_to: e.target.value }))}
@@ -525,7 +525,7 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
               <div className="p-5 bg-slate-50 rounded-2xl border border-slate-100">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Origem (Source)</label>
+                    <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-3">Origem (Source)</label>
                     <select
                       value={currentLead.source || ''}
                       onChange={e => setCurrentLead(prev => ({ ...prev, source: e.target.value }))}
@@ -539,14 +539,14 @@ export default function PipelineClient({ initialLeads, teamMembers }: { initialL
                     </select>
                   </div>
                   <div>
-                    <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Termômetro ({currentLead.qualification_score}%)</label>
+                    <label className="block text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-3">Termômetro ({currentLead.qualification_score}%)</label>
                       <input
                         type="range" min="0" max="100" step="10"
                         value={currentLead.qualification_score ?? 50}
                       onChange={e => setCurrentLead(prev => ({ ...prev, qualification_score: parseInt(e.target.value) }))}
                       className="w-full accent-indigo-500 mt-2"
                     />
-                    <div className="flex justify-between text-[10px] uppercase font-bold text-slate-400 mt-1">
+                    <div className="flex justify-between text-[13px] uppercase font-bold text-slate-400 mt-1">
                       <span>Frio</span>
                       <span>Morno</span>
                       <span>Quente</span>

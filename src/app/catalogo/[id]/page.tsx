@@ -92,7 +92,7 @@ export default async function CatalogVehiclePage({ params }: { params: { id: str
                         <div key={`${stage.id}-${i}`} className="group relative aspect-square rounded-xl overflow-hidden border border-slate-200">
                           <img src={sp.photo_url} alt={stage.stage_name} className="w-full h-full object-cover" />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-3 flex flex-col justify-end">
-                             <span className="text-white text-[10px] font-bold leading-tight uppercase tracking-wider">{stage.stage_name}</span>
+                             <span className="text-white text-[13px] font-bold leading-tight uppercase tracking-wider">{stage.stage_name}</span>
                           </div>
                         </div>
                       ))
@@ -105,7 +105,7 @@ export default async function CatalogVehiclePage({ params }: { params: { id: str
            {/* Detalhes */}
            <div className="lg:col-span-2">
               <div className="bg-white p-8 rounded-3xl border border-slate-200 shadow-lg sticky top-8">
-                <div className="inline-block bg-amber-100 text-amber-800 text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
+                <div className="inline-block bg-amber-100 text-amber-800 text-[13px] font-bold px-3 py-1 rounded-full uppercase tracking-wider mb-4">
                   Blindado Certificado Exército
                 </div>
                 
@@ -113,7 +113,7 @@ export default async function CatalogVehiclePage({ params }: { params: { id: str
                 
                 {hasPrice && (
                   <div className="mb-8">
-                     <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block mb-1">Valor de Investimento</span>
+                     <span className="text-[13px] text-slate-500 font-bold uppercase tracking-wider block mb-1">Valor de Investimento</span>
                      <span className="text-4xl font-black text-slate-900">R$ {Number(vehicle.catalog_price).toLocaleString('pt-BR')}</span>
                   </div>
                 )}
@@ -121,12 +121,12 @@ export default async function CatalogVehiclePage({ params }: { params: { id: str
                 <div className="grid grid-cols-2 gap-4 mb-8 text-sm">
                   <div className="bg-slate-50 p-4 rounded-2xl flex flex-col gap-1 border border-slate-100">
                      <Calendar className="w-5 h-5 text-slate-400 mb-1" />
-                     <span className="text-slate-500 uppercase text-[10px] font-bold tracking-wider">Ano</span>
+                     <span className="text-slate-500 uppercase text-[13px] font-bold tracking-wider">Ano</span>
                      <span className="font-bold text-slate-800">{vehicle.vehicle_year || 'N/I'}</span>
                   </div>
                   <div className="bg-slate-50 p-4 rounded-2xl flex flex-col gap-1 border border-slate-100">
                      <Droplet className="w-5 h-5 text-slate-400 mb-1" />
-                     <span className="text-slate-500 uppercase text-[10px] font-bold tracking-wider">Cor Externa</span>
+                     <span className="text-slate-500 uppercase text-[13px] font-bold tracking-wider">Cor Externa</span>
                      <span className="font-bold text-slate-800">{vehicle.vehicle_color || 'N/I'}</span>
                   </div>
                 </div>

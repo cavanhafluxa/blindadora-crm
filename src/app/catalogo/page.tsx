@@ -55,7 +55,7 @@ export default async function CatalogPage() {
                          <span className="text-sm font-medium">Sem imagem</span>
                       </div>
                     )}
-                    <div className="absolute top-4 left-4 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
+                    <div className="absolute top-4 left-4 bg-amber-500 text-white text-[13px] font-bold px-3 py-1 rounded-full uppercase tracking-wider shadow-sm">
                       Blindado
                     </div>
                   </div>
@@ -76,7 +76,7 @@ export default async function CatalogPage() {
                     <div className="mt-auto">
                       {hasPrice && (
                         <div className="mb-4">
-                           <span className="text-xs text-slate-500 font-bold uppercase tracking-wider block mb-0.5">Valor de Investimento</span>
+                           <span className="text-[13px] text-slate-500 font-bold uppercase tracking-wider block mb-0.5">Valor de Investimento</span>
                            <span className="text-2xl font-black text-slate-900">R$ {Number(v.catalog_price).toLocaleString('pt-BR')}</span>
                         </div>
                       )}

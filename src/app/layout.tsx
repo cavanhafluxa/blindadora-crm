@@ -20,7 +20,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="pt-BR" className={dmSans.variable}>
+    <html lang="pt-BR" className={dmSans.variable} suppressHydrationWarning>
       <body className="font-sans antialiased">{children}</body>
     </html>
   )

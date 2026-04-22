@@ -92,7 +92,7 @@ export default function NotificationBell() {
           <div className="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
             <h3 className="font-bold text-slate-800">Notificações</h3>
             {notifications.length > 0 && (
-              <button onClick={markAllAsRead} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700">
+              <button onClick={markAllAsRead} className="text-[13px] font-semibold text-indigo-600 hover:text-indigo-700">
                 Marcar todas lidas
               </button>
             )}
@@ -114,14 +114,14 @@ export default function NotificationBell() {
                       </div>
                       <div className="flex-1 min-w-0">
                         <h4 className="text-sm font-bold text-slate-800">{n.title}</h4>
-                        <p className="text-xs text-slate-500 mt-0.5 leading-relaxed">{n.body}</p>
+                        <p className="text-[13px] text-slate-500 mt-0.5 leading-relaxed">{n.body}</p>
                         <div className="flex items-center gap-3 mt-2">
                           {n.link && (
-                            <Link href={n.link} onClick={() => { setOpen(false); markAsRead(n.id); }} className="text-xs font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
+                            <Link href={n.link} onClick={() => { setOpen(false); markAsRead(n.id); }} className="text-[13px] font-semibold text-indigo-600 hover:text-indigo-700 flex items-center gap-1">
                               Acessar <ExternalLink className="w-3 h-3" />
                             </Link>
                           )}
-                          <button onClick={() => markAsRead(n.id)} className="text-xs font-medium text-slate-400 hover:text-slate-600">
+                          <button onClick={() => markAsRead(n.id)} className="text-[13px] font-medium text-slate-400 hover:text-slate-600">
                             Ignorar
                           </button>
                         </div>

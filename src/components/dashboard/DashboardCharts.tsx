@@ -49,7 +49,7 @@ export function SalesAreaChart({ data, title = "Análise de Faturamento" }: Area
       <CardHeader className="flex flex-row items-center justify-between pb-2">
         <div className="grid gap-1">
           <CardTitle className="text-lg font-bold text-slate-800">{title}</CardTitle>
-          <CardDescription className="text-xs font-medium text-slate-500">
+          <CardDescription className="text-[13px] font-medium text-slate-500">
             Evolução mensal do faturamento em {new Date().getFullYear()}
           </CardDescription>
         </div>
@@ -126,7 +126,7 @@ export function InvoicesDonutChart({ data, total }: DonutChartProps) {
     <Card className="flex flex-col rounded-[32px] border-none shadow-[0_4px_20px_rgba(0,0,0,0.02)]">
       <CardHeader className="items-start pb-0">
         <CardTitle className="text-lg font-bold text-slate-800">Estatísticas de Faturas</CardTitle>
-        <CardDescription className="text-xs font-medium text-slate-500">Distribuição por status</CardDescription>
+        <CardDescription className="text-[13px] font-medium text-slate-500">Distribuição por status</CardDescription>
       </CardHeader>
       <CardContent className="flex-1 pb-0">
         <ChartContainer
@@ -168,7 +168,7 @@ export function InvoicesDonutChart({ data, total }: DonutChartProps) {
                         <tspan
                           x={viewBox.cx}
                           y={(viewBox.cy || 0) + 24}
-                          className="fill-slate-400 text-[10px] font-black uppercase tracking-widest"
+                          className="fill-slate-400 text-[13px] font-black uppercase tracking-widest"
                         >
                           Faturas
                         </tspan>
@@ -187,9 +187,9 @@ export function InvoicesDonutChart({ data, total }: DonutChartProps) {
              <div key={i} className="flex items-center justify-between">
                <div className="flex items-center gap-2">
                  <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.fill }} />
-                 <span className="text-[12px] font-bold text-slate-400 capitalize">{item.status}</span>
+                 <span className="text-[13px] font-bold text-slate-400 capitalize">{item.status}</span>
                </div>
-               <span className="text-[12px] font-black text-slate-800">{item.count}</span>
+               <span className="text-[13px] font-black text-slate-800">{item.count}</span>
              </div>
            ))}
         </div>
