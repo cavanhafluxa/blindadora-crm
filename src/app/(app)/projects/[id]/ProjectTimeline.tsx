@@ -79,7 +79,7 @@ export default function ProjectTimeline({
           // Ícone condicional
           const Icon = isChecklist ? ClipboardCheck : isCompleted ? CheckCircle2 : Clock;
           const iconBg = isChecklist ? 'bg-blue-50 text-blue-500 border-blue-200' : 
-                         isCompleted ? 'bg-emerald-50 text-emerald-500 border-emerald-200' : 
+                         isCompleted ? 'bg-emerald-50 text-emerald-600 border-emerald-200' : 
                          'bg-amber-50 text-amber-500 border-amber-200';
           
           return (
@@ -87,7 +87,7 @@ export default function ProjectTimeline({
               <div className="absolute -left-7 top-1 bottom-0 flex flex-col items-center">
                 <div className={`w-2.5 h-2.5 rounded-full ring-4 z-10 ${
                   isChecklist ? 'bg-blue-500 ring-blue-50' :
-                  isCompleted ? 'bg-emerald-500 ring-emerald-50' : 
+                  isCompleted ? 'bg-emerald-600 ring-emerald-50' : 
                   'bg-amber-500 ring-amber-50'
                 }`}></div>
               </div>
@@ -99,10 +99,35 @@ export default function ProjectTimeline({
                   </div>
                   
                   <div className="flex-1 min-w-0 bg-white border border-slate-100 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">
-                    <div className="flex flex-col gap-1 mb-3">
-                      <p className="text-[13px] font-semibold text-slate-800">
-                        {event.description}
-                      </p>
+                    <div className="flex flex-col gap-0.5 mb-3">
+                      {(() => {
+                        const desc = event.description || '';
+                        const isCompletedStatus = desc.includes('Concluída') || desc.includes('100%');
+                        const title = desc.replace(' - Concluída', '').replace(' Concluída', '').replace('Concluída: ', '');
+                        
+                        return (
+                          <>
+                            <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                              {title}
+                            </p>
+                            {isCompletedStatus && (
+                              <p className="text-[13px] font-bold text-emerald-600">
+                                Concluída
+                              </p>
+                            )}
+                            {!isCompletedStatus && desc.includes('Em Andamento') && (
+                              <p className="text-[13px] font-bold text-amber-500">
+                                Em Andamento
+                              </p>
+                            )}
+                            {!isCompletedStatus && !desc.includes('Em Andamento') && (
+                              <p className="text-[13px] font-semibold text-slate-700">
+                                {desc}
+                              </p>
+                            )}
+                          </>
+                        )
+                      })()}
                     </div>
                     
                     <div className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-3 border-t border-slate-50">

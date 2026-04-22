@@ -27,7 +27,7 @@ type Stage = {
 const STATUS_MAP = {
   pending: { label: 'Pendente', color: 'text-slate-400', bg: 'bg-slate-100', bar: 'bg-slate-200' },
   in_progress: { label: 'Em Andamento', color: 'text-amber-600', bg: 'bg-amber-100', bar: 'bg-amber-400' },
-  completed: { label: 'Concluída', color: 'text-green-600', bg: 'bg-green-100', bar: 'bg-green-500' },
+  completed: { label: 'Concluída', color: 'text-emerald-600', bg: 'bg-emerald-100', bar: 'bg-emerald-600' },
 }
 
 export default function StageList({
@@ -229,7 +229,7 @@ export default function StageList({
                 {/* Timeline dot */}
                 <div className={`absolute left-0 top-4 w-11 h-11 rounded-full flex items-center justify-center font-bold text-sm border-2 transition-colors ${
                   stage.status === 'completed'
-                    ? 'bg-green-500 border-green-500 text-white'
+                    ? 'bg-emerald-600 border-emerald-600 text-white'
                     : stage.status === 'in_progress'
                     ? 'bg-amber-400 border-amber-400 text-white'
                     : 'bg-white border-slate-200 text-slate-400'
@@ -244,7 +244,7 @@ export default function StageList({
 
                 {/* Stage card */}
                 <div className={`rounded-xl border overflow-hidden transition-all ${
-                  stage.status === 'completed' ? 'border-green-200 bg-green-50/40' :
+                  stage.status === 'completed' ? 'border-emerald-200 bg-emerald-50/40' :
                   stage.status === 'in_progress' ? 'border-amber-200 bg-amber-50/40' :
                   'border-slate-200 bg-white'
                 }`}>
@@ -305,7 +305,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'completed', completion_percentage: 100 })}
-                            className="flex items-center gap-1.5 px-4 h-[38px] text-[13px] font-bold bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-[13px] font-bold bg-emerald-100 text-emerald-700 rounded-xl hover:bg-emerald-200 transition-all disabled:opacity-50"
                           >
                             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'} Marcar Concluída
                           </button>
@@ -411,7 +411,7 @@ export default function StageList({
                           rows={2}
                           placeholder="Registre observações sobre esta etapa..."
                           onBlur={e => updateStage(stage.id, { notes: e.target.value })}
-                          className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 bg-white resize-none"
+                          className="w-full px-3 py-2 text-sm border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-emerald-500 bg-white resize-none"
                         />
                       </div>
 

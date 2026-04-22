@@ -232,7 +232,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
       <input type="file" ref={fileInputRef} className="hidden" accept="image/*,video/*" onChange={handleFileUpload} />
 
       {/* Header Bar */}
-      <div className={`p-0.5 bg-gradient-to-r ${saved ? 'from-emerald-500 to-teal-600' : 'from-amber-400 to-orange-500'}`} />
+      <div className={`p-0.5 bg-gradient-to-r ${saved ? 'from-emerald-600 to-teal-600' : 'from-amber-400 to-orange-500'}`} />
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="w-full flex items-center justify-between p-3.5 text-left group hover:bg-slate-50 transition-colors"
@@ -244,7 +244,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           <div>
             <h2 className="text-base font-semibold text-slate-800">Checklist de Entrada</h2>
             <div className="flex items-center gap-2 mt-0.5">
-              <span className={`w-2 h-2 rounded-full animate-pulse ${saved ? 'bg-emerald-500' : 'bg-amber-500'}`} />
+              <span className={`w-2 h-2 rounded-full animate-pulse ${saved ? 'bg-emerald-600' : 'bg-amber-500'}`} />
               <p className="text-[13px] font-bold text-slate-500 uppercase tracking-wider">
                 {saved ? `Concluído • ${checkedCount} Itens` : `Pendente • ${checkedCount}/${allItems.length} Verificados`}
               </p>
@@ -285,7 +285,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           {/* Checklist Items */}
           <div className="space-y-3">
             <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
               Itens de Vistoria Técnica
             </h3>
             
@@ -295,12 +295,12 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                   key={key}
                   className={`relative flex items-center p-0.5 pl-3 rounded-xl border transition-all duration-300 group ${
                     item.checked 
-                      ? 'border-emerald-500 bg-emerald-50/50 shadow-sm' 
+                      ? 'border-emerald-600 bg-emerald-50/50 shadow-sm' 
                       : 'border-slate-100 bg-white hover:border-slate-300'
                   }`}
                 >
                   {/* Status Indicator Bar */}
-                  <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full transition-all ${item.checked ? 'bg-emerald-500 scale-y-100' : 'bg-slate-200 scale-y-50 opacity-0'}`} />
+                  <div className={`absolute left-0 top-3 bottom-3 w-1 rounded-r-full transition-all ${item.checked ? 'bg-emerald-600 scale-y-100' : 'bg-slate-200 scale-y-50 opacity-0'}`} />
 
                   {/* Text & Toggle */}
                   <button
@@ -308,7 +308,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                     className="flex-1 py-2 flex items-center gap-3 text-left"
                   >
                     <div className={`w-5 h-5 rounded border flex items-center justify-center transition-all ${
-                      item.checked ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 bg-white group-hover:border-slate-400'
+                      item.checked ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-slate-200 bg-white group-hover:border-slate-400'
                     }`}>
                       {item.checked && <CheckSquare className="w-3.5 h-3.5" />}
                     </div>

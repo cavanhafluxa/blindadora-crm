@@ -74,8 +74,16 @@ export default function CatalogPublishSection({ project }: { project: any }) {
         </div>
       </div>
 
-      <div className="mt-4 flex justify-end">
-        <button onClick={handleSave} disabled={loading} className="btn-primary bg-amber-500 hover:bg-amber-600 focus:ring-amber-500 flex items-center gap-2">
+      <div className="mt-6 flex justify-end">
+        <button 
+          onClick={handleSave} 
+          disabled={loading} 
+          className={`h-[42px] px-6 rounded-xl font-bold flex items-center gap-2 transition-all duration-300 ${
+            published 
+              ? 'bg-slate-900 text-white hover:bg-slate-800 shadow-lg shadow-slate-200' 
+              : 'bg-slate-100 text-slate-400 hover:bg-slate-200'
+          }`}
+        >
            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
            Salvar Anúncio
         </button>

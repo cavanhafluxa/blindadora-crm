@@ -14,6 +14,7 @@ import MarkAsDeliveredButton from './MarkAsDeliveredButton'
 import CatalogPublishSection from './CatalogPublishSection'
 import ProjectTimeline from './ProjectTimeline'
 import CollapsibleTimelineWrapper from './CollapsibleTimelineWrapper'
+import VehicleImageUpload from './VehicleImageUpload'
 
 export const dynamic = 'force-dynamic'
 
@@ -57,7 +58,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
   const statusColors: Record<string, string> = {
     producao: 'bg-blue-100 text-blue-700',
     revisao: 'bg-yellow-100 text-yellow-700',
-    concluido: 'bg-green-100 text-green-700',
+    concluido: 'bg-emerald-100 text-emerald-600',
   }
 
   const statusLabels: Record<string, string> = {
@@ -95,20 +96,17 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </Link>
 
         {/* Vehicle Image */}
-        <div className="w-full md:w-[380px] h-[240px] bg-gradient-to-br from-slate-50 to-slate-100 rounded-[16px] flex items-center justify-center overflow-hidden border border-slate-100/60 flex-shrink-0 relative group">
-          {project.vehicle_image ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={project.vehicle_image} alt={project.vehicle_model} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
-          ) : (
-            <div className="text-center flex flex-col items-center justify-center text-slate-400 transition-transform duration-500 group-hover:scale-105">
-              <Car className="w-16 h-16 mb-3 opacity-20" />
-              <span className="text-sm font-medium">Foto do Veículo</span>
-            </div>
-          )}
+        <div className="w-full md:w-[380px] h-[240px] bg-gradient-to-br from-slate-50 to-slate-100 rounded-[16px] overflow-hidden border border-slate-100/60 flex-shrink-0 relative group">
+          <VehicleImageUpload 
+            projectId={project.id} 
+            initialImageUrl={project.vehicle_image} 
+            vehicleModel={project.vehicle_model} 
+          />
           
-          <div className="absolute top-4 left-4">
+          {/* Status Badge Overlay (Top Left) */}
+          <div className="absolute top-4 left-4 z-10 pointer-events-none">
             <span className={`px-3 py-1.5 rounded-full text-[11px] font-bold uppercase tracking-wider shadow-sm border ${
-              project.status === 'concluido' ? 'bg-green-50 text-green-700 border-green-200' :
+              project.status === 'concluido' ? 'bg-emerald-50 text-emerald-600 border-emerald-200' :
               project.status === 'revisao' ? 'bg-yellow-50 text-yellow-700 border-yellow-200' :
               'bg-[#111111] text-white border-transparent'
             }`}>
@@ -153,7 +151,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 </div>
                 {project.odometer_entry !== null && project.odometer_entry !== undefined && (
                   <div className="flex items-center gap-1.5 text-slate-500 font-medium pl-0.5 mt-1">
-                    <Gauge className="w-3.5 h-3.5 text-emerald-500" />
+                    <Gauge className="w-3.5 h-3.5 text-emerald-600" />
                     <span className="text-sm tracking-tight">{Number(project.odometer_entry).toLocaleString('pt-BR')} <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold ml-0.5">km</span></span>
                   </div>
                 )}
@@ -182,7 +180,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 </div>
                 <div className="h-1.5 bg-slate-200/60 rounded-full overflow-hidden mb-2">
                   <div
-                    className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+                    className="h-full bg-emerald-600 rounded-full transition-all duration-700"
                     style={{ width: `${project.overall_progress}%` }}
                   />
                 </div>
@@ -298,34 +296,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
             allMaterials={allMaterials as any || []}
           />
           
-          {/* Fluxo de Caixa do Projeto */}
-          <div className="soft-card p-6 border-t-4 border-indigo-500">
-            <div className="flex items-center gap-2 mb-4">
-              <Receipt className="w-5 h-5 text-indigo-500" />
-              <h2 className="font-semibold text-slate-800">Fluxo de Caixa</h2>
-            </div>
-            
-            <div className="space-y-4 mb-4">
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Receitas</span>
-                <span className="font-semibold text-green-600">R$ {projectFinancials.income.toLocaleString('pt-BR')}</span>
-              </div>
-              <div className="flex justify-between items-center text-sm">
-                <span className="text-slate-500">Despesas (Custos)</span>
-                <span className="font-bold text-red-600 text-lg">R$ {projectFinancials.expense.toLocaleString('pt-BR')}</span>
-              </div>
-              <div className="pt-3 border-t border-slate-100 flex justify-between items-center">
-                <span className="font-bold text-slate-700">Margem (Lucro)</span>
-                <span className={`font-black text-xl ${projectFinancials.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  R$ {projectFinancials.balance.toLocaleString('pt-BR')}
-                </span>
-              </div>
-            </div>
-            
-            <Link href="/financial" className="text-indigo-600 hover:text-indigo-700 text-[13px] font-semibold w-full block text-center bg-indigo-50 hover:bg-indigo-100 py-2 rounded-lg transition-colors">
-              Detalhar Financeiro
-            </Link>
-          </div>
+
         </div>
       </div>
       
@@ -349,11 +320,11 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
           
           <div className="relative">
             <div className="absolute -left-7 top-1 bottom-0 flex flex-col items-center">
-              <div className="w-2.5 h-2.5 bg-green-500 rounded-full ring-4 ring-green-50 z-10"></div>
+              <div className="w-2.5 h-2.5 bg-emerald-600 rounded-full ring-4 ring-emerald-50 z-10"></div>
             </div>
             <div className="flex flex-col gap-2 pb-6">
               <div className="flex gap-4">
-                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-200 bg-emerald-50 text-emerald-500">
+                <div className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm border border-emerald-200 bg-emerald-50 text-emerald-600">
                   <CheckCircle2 className="w-5 h-5" />
                 </div>
                 <div className="flex-1 min-w-0 bg-white border border-slate-100 p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow">

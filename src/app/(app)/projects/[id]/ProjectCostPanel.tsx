@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
-import { DollarSign, Package, ShoppingCart, Plus, Trash2, TrendingUp, TrendingDown, Loader2, Receipt, Wrench, Truck, MoreHorizontal, ChevronDown, Upload, X } from 'lucide-react'
+import { DollarSign, Package, ShoppingCart, Plus, Trash2, TrendingUp, TrendingDown, Loader2, Receipt, Wrench, Truck, MoreHorizontal, ChevronDown, Upload, X, Pencil, Save } from 'lucide-react'
 
 type Purchase = {
   id: string
@@ -44,6 +44,8 @@ export default function ProjectCostPanel({
   const [showForm, setShowForm] = useState(false)
   const [saving, setSaving] = useState(false);
   const [showCategorySelect, setShowCategorySelect] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [existingInvoiceUrl, setExistingInvoiceUrl] = useState<string | null>(null)
   const [form, setForm] = useState({
     description: '',
     supplier_name: '',
@@ -88,25 +90,47 @@ export default function ProjectCostPanel({
 
       const total_price = Number(form.quantity) * Number(form.unit_price);
       
-      const { data, error } = await supabase
-        .from('project_purchases')
-        .insert([{
-          project_id: projectId,
-          organization_id: organizationId,
-          description: form.description,
-          supplier_name: form.supplier_name,
-          quantity: Number(form.quantity),
-          unit_price: Number(form.unit_price),
-          category: form.category,
-          purchase_date: form.purchase_date,
-          invoice_url: invoice_url
-        }])
-        .select()
-        .single();
+      if (editingId) {
+        const { data, error } = await supabase
+          .from('project_purchases')
+          .update({
+            description: form.description,
+            supplier_name: form.supplier_name,
+            quantity: Number(form.quantity),
+            unit_price: Number(form.unit_price),
+            category: form.category,
+            purchase_date: form.purchase_date,
+            invoice_url: invoice_url || existingInvoiceUrl,
+            total_price: total_price
+          })
+          .eq('id', editingId)
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
+        setPurchases(purchases.map(p => p.id === editingId ? data : p));
+      } else {
+        const { data, error } = await supabase
+          .from('project_purchases')
+          .insert([{
+            project_id: projectId,
+            organization_id: organizationId,
+            description: form.description,
+            supplier_name: form.supplier_name,
+            quantity: Number(form.quantity),
+            unit_price: Number(form.unit_price),
+            category: form.category,
+            purchase_date: form.purchase_date,
+            invoice_url: invoice_url,
+            total_price: total_price
+          }])
+          .select()
+          .single();
 
-      setPurchases([data, ...purchases]);
+        if (error) throw error;
+        setPurchases([data, ...purchases]);
+      }
+
       setForm({
         description: '',
         supplier_name: '',
@@ -117,6 +141,8 @@ export default function ProjectCostPanel({
         attachment: null,
         notes: ''
       });
+      setEditingId(null);
+      setExistingInvoiceUrl(null);
       setShowForm(false);
     } catch (error) {
       console.error('Error adding purchase:', error);
@@ -132,6 +158,23 @@ export default function ProjectCostPanel({
     setPurchases(prev => prev.filter(p => p.id !== id))
   }
 
+  function handleEdit(p: Purchase) {
+    setEditingId(p.id);
+    setExistingInvoiceUrl(p.invoice_url);
+    setForm({
+      description: p.description,
+      supplier_name: p.supplier_name || '',
+      quantity: String(p.quantity),
+      unit_price: String(p.unit_price),
+      purchase_date: p.purchase_date,
+      category: p.category,
+      notes: p.notes || '',
+      attachment: null
+    });
+    setShowForm(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
   const marginColor = marginPct >= 30 ? 'text-emerald-600' : marginPct >= 10 ? 'text-amber-600' : 'text-red-600'
   const marginBg = marginPct >= 30 ? 'bg-emerald-50 border-emerald-200' : marginPct >= 10 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200'
 
@@ -142,55 +185,84 @@ export default function ProjectCostPanel({
           <DollarSign className="w-5 h-5 text-emerald-600" />
           <h2 className="font-semibold text-slate-800">Custos & Margem do Projeto</h2>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-[13px] px-3 py-2">
+        <button 
+          onClick={() => {
+            if (showForm && editingId) {
+              setEditingId(null);
+              setForm({
+                description: '',
+                supplier_name: '',
+                quantity: '1',
+                unit_price: '',
+                category: 'material',
+                purchase_date: new Date().toISOString().split('T')[0],
+                attachment: null,
+                notes: ''
+              });
+            } else {
+              setShowForm(!showForm);
+            }
+          }} 
+          className="btn-primary text-[13px] px-3 py-2"
+        >
           <Plus className="w-3.5 h-3.5" /> Compra Específica
         </button>
       </div>
 
       {/* Resumo Financeiro */}
-      <div className={`p-4 rounded-2xl border mb-6 ${marginBg}`}>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <div>
-            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contrato</p>
-            <p className="text-xl font-black text-emerald-700">R$ {contractValue.toLocaleString('pt-BR')}</p>
+      <div className={`p-8 rounded-[24px] border mb-8 ${marginBg}`}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
+          <div className="md:pr-4 md:border-r border-slate-200/50">
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Contrato</p>
+            <p className="text-2xl font-black text-emerald-700 tracking-tight">R$ {contractValue.toLocaleString('pt-BR')}</p>
           </div>
-          <div>
-            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Custo Materiais</p>
-            <p className="text-xl font-black text-slate-700">R$ {materialCost.toLocaleString('pt-BR')}</p>
+          <div className="md:px-4 md:border-r border-slate-200/50">
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Custo Materiais</p>
+            <p className="text-2xl font-black text-slate-700 tracking-tight">R$ {materialCost.toLocaleString('pt-BR')}</p>
           </div>
-          <div>
-            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Compras Proj.</p>
-            <p className="text-xl font-black text-slate-700">R$ {totalPurchases.toLocaleString('pt-BR')}</p>
+          <div className="md:px-4 md:border-r border-slate-200/50">
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Compras Proj.</p>
+            <p className="text-2xl font-black text-slate-700 tracking-tight">R$ {totalPurchases.toLocaleString('pt-BR')}</p>
           </div>
-          <div>
-            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Margem Bruta</p>
-            <div className="flex items-center gap-1.5">
+          <div className="md:pl-4">
+            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Margem Bruta</p>
+            <div className="flex items-center gap-2">
               {margin >= 0 ? <TrendingUp className="w-5 h-5 text-emerald-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
-              <p className={`text-2xl font-black ${marginColor}`}>R$ {Math.abs(margin).toLocaleString('pt-BR')}</p>
-              <span className={`text-base font-black ${marginColor}`}>({marginPct}%)</span>
+              <div className="flex items-baseline gap-1.5">
+                <p className={`text-2xl font-black tracking-tight ${marginColor}`}>R$ {Math.abs(margin).toLocaleString('pt-BR')}</p>
+                <span className={`text-[13px] font-bold ${marginColor}`}>({marginPct}%)</span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Progress bar de margem */}
-        <div className="mt-4">
-          <div className="flex justify-between text-[13px] font-bold text-slate-500 mb-1">
-            <span>Custo Total: R$ {totalCost.toLocaleString('pt-BR')}</span>
-            <span>Meta: ≥30% Margem</span>
+        <div className="mt-8 pt-6 border-t border-slate-200/50">
+          <div className="flex justify-between items-end mb-3">
+            <div>
+              <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">Custo Total Acumulado</p>
+              <p className="text-sm font-bold text-slate-600">R$ {totalCost.toLocaleString('pt-BR')}</p>
+            </div>
+            <div className="text-right">
+              <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">Meta de Margem</p>
+              <p className="text-sm font-bold text-emerald-600">≥ 30%</p>
+            </div>
           </div>
-          <div className="h-2 bg-white/60 rounded-full overflow-hidden border border-slate-200">
+          <div className="h-3 bg-white rounded-full overflow-hidden border border-slate-200/60 shadow-inner">
             <div
-              className={`h-full rounded-full transition-all ${marginPct >= 30 ? 'bg-emerald-500' : marginPct >= 10 ? 'bg-amber-500' : 'bg-red-500'}`}
+              className={`h-full rounded-full transition-all duration-1000 ${marginPct >= 30 ? 'bg-emerald-600' : marginPct >= 10 ? 'bg-amber-500' : 'bg-red-500'}`}
               style={{ width: `${Math.min(Math.max(marginPct, 0), 100)}%` }}
             />
           </div>
         </div>
       </div>
 
-      {/* Formulário de Nova Compra */}
+      {/* Formulário de Nova/Edição Compra */}
       {showForm && (
-        <form onSubmit={handleSubmit} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-5 space-y-4">
-          <h3 className="font-semibold text-slate-700 text-sm">Nova Compra Específica</h3>
+        <form onSubmit={handleSubmit} className="bg-slate-50 border border-slate-200 rounded-2xl p-5 mb-5 space-y-4 animate-in slide-in-from-top duration-300">
+          <h3 className="font-semibold text-slate-700 text-sm">
+            {editingId ? 'Editar Custo Específico' : 'Nova Compra Específica'}
+          </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descrição *</label>
@@ -304,10 +376,29 @@ export default function ProjectCostPanel({
           </div>
           <div className="flex gap-3">
             <button type="submit" disabled={saving} className="btn-primary text-sm">
-              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : <Plus className="w-4 h-4" />}
-              {saving ? 'Salvando...' : 'Adicionar Custo'}
+              {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : editingId ? <Save className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+              {saving ? 'Salvando...' : editingId ? 'Salvar Alterações' : 'Adicionar Custo'}
             </button>
-            <button type="button" onClick={() => setShowForm(false)} className="text-sm px-4 py-2 text-slate-500 hover:text-slate-700">Cancelar</button>
+            <button 
+              type="button" 
+              onClick={() => {
+                setShowForm(false);
+                setEditingId(null);
+                setForm({
+                  description: '',
+                  supplier_name: '',
+                  quantity: '1',
+                  unit_price: '',
+                  category: 'material',
+                  purchase_date: new Date().toISOString().split('T')[0],
+                  attachment: null,
+                  notes: ''
+                });
+              }} 
+              className="text-sm px-4 py-2 text-slate-500 hover:text-slate-700"
+            >
+              Cancelar
+            </button>
           </div>
         </form>
       )}
@@ -352,7 +443,19 @@ export default function ProjectCostPanel({
                     </a>
                   )}
 
-                  <button onClick={() => handleDelete(p.id)} className="opacity-0 group-hover:opacity-100 p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                  <button 
+                    onClick={() => handleEdit(p)} 
+                    className="p-2 text-slate-300 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                    title="Editar Item"
+                  >
+                    <Pencil className="w-4 h-4" />
+                  </button>
+
+                  <button 
+                    onClick={() => handleDelete(p.id)} 
+                    className="p-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all"
+                    title="Excluir Item"
+                  >
                     <Trash2 className="w-4 h-4" />
                   </button>
                 </div>
