@@ -12,11 +12,10 @@ import {
   Wrench,
   Settings,
   ShieldCheck,
-  LogOut,
-  FileText,
   Users,
-  Moon,
-  Sun,
+  LifeBuoy,
+  FileText,
+  LogOut,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
 import { useRouter } from 'next/navigation'
@@ -44,18 +43,12 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
   const router    = useRouter()
   const supabase  = createClient()
 
-  const [theme,    setTheme]    = useState('light')
   const [userName, setUserName] = useState<string>('')
   const [orgName,  setOrgName]  = useState<string>('PROblind')
   const [orgLogo,  setOrgLogo]  = useState<string | null>(null)
   const [expanded, setExpanded] = useState(false)
 
   useEffect(() => {
-    const saved = localStorage.getItem('theme') || 'light'
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setTheme(saved)
-    document.documentElement.setAttribute('data-theme', saved)
-
     async function loadData() {
       const cacheKey = `user_name_${userId}`
       const cached   = localStorage.getItem(cacheKey)
@@ -90,13 +83,6 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
     }
     loadData()
   }, [userId, userEmail, supabase])
-
-  function toggleTheme() {
-    const next = theme === 'light' ? 'dark' : 'light'
-    setTheme(next)
-    localStorage.setItem('theme', next)
-    document.documentElement.setAttribute('data-theme', next)
-  }
 
   async function handleLogout() {
     await supabase.auth.signOut()
@@ -277,21 +263,22 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
             </div>
           </div>
 
-          {/* Theme toggle */}
-          <button
-            onClick={toggleTheme}
+          {/* Support Link */}
+          <Link
+            href="/support"
             className="sidebar-link group"
-            title={!expanded ? (theme === 'dark' ? 'Modo Claro' : 'Modo Escuro') : undefined}
+            title={!expanded ? 'Suporte' : undefined}
             style={{
               borderRadius:   '7px',
               minHeight:      '38px',
               justifyContent: expanded ? 'flex-start' : 'center',
             }}
           >
-            {theme === 'dark'
-              ? <Sun  className="flex-shrink-0" style={{ width: '16px', height: '16px', minWidth: '16px', color: 'rgba(255,255,255,0.50)' }} strokeWidth={1.8} />
-              : <Moon className="flex-shrink-0" style={{ width: '16px', height: '16px', minWidth: '16px', color: 'rgba(255,255,255,0.50)' }} strokeWidth={1.8} />
-            }
+            <LifeBuoy
+              className="flex-shrink-0"
+              style={{ width: '16px', height: '16px', minWidth: '16px', color: 'rgba(255,255,255,0.50)' }}
+              strokeWidth={1.8}
+            />
             <span
               className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
               style={{
@@ -303,9 +290,9 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 color:      'rgba(255,255,255,0.60)',
               }}
             >
-              {theme === 'dark' ? 'Modo Claro' : 'Modo Escuro'}
+              Suporte
             </span>
-          </button>
+          </Link>
 
           {/* Logout */}
           <button
