@@ -142,7 +142,7 @@ export default function ProjectCostPanel({
           <DollarSign className="w-5 h-5 text-emerald-600" />
           <h2 className="font-semibold text-slate-800">Custos & Margem do Projeto</h2>
         </div>
-        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-xs px-3 py-2">
+        <button onClick={() => setShowForm(!showForm)} className="btn-primary text-[13px] px-3 py-2">
           <Plus className="w-3.5 h-3.5" /> Compra Específica
         </button>
       </div>
@@ -151,30 +151,30 @@ export default function ProjectCostPanel({
       <div className={`p-4 rounded-2xl border mb-6 ${marginBg}`}>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contrato</p>
-            <p className="text-lg font-black text-emerald-700">R$ {contractValue.toLocaleString('pt-BR')}</p>
+            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Contrato</p>
+            <p className="text-xl font-black text-emerald-700">R$ {contractValue.toLocaleString('pt-BR')}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Custo Materiais</p>
-            <p className="text-lg font-black text-slate-700">R$ {materialCost.toLocaleString('pt-BR')}</p>
+            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Custo Materiais</p>
+            <p className="text-xl font-black text-slate-700">R$ {materialCost.toLocaleString('pt-BR')}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Compras Proj.</p>
-            <p className="text-lg font-black text-slate-700">R$ {totalPurchases.toLocaleString('pt-BR')}</p>
+            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Compras Proj.</p>
+            <p className="text-xl font-black text-slate-700">R$ {totalPurchases.toLocaleString('pt-BR')}</p>
           </div>
           <div>
-            <p className="text-[10px] font-bold uppercase tracking-wider text-slate-500 mb-1">Margem Bruta</p>
+            <p className="text-[13px] font-bold uppercase tracking-wider text-slate-500 mb-1">Margem Bruta</p>
             <div className="flex items-center gap-1.5">
-              {margin >= 0 ? <TrendingUp className="w-4 h-4 text-emerald-600" /> : <TrendingDown className="w-4 h-4 text-red-600" />}
-              <p className={`text-lg font-black ${marginColor}`}>R$ {Math.abs(margin).toLocaleString('pt-BR')}</p>
-              <span className={`text-xs font-bold ${marginColor}`}>({marginPct}%)</span>
+              {margin >= 0 ? <TrendingUp className="w-5 h-5 text-emerald-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
+              <p className={`text-2xl font-black ${marginColor}`}>R$ {Math.abs(margin).toLocaleString('pt-BR')}</p>
+              <span className={`text-base font-black ${marginColor}`}>({marginPct}%)</span>
             </div>
           </div>
         </div>
 
         {/* Progress bar de margem */}
         <div className="mt-4">
-          <div className="flex justify-between text-[10px] font-bold text-slate-500 mb-1">
+          <div className="flex justify-between text-[13px] font-bold text-slate-500 mb-1">
             <span>Custo Total: R$ {totalCost.toLocaleString('pt-BR')}</span>
             <span>Meta: ≥30% Margem</span>
           </div>
@@ -193,17 +193,17 @@ export default function ProjectCostPanel({
           <h3 className="font-semibold text-slate-700 text-sm">Nova Compra Específica</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descrição *</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Descrição *</label>
               <input required type="text" value={form.description} onChange={e => setForm(p => ({ ...p, description: e.target.value }))}
                 placeholder="Ex: Vidro laminado frontal IIIA" className="input-field w-full" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Fornecedor</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Fornecedor</label>
               <input type="text" value={form.supplier_name} onChange={e => setForm(p => ({ ...p, supplier_name: e.target.value }))}
                 placeholder="Nome do fornecedor" className="input-field w-full" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Categoria</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Categoria</label>
               <div className="relative">
                 <button 
                   type="button"
@@ -253,20 +253,20 @@ export default function ProjectCostPanel({
               </div>
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Data da Compra</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Data da Compra</label>
               <input type="date" value={form.purchase_date} onChange={e => setForm(p => ({ ...p, purchase_date: e.target.value }))} className="input-field w-full" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Quantidade</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Quantidade</label>
               <input required type="number" min="0.001" step="0.001" value={form.quantity} onChange={e => setForm(p => ({ ...p, quantity: e.target.value }))} className="input-field w-full" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Valor Unitário (R$) *</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Valor Unitário (R$) *</label>
               <input required type="number" min="0" step="0.01" value={form.unit_price} onChange={e => setForm(p => ({ ...p, unit_price: e.target.value }))}
                 placeholder="0,00" className="input-field w-full font-bold text-emerald-700" />
             </div>
             <div>
-              <label className="text-xs font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Comprovante</label>
+              <label className="text-[13px] font-bold text-slate-500 uppercase tracking-wider block mb-1.5">Comprovante</label>
               <div className="relative">
                 <input 
                   type="file" 
@@ -283,7 +283,7 @@ export default function ProjectCostPanel({
                   className={`flex items-center gap-2 px-4 h-[38px] rounded-xl border cursor-pointer transition-all ${form.attachment ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-slate-50 border-slate-100 text-slate-500 hover:bg-slate-100'}`}
                 >
                   <Upload className={`w-4 h-4 ${form.attachment ? 'text-indigo-600' : 'text-slate-400'}`} />
-                  <span className="text-xs font-bold truncate max-w-[200px]">
+                  <span className="text-[13px] font-bold truncate max-w-[200px]">
                     {form.attachment ? form.attachment.name : 'Anexar Comprovante'}
                   </span>
                   {form.attachment && (
@@ -315,7 +315,7 @@ export default function ProjectCostPanel({
       {/* Lista de Compras */}
       {purchases.length > 0 && (
         <div>
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <h3 className="text-[13px] font-bold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
             <ShoppingCart className="w-3.5 h-3.5" /> Compras Específicas do Projeto
           </h3>
           <div className="space-y-2">
@@ -330,7 +330,7 @@ export default function ProjectCostPanel({
                   </div>
                   <div className="min-w-0">
                     <p className="text-base font-bold text-slate-900 truncate tracking-tight">{p.description}</p>
-                    <p className="text-[11px] font-medium text-slate-500 mt-0.5">
+                    <p className="text-[13px] font-medium text-slate-500 mt-0.5">
                       {p.supplier_name && <>{p.supplier_name} · </>}
                       {p.quantity}x R$ {Number(p.unit_price).toLocaleString('pt-BR')} ·{' '}
                       {new Date(p.purchase_date).toLocaleDateString('pt-BR')}
@@ -360,7 +360,7 @@ export default function ProjectCostPanel({
             ))}
           </div>
           <div className="mt-3 flex justify-between items-center px-3 py-2.5 bg-slate-50 rounded-xl border border-slate-100">
-            <span className="text-xs font-bold text-slate-500">Total Compras Específicas</span>
+            <span className="text-[13px] font-bold text-slate-500">Total Compras Específicas</span>
             <span className="text-sm font-black text-slate-800">R$ {totalPurchases.toLocaleString('pt-BR')}</span>
           </div>
         </div>
@@ -370,7 +370,7 @@ export default function ProjectCostPanel({
         <div className="text-center py-6 text-slate-400">
           <ShoppingCart className="w-8 h-8 mx-auto mb-2 opacity-30" />
           <p className="text-sm">Nenhuma compra específica registrada.</p>
-          <p className="text-xs mt-1">Itens comprados sob encomenda para este projeto.</p>
+          <p className="text-[13px] mt-1">Itens comprados sob encomenda para este projeto.</p>
         </div>
       )}
     </div>

@@ -67,6 +67,18 @@ export default function MarkAsDeliveredButton({ projectId, organizationId, vehic
         .insert(orders)
 
       if (maintenanceError) throw maintenanceError
+      
+      // Log delivery event
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        await supabase.from('project_events').insert({
+          project_id: projectId,
+          organization_id: organizationId,
+          user_id: user.id,
+          event_type: 'delivery',
+          description: 'Veículo entregue ao cliente'
+        })
+      }
 
       alert('Veículo marcado como entregue! Revisões agendadas com sucesso.')
       router.refresh()
@@ -81,7 +93,7 @@ export default function MarkAsDeliveredButton({ projectId, organizationId, vehic
     <button
       onClick={handleMarkAsDelivered}
       disabled={loading}
-      className="btn-primary bg-green-600 hover:bg-green-700 text-xs h-[38px] px-6 flex-shrink-0 flex items-center gap-2 rounded-xl transition-all font-bold"
+      className="btn-primary bg-green-600 hover:bg-green-700 text-[13px] h-[38px] px-6 flex-shrink-0 flex items-center gap-2 rounded-xl transition-all font-bold"
     >
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
       Marcar como Entregue

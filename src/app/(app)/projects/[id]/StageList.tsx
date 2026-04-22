@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useRef } from 'react'
+import { useRouter } from 'next/navigation'
 import { createClient } from '@/utils/supabase/client'
 import {
   CheckCircle2, Clock, Circle, ChevronDown, ChevronUp,
@@ -32,12 +33,15 @@ const STATUS_MAP = {
 export default function StageList({
   stages: initialStages,
   projectId,
+  organizationId,
   teamMembers,
 }: {
   stages: Stage[]
   projectId: string
+  organizationId: string
   teamMembers: Profile[]
 }) {
+  const router = useRouter()
   const supabase = createClient()
   const [stages, setStages] = useState<Stage[]>(initialStages)
   const [expanded, setExpanded] = useState<string | null>(null)
@@ -99,8 +103,6 @@ export default function StageList({
       // Log event
       const { data: { user } } = await supabase.auth.getUser()
       if (user) {
-        const { data: profile } = await supabase.from('profiles').select('organization_id, full_name').eq('id', user.id).single()
-        
         let eventDescription = ''
         if (updates.status) {
           const statusLabel = STATUS_MAP[updates.status as keyof typeof STATUS_MAP]?.label || updates.status
@@ -112,10 +114,10 @@ export default function StageList({
           eventDescription = `Etapa "${data.stage_name}" atribuída a: ${technician?.full_name || 'Ninguém'}`
         }
 
-        if (eventDescription && profile) {
+        if (eventDescription) {
           await supabase.from('project_events').insert({
             project_id: projectId,
-            organization_id: profile.organization_id,
+            organization_id: organizationId,
             user_id: user.id,
             event_type: 'stage_update',
             description: eventDescription,
@@ -123,6 +125,7 @@ export default function StageList({
           })
         }
       }
+      router.refresh()
     }
     setLoading(null)
   }
@@ -157,6 +160,22 @@ export default function StageList({
         ...prev,
         [stageId]: [...(prev[stageId] || []), photoRecord as Photo]
       }))
+
+      // Log photo upload event
+      const { data: { user } } = await supabase.auth.getUser()
+      if (user) {
+        const stage = stages.find(s => s.id === stageId)
+        
+        await supabase.from('project_events').insert({
+          project_id: projectId,
+          organization_id: organizationId,
+          user_id: user.id,
+          event_type: 'photo_upload',
+          description: `Nova foto anexada à etapa: ${stage?.stage_name || 'Desconhecida'}`,
+          metadata: { stage_id: stageId, photo_url: publicUrl }
+        })
+      }
+      router.refresh()
     }
     setUploading(null)
   }
@@ -239,14 +258,14 @@ export default function StageList({
                         {stage.stage_name}
                       </p>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className={`text-xs font-medium ${config.color}`}>{config.label}</span>
+                        <span className={`text-[13px] font-medium ${config.color}`}>{config.label}</span>
                         {teamMember && (
-                          <span className="text-xs text-slate-400 flex items-center gap-1">
+                          <span className="text-[13px] text-slate-400 flex items-center gap-1">
                             <UserCircle2 className="w-3 h-3" /> {teamMember.full_name}
                           </span>
                         )}
                         {stagePhotos.length > 0 && (
-                          <span className="text-xs text-slate-400 flex items-center gap-1">
+                          <span className="text-[13px] text-slate-400 flex items-center gap-1">
                             <ImageIcon className="w-3 h-3" /> {stagePhotos.length} foto{stagePhotos.length > 1 ? 's' : ''}
                           </span>
                         )}
@@ -260,7 +279,7 @@ export default function StageList({
                         style={{ width: `${stage.completion_percentage || 0}%` }}
                       />
                     </div>
-                    <span className="text-xs text-slate-400 w-8 text-right flex-shrink-0">{stage.completion_percentage || 0}%</span>
+                    <span className="text-[13px] text-slate-400 w-8 text-right flex-shrink-0">{stage.completion_percentage || 0}%</span>
 
                     {isExpanded
                       ? <ChevronUp className="w-4 h-4 text-slate-400 flex-shrink-0" />
@@ -277,7 +296,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'in_progress' })}
-                            className="flex items-center gap-1.5 px-4 h-[38px] text-xs font-bold bg-amber-100 text-amber-700 rounded-xl hover:bg-amber-200 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-[13px] font-bold bg-amber-100 text-amber-700 rounded-xl hover:bg-amber-200 transition-all disabled:opacity-50"
                           >
                             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : '▶'} Iniciar Etapa
                           </button>
@@ -286,7 +305,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'completed', completion_percentage: 100 })}
-                            className="flex items-center gap-1.5 px-4 h-[38px] text-xs font-bold bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-[13px] font-bold bg-green-100 text-green-700 rounded-xl hover:bg-green-200 transition-all disabled:opacity-50"
                           >
                             {isLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : '✓'} Marcar Concluída
                           </button>
@@ -295,7 +314,7 @@ export default function StageList({
                           <button
                             disabled={isLoading}
                             onClick={() => updateStage(stage.id, { status: 'pending' })}
-                            className="flex items-center gap-1.5 px-4 h-[38px] text-xs font-bold bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all disabled:opacity-50"
+                            className="flex items-center gap-1.5 px-4 h-[38px] text-[13px] font-bold bg-slate-100 text-slate-600 rounded-xl hover:bg-slate-200 transition-all disabled:opacity-50"
                           >
                             ↩ Reverter
                           </button>
@@ -306,7 +325,7 @@ export default function StageList({
                             fileInputRef.current?.click()
                           }}
                           disabled={isUploading}
-                          className="flex items-center gap-2 px-4 h-[38px] text-xs font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 ml-auto shadow-sm"
+                          className="flex items-center gap-2 px-4 h-[38px] text-[13px] font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 ml-auto shadow-sm"
                         >
                           {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                           {isUploading ? 'Enviando...' : 'Anexar Foto'}
@@ -316,7 +335,7 @@ export default function StageList({
                       {/* Percentual manual */}
                       {stage.status === 'in_progress' && (
                         <div>
-                          <label className="text-xs font-medium text-slate-500 block mb-1.5">
+                          <label className="text-[13px] font-medium text-slate-500 block mb-1.5">
                             Percentual de Conclusão: <span className="text-amber-600 font-bold">{stage.completion_percentage}%</span>
                           </label>
                           <input
@@ -330,6 +349,7 @@ export default function StageList({
                               setStages(prev => prev.map(s => s.id === stage.id ? { ...s, completion_percentage: val } : s))
                             }}
                             onMouseUp={e => updateStage(stage.id, { completion_percentage: parseInt((e.target as HTMLInputElement).value) })}
+                            onTouchEnd={e => updateStage(stage.id, { completion_percentage: parseInt((e.target as HTMLInputElement).value) })}
                             className="w-full accent-amber-500"
                           />
                         </div>
@@ -338,13 +358,13 @@ export default function StageList({
                       {/* Atribuição de técnico */}
                       {teamMembers.length > 0 && (
                         <div>
-                          <label className="text-xs font-medium text-slate-500 block mb-1.5 flex items-center gap-1">
+                          <label className="text-[13px] font-medium text-slate-500 block mb-1.5 flex items-center gap-1">
                             <UserCircle2 className="w-3.5 h-3.5" /> Responsável Técnico
                           </label>
                           <select
                             value={stage.assigned_to || ''}
                             onChange={e => updateStage(stage.id, { assigned_to: e.target.value || null })}
-                            className="w-full max-w-xs px-3 py-2 text-xs border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white"
+                            className="w-full max-w-xs px-3 py-2 text-[13px] border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500 bg-white"
                           >
                             <option value="">Não atribuído</option>
                             {teamMembers.map(m => (
@@ -357,7 +377,7 @@ export default function StageList({
                       {/* Photo gallery */}
                       {stagePhotos.length > 0 && (
                         <div>
-                          <p className="text-xs font-medium text-slate-500 mb-2 flex items-center gap-1">
+                          <p className="text-[13px] font-medium text-slate-500 mb-2 flex items-center gap-1">
                             <Camera className="w-3.5 h-3.5" /> Galeria de Evidências ({stagePhotos.length})
                           </p>
                           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
@@ -374,7 +394,7 @@ export default function StageList({
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
-                                <p className="text-[10px] text-slate-400 mt-0.5 text-center">
+                                <p className="text-[13px] text-slate-400 mt-0.5 text-center">
                                   {new Date(photo.uploaded_at).toLocaleDateString('pt-BR')}
                                 </p>
                               </div>
@@ -385,7 +405,7 @@ export default function StageList({
 
                       {/* Notas */}
                       <div>
-                        <label className="text-xs font-medium text-slate-500 block mb-1.5">Notas e Observações</label>
+                        <label className="text-[13px] font-medium text-slate-500 block mb-1.5">Notas e Observações</label>
                         <textarea
                           defaultValue={stage.notes || ''}
                           rows={2}
@@ -397,7 +417,7 @@ export default function StageList({
 
                       {/* Timestamps */}
                       {(stage.started_at || stage.completed_at) && (
-                        <div className="flex gap-4 text-xs text-slate-400">
+                        <div className="flex gap-4 text-[13px] text-slate-400">
                           {stage.started_at && <span>▶ Iniciada: {new Date(stage.started_at).toLocaleString('pt-BR')}</span>}
                           {stage.completed_at && <span>✓ Concluída: {new Date(stage.completed_at).toLocaleString('pt-BR')}</span>}
                         </div>

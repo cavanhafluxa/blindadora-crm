@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react'
 import { createClient } from '@/utils/supabase/client'
+import { useRouter } from 'next/navigation'
 import { 
   ClipboardCheck, CheckSquare, Square, Gauge, Camera, X, Plus, 
   Trash2, Loader2, PlayCircle, Maximize2, FileText, CheckCircle2, Upload} from 'lucide-react'
@@ -38,6 +39,7 @@ type Props = {
 }
 
 export default function VehicleEntryForm({ projectId, currentOdometer, currentChecklist, entryCompleted }: Props) {
+  const router = useRouter()
   const supabase = createClient()
   const [isOpen, setIsOpen] = useState(!entryCompleted)
   const [saved, setSaved] = useState(entryCompleted)
@@ -200,6 +202,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           })
         }
       }
+      router.refresh()
     }
     setSaving(false)
   }
@@ -242,7 +245,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
             <h2 className="text-base font-semibold text-slate-800">Checklist de Entrada</h2>
             <div className="flex items-center gap-2 mt-0.5">
               <span className={`w-2 h-2 rounded-full animate-pulse ${saved ? 'bg-emerald-500' : 'bg-amber-500'}`} />
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+              <p className="text-[13px] font-bold text-slate-500 uppercase tracking-wider">
                 {saved ? `Concluído • ${checkedCount} Itens` : `Pendente • ${checkedCount}/${allItems.length} Verificados`}
               </p>
             </div>
@@ -259,7 +262,7 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
           {/* Odometer Section */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5 items-end p-4 rounded-xl bg-slate-50 border border-slate-100 shadow-inner">
             <div className="space-y-1.5">
-              <label className="flex items-center gap-2 text-[10px] font-bold text-slate-400 uppercase tracking-normal">
+              <label className="flex items-center gap-2 text-[13px] font-bold text-slate-400 uppercase tracking-normal">
                 <Gauge className="w-3.5 h-3.5 text-amber-500" />
                 Odômetro de Entrada
               </label>
@@ -274,14 +277,14 @@ export default function VehicleEntryForm({ projectId, currentOdometer, currentCh
                 <span className="absolute right-4 top-1/2 -translate-y-1/2 font-bold text-slate-300 text-sm">KM</span>
               </div>
             </div>
-            <p className="text-xs text-slate-400 italic mb-1">
+            <p className="text-[13px] text-slate-400 italic mb-1">
               * Obrigatório registrar a quilometragem na recepção do veículo.
             </p>
           </div>
 
           {/* Checklist Items */}
           <div className="space-y-3">
-            <h3 className="text-xs font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
+            <h3 className="text-[13px] font-bold text-slate-800 uppercase tracking-widest flex items-center gap-2">
               <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
               Itens de Vistoria Técnica
             </h3>

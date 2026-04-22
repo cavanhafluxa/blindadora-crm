@@ -75,7 +75,7 @@ export default function ProjectMaterials({
           <Package className="w-5 h-5 text-indigo-500" />
           <h2 className="font-semibold text-slate-800">Materiais Consumidos</h2>
         </div>
-        <button onClick={() => setAdding(!adding)} className="text-xs font-semibold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors">
+        <button onClick={() => setAdding(!adding)} className="text-[13px] font-semibold text-indigo-600 bg-indigo-50 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition-colors">
           {adding ? 'Cancelar' : '+ Lançar Uso'}
         </button>
       </div>
@@ -83,7 +83,7 @@ export default function ProjectMaterials({
       {adding && (
         <form onSubmit={handleAdd} className="mb-4 p-4 bg-slate-50 border border-slate-100 rounded-xl space-y-3">
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">Material do Estoque</label>
+            <label className="block text-[13px] font-medium text-slate-600 mb-1">Material do Estoque</label>
             <select
               value={selectedMaterial}
               onChange={e => setSelectedMaterial(e.target.value)}
@@ -100,7 +100,7 @@ export default function ProjectMaterials({
           </div>
           <div className="flex gap-3">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-600 mb-1">Qtd. Usada</label>
+              <label className="block text-[13px] font-medium text-slate-600 mb-1">Qtd. Usada</label>
               <input
                 type="number"
                 min="1"
@@ -110,7 +110,7 @@ export default function ProjectMaterials({
                 className="w-full px-3 py-2 text-sm border border-slate-200 rounded-lg focus:ring-2 focus:ring-indigo-500"
               />
             </div>
-            <button type="submit" className="self-end px-4 h-[38px] bg-indigo-600 text-white text-xs font-bold rounded-xl hover:bg-indigo-700 transition-all">
+            <button type="submit" className="self-end px-4 h-[38px] bg-indigo-600 text-white text-[13px] font-bold rounded-xl hover:bg-indigo-700 transition-all">
               Confirmar
             </button>
           </div>
@@ -125,7 +125,7 @@ export default function ProjectMaterials({
             <div key={pm.id} className="flex justify-between items-center p-3 border border-slate-100 rounded-lg hover:bg-slate-50">
               <div>
                 <p className="text-sm font-medium text-slate-700">{pm.materials?.name || 'Material Excluído'}</p>
-                <p className="text-xs text-slate-500">{pm.quantity_used} unidades consumidas</p>
+                <p className="text-[13px] text-slate-500">{pm.quantity_used} unidades consumidas</p>
               </div>
               <button
                 onClick={() => handleDelete(pm.id, pm.materials?.name, pm.quantity_used)}

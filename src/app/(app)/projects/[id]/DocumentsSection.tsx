@@ -178,7 +178,7 @@ export default function DocumentsSection({
                 </div>
                 <div className="min-w-0">
                   <p className="text-sm font-medium text-slate-700 truncate">{fileName}</p>
-                  <p className="text-[10px] text-slate-400">
+                  <p className="text-[13px] text-slate-400">
                     Enviado em {new Date(file.uploaded_at).toLocaleDateString('pt-BR')}
                   </p>
                 </div>
@@ -241,7 +241,7 @@ export default function DocumentsSection({
               <p className="text-sm text-slate-500 mt-0.5">{description}</p>
               
               {(reqDateKey && docs[reqDateKey] || appDateKey && docs[appDateKey]) && (
-                <div className="flex gap-4 mt-2 text-[10px] text-slate-400 font-medium">
+                <div className="flex gap-4 mt-2 text-[13px] text-slate-400 font-medium">
                    {reqDateKey && docs[reqDateKey] && <span>Solicitado em: {new Date(docs[reqDateKey]!).toLocaleDateString('pt-BR')}</span>}
                    {appDateKey && docs[appDateKey] && <span className="text-green-600">Aprovado em: {new Date(docs[appDateKey]!).toLocaleDateString('pt-BR')}</span>}
                 </div>
@@ -250,7 +250,7 @@ export default function DocumentsSection({
             
             <div className="flex flex-col items-end gap-2 shrink-0">
               {statusKey && docs[statusKey] && (
-                <span className={`flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-full ${STATUS_CONFIG[docs[statusKey] as DocStatus].bg} ${STATUS_CONFIG[docs[statusKey] as DocStatus].color}`}>
+                <span className={`flex items-center gap-1.5 text-[13px] font-semibold px-3 py-1.5 rounded-full ${STATUS_CONFIG[docs[statusKey] as DocStatus].bg} ${STATUS_CONFIG[docs[statusKey] as DocStatus].color}`}>
                   {(() => {
                      const cfg = STATUS_CONFIG[docs[statusKey] as DocStatus]
                      const Icon = cfg.icon
@@ -262,7 +262,7 @@ export default function DocumentsSection({
               <button 
                 onClick={() => fileInputRef.current?.click()}
                 disabled={isUploading}
-                className="flex items-center gap-2 px-4 h-[38px] text-xs font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 shadow-sm"
+                className="flex items-center gap-2 px-4 h-[38px] text-[13px] font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 shadow-sm"
               >
                 {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                 {isUploading ? 'Enviando...' : 'Anexar'}
@@ -273,14 +273,14 @@ export default function DocumentsSection({
           {statusKey && notesKey && (
             <>
               <div className="mb-3">
-                <label className="text-xs font-medium text-slate-500 block mb-1.5">Alterar Status</label>
+                <label className="text-[13px] font-medium text-slate-500 block mb-1.5">Alterar Status</label>
                 <div className="flex flex-wrap gap-2">
                   {(Object.keys(STATUS_CONFIG) as DocStatus[]).map(s => (
                     <button
                       key={s}
                       onClick={() => updateDoc(statusKey, s)}
                       disabled={saving === statusKey}
-                      className={`text-xs px-3 py-1.5 rounded-lg border transition-all font-medium ${
+                      className={`text-[13px] px-3 py-1.5 rounded-lg border transition-all font-medium ${
                         docs[statusKey] === s
                           ? `${STATUS_CONFIG[s].bg} ${STATUS_CONFIG[s].color} border-transparent shadow-sm`
                           : 'border-slate-200 text-slate-500 hover:border-slate-300 bg-slate-50'
@@ -293,7 +293,7 @@ export default function DocumentsSection({
               </div>
 
               <div>
-                <label className="text-xs font-medium text-slate-500 block mb-1.5">Observações / Motivo</label>
+                <label className="text-[13px] font-medium text-slate-500 block mb-1.5">Observações / Motivo</label>
                 <textarea
                   rows={2}
                   defaultValue={(docs[notesKey] as string) || ''}
@@ -336,7 +336,7 @@ export default function DocumentsSection({
                       if (node?.uploadSicovab) node.uploadSicovab()
                     }} 
                     disabled={uploading === 'sicovab'} 
-                    className="flex items-center gap-2 px-4 h-[38px] text-xs font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 shadow-sm"
+                    className="flex items-center gap-2 px-4 h-[38px] text-[13px] font-bold bg-indigo-50 text-indigo-700 rounded-xl border border-indigo-100 hover:bg-indigo-100 transition-all disabled:opacity-50 shadow-sm"
                   >
                     {uploading === 'sicovab' ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
                     Anexar Comprovante
@@ -346,7 +346,7 @@ export default function DocumentsSection({
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
               <div>
-                <label className="text-xs font-medium text-slate-500 block mb-1">Status SICOVAB</label>
+                <label className="text-[13px] font-medium text-slate-500 block mb-1">Status SICOVAB</label>
                 <select
                   value={docs.sicovab_status || 'pending'}
                   onChange={(e) => updateDoc('sicovab_status', e.target.value)}
@@ -359,7 +359,7 @@ export default function DocumentsSection({
                 </select>
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-500 block mb-1">Data de Envio</label>
+                <label className="text-[13px] font-medium text-slate-500 block mb-1">Data de Envio</label>
                 <input
                   type="date"
                   value={docs.sicovab_sent_at ? docs.sicovab_sent_at.split('T')[0] : ''}
@@ -368,7 +368,7 @@ export default function DocumentsSection({
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-500 block mb-1">Protocolo SICOVAB</label>
+                <label className="text-[13px] font-medium text-slate-500 block mb-1">Protocolo SICOVAB</label>
                 <input
                   type="text"
                   placeholder="Ex: 2023.12345/67"
@@ -378,7 +378,7 @@ export default function DocumentsSection({
                 />
               </div>
               <div>
-                <label className="text-xs font-medium text-slate-500 block mb-1">Autorização Exército</label>
+                <label className="text-[13px] font-medium text-slate-500 block mb-1">Autorização Exército</label>
                 <input
                   type="text"
                   placeholder="N° Autorização..."
@@ -427,7 +427,7 @@ export default function DocumentsSection({
           />
         </div>
 
-        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-xs text-slate-500">
+        <div className="mt-5 pt-4 border-t border-slate-100 flex flex-wrap gap-4 text-[13px] text-slate-500">
           <span>Autorização: <strong className={STATUS_CONFIG[docs.authorization_status].color}>{STATUS_CONFIG[docs.authorization_status].label}</strong></span>
           <span>Declaração: <strong className={STATUS_CONFIG[docs.declaration_status].color}>{STATUS_CONFIG[docs.declaration_status].label}</strong></span>
           <span>Anexos Totais: <strong className="text-slate-700">{files.length}</strong></span>
