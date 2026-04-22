@@ -118,129 +118,133 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         </div>
 
         {/* Info Section - Dashboard Style */}
-        <div className="flex-1 flex flex-col pt-2 w-full">
-          {/* Header Row: Client */}
-          <div className="flex items-center gap-3 mb-6 pr-12">
-            <div className="w-10 h-10 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-sm shadow-sm">
-              {project.customer_name?.charAt(0).toUpperCase() || 'C'}
-            </div>
-            <div>
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-0.5">Cliente</p>
-              <h2 className="text-sm font-semibold text-slate-800 leading-none">{project.customer_name}</h2>
-            </div>
-          </div>
-
-          {/* Vehicle Model & Badges & Value */}
-          <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-6 gap-4">
-            <div>
-              <div className="flex items-center flex-wrap gap-3 mb-2">
-                <h1 className="text-3xl font-extrabold text-[#111111] tracking-tight leading-none">
-                  {project.vehicle_model || 'Modelo não especificado'}
-                </h1>
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 text-[10px] font-bold tracking-wide shadow-sm">
-                    <Shield className="w-3 h-3 text-[#111111]" />
-                    Nível {project.armor_type || 'III-A'}
-                  </div>
-                  {project.plate && (
-                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 text-[10px] font-bold tracking-wide uppercase shadow-sm">
-                      <Hash className="w-3 h-3 text-slate-400" />
-                      {project.plate}
-                    </div>
-                  )}
-                </div>
+        <div className="flex-1 flex flex-col pt-2 w-full justify-between">
+          <div>
+            {/* Header Row: Client */}
+            <div className="flex items-center gap-3 mb-5 pr-12">
+              <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-700 font-bold text-xs shadow-sm">
+                {project.customer_name?.charAt(0).toUpperCase() || 'C'}
               </div>
-              {project.odometer_entry !== null && project.odometer_entry !== undefined && (
-                <div className="flex items-center gap-2 text-slate-600 font-semibold pl-0.5">
-                  <Gauge className="w-4 h-4 text-emerald-500" />
-                  <span className="text-sm tracking-tight">{Number(project.odometer_entry).toLocaleString('pt-BR')} <span className="text-[11px] uppercase tracking-wider text-slate-400 font-bold ml-0.5">km</span></span>
-                </div>
-              )}
+              <div>
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 leading-none">Cliente</p>
+                <h2 className="text-sm font-semibold text-slate-800 leading-none">{project.customer_name}</h2>
+              </div>
             </div>
-            
-            <div className="sm:text-right shrink-0">
-              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest mb-1">Valor do Projeto</p>
-              <div className="text-xl font-extrabold text-slate-800">
-                {project.contract_value ? `R$ ${Number(project.contract_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'A definir'}
+
+            {/* Vehicle Model & Badges & Value */}
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-6 gap-4">
+              <div>
+                <div className="flex items-center flex-wrap gap-3 mb-2">
+                  <h1 className="text-[28px] font-extrabold text-[#111111] tracking-tight leading-none">
+                    {project.vehicle_model || 'Modelo não especificado'}
+                  </h1>
+                  <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 text-[10px] font-bold tracking-wide shadow-sm">
+                      <Shield className="w-3 h-3 text-[#111111]" />
+                      Nível {project.armor_type || 'III-A'}
+                    </div>
+                    {project.plate && (
+                      <div className="flex items-center gap-1.5 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-200 text-slate-700 text-[10px] font-bold tracking-wide uppercase shadow-sm">
+                        <Hash className="w-3 h-3 text-slate-400" />
+                        {project.plate}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                {project.odometer_entry !== null && project.odometer_entry !== undefined && (
+                  <div className="flex items-center gap-1.5 text-slate-500 font-medium pl-0.5 mt-1">
+                    <Gauge className="w-3.5 h-3.5 text-emerald-500" />
+                    <span className="text-sm tracking-tight">{Number(project.odometer_entry).toLocaleString('pt-BR')} <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold ml-0.5">km</span></span>
+                  </div>
+                )}
+              </div>
+              
+              <div className="sm:text-right shrink-0">
+                <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-1.5 leading-none">Valor do Projeto</p>
+                <div className="text-xl font-black text-slate-800 leading-none tracking-tight">
+                  {project.contract_value ? `R$ ${Number(project.contract_value).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}` : 'A definir'}
+                </div>
               </div>
             </div>
           </div>
           
-          {/* Dashboard Metrics Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
-            {/* Progress Metric */}
-            <div className="lg:col-span-2 bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col justify-center">
-              <div className="flex justify-between items-center mb-2">
-                <div className="flex items-center gap-1.5">
-                  <TrendingUp className="w-4 h-4 text-emerald-600" />
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Progresso</span>
+          <div>
+            {/* Dashboard Metrics Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+              {/* Progress Metric */}
+              <div className="lg:col-span-2 bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 flex flex-col justify-center transition-colors hover:bg-slate-50">
+                <div className="flex justify-between items-center mb-2.5">
+                  <div className="flex items-center gap-1.5">
+                    <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
+                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progresso</span>
+                  </div>
+                  <span className="text-sm font-bold text-emerald-600">{project.overall_progress}%</span>
                 </div>
-                <span className="text-sm font-bold text-emerald-600">{project.overall_progress}%</span>
+                <div className="h-1.5 bg-slate-200/60 rounded-full overflow-hidden mb-2">
+                  <div
+                    className="h-full bg-emerald-500 rounded-full transition-all duration-700"
+                    style={{ width: `${project.overall_progress}%` }}
+                  />
+                </div>
+                <p className="text-[10px] text-slate-400 font-medium">
+                  {completedStages} de {totalStages} etapas concluídas
+                </p>
               </div>
-              <div className="h-1.5 bg-slate-200 rounded-full overflow-hidden mb-2">
-                <div
-                  className="h-full bg-emerald-500 rounded-full transition-all duration-700"
-                  style={{ width: `${project.overall_progress}%` }}
+
+              {/* Current Stage */}
+              <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 flex flex-col justify-center relative overflow-hidden group/stage transition-colors hover:bg-slate-50">
+                <div className="absolute -right-3 -bottom-3 opacity-5 transition-transform duration-500 group-hover/stage:scale-110">
+                  <ClipboardCheck className="w-16 h-16" />
+                </div>
+                <div className="flex items-center gap-1.5 mb-2 relative z-10">
+                  <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Etapa Atual</span>
+                </div>
+                <span className="text-[13px] font-bold text-slate-800 leading-tight relative z-10 line-clamp-2">
+                  {currentStageName}
+                </span>
+              </div>
+
+              {/* Delivery / Deadline */}
+              <div className="bg-slate-50/50 rounded-2xl p-4 border border-slate-100/60 flex flex-col justify-center relative overflow-hidden group/date transition-colors hover:bg-slate-50">
+                <div className="absolute -right-3 -bottom-3 opacity-5 transition-transform duration-500 group-hover/date:scale-110">
+                  <Clock className="w-16 h-16" />
+                </div>
+                <div className="flex items-center gap-1.5 mb-2 relative z-10">
+                  <Calendar className="w-3.5 h-3.5 text-amber-500" />
+                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Entrega</span>
+                </div>
+                <span className="text-[13px] font-bold text-slate-800 leading-tight relative z-10">
+                  {project.expected_delivery_date ? new Date(project.expected_delivery_date).toLocaleDateString('pt-BR') : 'A definir'}
+                </span>
+              </div>
+            </div>
+
+            {/* Footer Actions */}
+            <div className="flex items-center justify-end gap-2">
+              {project.status !== 'concluido' && (
+                <MarkAsDeliveredButton 
+                  projectId={project.id} 
+                  organizationId={project.organization_id} 
+                  vehicleModel={project.vehicle_model || ''}
+                  plate={project.plate || ''}
                 />
-              </div>
-              <p className="text-[11px] text-slate-400 font-medium">
-                {completedStages} de {totalStages} etapas concluídas
-              </p>
+              )}
+              <PDFDownloadButton
+                document={<OrdemServicoPDF project={project} stages={stages || []} />}
+                fileName={`OS_${project.chassis || project.plate || 'Projeto'}.pdf`}
+                className="h-[38px] px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-[#111111] rounded-xl flex items-center gap-2 text-xs font-semibold transition-all shadow-sm"
+              >
+                <Printer className="w-3.5 h-3.5" /> O.S.
+              </PDFDownloadButton>
+              <PDFDownloadButton
+                document={<ContractPDF project={project} />}
+                fileName={`Contrato_${(project.customer_name || 'Cliente').replace(/\s+/g, '_')}.pdf`}
+                className="h-[38px] px-4 bg-[#111111] text-white hover:bg-black rounded-xl flex items-center gap-2 text-xs font-semibold transition-all shadow-sm"
+              >
+                <FileSignature className="w-3.5 h-3.5" /> Contrato
+              </PDFDownloadButton>
             </div>
-
-            {/* Current Stage */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col justify-center relative overflow-hidden group/stage">
-              <div className="absolute -right-3 -bottom-3 opacity-5 transition-transform duration-500 group-hover/stage:scale-110">
-                <ClipboardCheck className="w-16 h-16" />
-              </div>
-              <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Etapa Atual</span>
-              </div>
-              <span className="text-sm font-bold text-slate-800 leading-tight relative z-10 line-clamp-2">
-                {currentStageName}
-              </span>
-            </div>
-
-            {/* Delivery / Deadline */}
-            <div className="bg-slate-50 rounded-2xl p-4 border border-slate-100 flex flex-col justify-center relative overflow-hidden group/date">
-              <div className="absolute -right-3 -bottom-3 opacity-5 transition-transform duration-500 group-hover/date:scale-110">
-                <Clock className="w-16 h-16" />
-              </div>
-              <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                <Calendar className="w-3.5 h-3.5 text-amber-500" />
-                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Entrega</span>
-              </div>
-              <span className="text-sm font-bold text-slate-800 leading-tight relative z-10">
-                {project.expected_delivery_date ? new Date(project.expected_delivery_date).toLocaleDateString('pt-BR') : 'A definir'}
-              </span>
-            </div>
-          </div>
-
-          {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2 mt-auto pt-2">
-            {project.status !== 'concluido' && (
-              <MarkAsDeliveredButton 
-                projectId={project.id} 
-                organizationId={project.organization_id} 
-                vehicleModel={project.vehicle_model || ''}
-                plate={project.plate || ''}
-              />
-            )}
-            <PDFDownloadButton
-              document={<OrdemServicoPDF project={project} stages={stages || []} />}
-              fileName={`OS_${project.chassis || project.plate || 'Projeto'}.pdf`}
-              className="h-10 px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-[#111111] rounded-xl flex items-center gap-2 text-[13px] font-semibold transition-all shadow-sm"
-            >
-              <Printer className="w-3.5 h-3.5" /> O.S.
-            </PDFDownloadButton>
-            <PDFDownloadButton
-              document={<ContractPDF project={project} />}
-              fileName={`Contrato_${(project.customer_name || 'Cliente').replace(/\s+/g, '_')}.pdf`}
-              className="h-10 px-4 bg-[#111111] text-white hover:bg-black rounded-xl flex items-center gap-2 text-[13px] font-semibold transition-all shadow-sm"
-            >
-              <FileSignature className="w-3.5 h-3.5" /> Contrato
-            </PDFDownloadButton>
           </div>
         </div>
       </div>
