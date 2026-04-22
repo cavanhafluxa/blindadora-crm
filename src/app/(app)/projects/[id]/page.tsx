@@ -125,7 +125,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               </div>
               <div>
                 <p className="text-[9px] text-slate-400 font-bold uppercase tracking-widest mb-0.5 leading-none">Cliente</p>
-                <h2 className="text-sm font-semibold text-slate-800 leading-none">{project.customer_name}</h2>
+                <h2 className="text-[17px] font-bold text-slate-800 leading-none">{project.customer_name}</h2>
               </div>
             </div>
 
@@ -174,7 +174,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 <div className="flex justify-between items-center mb-2.5">
                   <div className="flex items-center gap-1.5">
                     <TrendingUp className="w-3.5 h-3.5 text-emerald-600" />
-                    <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Progresso</span>
+                    <span className="text-sm text-slate-500">Progresso</span>
                   </div>
                   <span className="text-sm font-bold text-emerald-600">{project.overall_progress}%</span>
                 </div>
@@ -184,7 +184,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                     style={{ width: `${project.overall_progress}%` }}
                   />
                 </div>
-                <p className="text-[10px] text-slate-400 font-medium">
+                <p className="text-sm text-slate-500">
                   {completedStages} de {totalStages} etapas concluídas
                 </p>
               </div>
@@ -196,9 +196,9 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                 </div>
                 <div className="flex items-center gap-1.5 mb-2 relative z-10">
                   <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse" />
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Etapa Atual</span>
+                  <span className="text-sm text-slate-500">Etapa Atual</span>
                 </div>
-                <span className="text-[13px] font-bold text-slate-800 leading-tight relative z-10 line-clamp-2">
+                <span className="text-[15px] font-bold text-slate-800 leading-tight relative z-10 line-clamp-2">
                   {currentStageName}
                 </span>
               </div>
@@ -209,10 +209,10 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
                   <Clock className="w-16 h-16" />
                 </div>
                 <div className="flex items-center gap-1.5 mb-2 relative z-10">
-                  <Calendar className="w-3.5 h-3.5 text-amber-500" />
-                  <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Entrega</span>
+                  <div className="w-3.5 h-3.5 text-amber-500"><Calendar className="w-3.5 h-3.5" /></div>
+                  <span className="text-sm text-slate-500">Entrega</span>
                 </div>
-                <span className="text-[13px] font-bold text-slate-800 leading-tight relative z-10">
+                <span className="text-[15px] font-bold text-slate-800 leading-tight relative z-10">
                   {project.expected_delivery_date ? new Date(project.expected_delivery_date).toLocaleDateString('pt-BR') : 'A definir'}
                 </span>
               </div>

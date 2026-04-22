@@ -213,19 +213,19 @@ export default function ProjectCostPanel({
       <div className={`p-8 rounded-[24px] border mb-8 ${marginBg}`}>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 md:gap-4">
           <div className="md:pr-4 md:border-r border-slate-200/50">
-            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Contrato</p>
+            <p className="text-sm text-slate-500 mb-2">Contrato</p>
             <p className="text-2xl font-black text-emerald-700 tracking-tight">R$ {contractValue.toLocaleString('pt-BR')}</p>
           </div>
           <div className="md:px-4 md:border-r border-slate-200/50">
-            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Custo Materiais</p>
+            <p className="text-sm text-slate-500 mb-2">Custo Materiais</p>
             <p className="text-2xl font-black text-slate-700 tracking-tight">R$ {materialCost.toLocaleString('pt-BR')}</p>
           </div>
           <div className="md:px-4 md:border-r border-slate-200/50">
-            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Compras Proj.</p>
+            <p className="text-sm text-slate-500 mb-2">Compras Proj.</p>
             <p className="text-2xl font-black text-slate-700 tracking-tight">R$ {totalPurchases.toLocaleString('pt-BR')}</p>
           </div>
           <div className="md:pl-4">
-            <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-2">Margem Bruta</p>
+            <p className="text-sm text-slate-500 mb-2">Margem Bruta</p>
             <div className="flex items-center gap-2">
               {margin >= 0 ? <TrendingUp className="w-5 h-5 text-emerald-600" /> : <TrendingDown className="w-5 h-5 text-red-600" />}
               <div className="flex items-baseline gap-1.5">
@@ -240,11 +240,11 @@ export default function ProjectCostPanel({
         <div className="mt-8 pt-6 border-t border-slate-200/50">
           <div className="flex justify-between items-end mb-3">
             <div>
-              <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">Custo Total Acumulado</p>
+              <p className="text-sm text-slate-500 mb-1">Custo Total Acumulado</p>
               <p className="text-sm font-bold text-slate-600">R$ {totalCost.toLocaleString('pt-BR')}</p>
             </div>
             <div className="text-right">
-              <p className="text-[10px] font-black uppercase tracking-[0.15em] text-slate-400 mb-1">Meta de Margem</p>
+              <p className="text-sm text-slate-500 mb-1">Meta de Margem</p>
               <p className="text-sm font-bold text-emerald-600">≥ 30%</p>
             </div>
           </div>
