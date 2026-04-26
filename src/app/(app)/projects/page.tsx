@@ -67,90 +67,115 @@ export default async function ProjectsPage() {
 
       {/* DASHBOARD SECTION */}
       {safeProjects.length > 0 && (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
           
           {/* Card 1: Em produção */}
-          <div className="soft-card p-5 border-l-4 border-l-indigo-500 hover:-translate-y-1 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-700 text-sm">Painel de Fabricação</h3>
-              <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600"><Wrench className="w-4 h-4" /></div>
+          <div className="bg-white rounded-[22px] px-6 py-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100/80 flex flex-col justify-between hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300 group relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-indigo-50/50 rounded-full blur-2xl group-hover:bg-indigo-100/50 transition-colors" />
+            <div className="flex items-start justify-between mb-4 relative z-10">
+              <div className="p-3 bg-indigo-50 rounded-xl text-indigo-600 group-hover:scale-110 transition-transform">
+                <Wrench className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-slate-500 text-[13px] uppercase tracking-wider">Fabricação</h3>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-bold text-slate-800">{inProductionCount}</span>
-              <span className="text-[13px] text-slate-500">veículos ativos</span>
+            <div className="relative z-10">
+              <div className="flex items-baseline gap-2">
+                <span className="text-4xl font-black text-slate-800 tracking-tight">{inProductionCount}</span>
+                <span className="text-[13px] font-medium text-slate-500">ativos</span>
+              </div>
+              <p className="text-[13px] text-slate-400 mt-2 font-medium bg-slate-50 inline-block px-2 py-0.5 rounded-md">
+                {completedCount} concluídos no total
+              </p>
             </div>
-            <p className="text-[13px] text-slate-400 mt-2">{completedCount} concluídos em histórico</p>
           </div>
 
           {/* Card 2: Engarrafamento de Etapas */}
-          <div className="soft-card p-5 border-l-4 border-l-blue-500 hover:-translate-y-1 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-700 text-sm">Radar de Etapas</h3>
-              <div className="p-2 bg-blue-50 rounded-lg text-blue-600"><Box className="w-4 h-4" /></div>
-            </div>
-            {topStages.length > 0 ? (
-              <div className="space-y-2">
-                {topStages.map(([name, count]) => (
-                  <div key={name} className="flex justify-between items-center text-[13px]">
-                    <span className="text-slate-600 truncate mr-2" title={name}>{name}</span>
-                    <span className="font-semibold px-2 py-0.5 rounded-full bg-slate-100 text-slate-700">{count} carro(s)</span>
-                  </div>
-                ))}
+          <div className="bg-white rounded-[22px] px-6 py-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100/80 flex flex-col justify-between hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300 group relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-blue-50/50 rounded-full blur-2xl group-hover:bg-blue-100/50 transition-colors" />
+            <div className="flex items-start justify-between mb-4 relative z-10">
+              <div className="p-3 bg-blue-50 rounded-xl text-blue-600 group-hover:scale-110 transition-transform">
+                <Box className="w-5 h-5" />
               </div>
-            ) : (
-              <p className="text-[13px] text-slate-400 italic">Nenhuma etapa em andamento.</p>
-            )}
+              <h3 className="font-semibold text-slate-500 text-[13px] uppercase tracking-wider">Radar de Etapas</h3>
+            </div>
+            <div className="relative z-10 flex-1 flex flex-col justify-end">
+              {topStages.length > 0 ? (
+                <div className="space-y-2.5">
+                  {topStages.map(([name, count]) => (
+                    <div key={name} className="flex justify-between items-center text-[13px]">
+                      <span className="text-slate-600 font-medium truncate mr-2" title={name}>{name}</span>
+                      <span className="font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-700">{count}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-[13px] text-slate-400 italic">Nenhuma etapa ativa.</p>
+              )}
+            </div>
           </div>
 
           {/* Card 3: Documentos Rejeitados */}
-          <div className="soft-card p-5 border-l-4 border-l-red-500 hover:-translate-y-1 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-700 text-sm">Pendências Legais</h3>
-              <div className="p-2 bg-red-50 rounded-lg text-red-600"><FileWarning className="w-4 h-4" /></div>
+          <div className="bg-white rounded-[22px] px-6 py-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100/80 flex flex-col justify-between hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300 group relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-rose-50/50 rounded-full blur-2xl group-hover:bg-rose-100/50 transition-colors" />
+            <div className="flex items-start justify-between mb-4 relative z-10">
+              <div className="p-3 bg-rose-50 rounded-xl text-rose-600 group-hover:scale-110 transition-transform">
+                <FileWarning className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-slate-500 text-[13px] uppercase tracking-wider">Legais</h3>
             </div>
-            <div className="flex items-baseline gap-2">
-              <span className={`text-3xl font-bold ${rejectedDocs.length > 0 ? 'text-red-600' : 'text-slate-800'}`}>
-                {rejectedDocs.length}
-              </span>
-              <span className="text-[13px] text-slate-500">Docs rejeitados</span>
+            <div className="relative z-10">
+              <div className="flex items-baseline gap-2">
+                <span className={`text-4xl font-black tracking-tight ${rejectedDocs.length > 0 ? 'text-rose-600' : 'text-slate-800'}`}>
+                  {rejectedDocs.length}
+                </span>
+                <span className="text-[13px] font-medium text-slate-500">rejeições</span>
+              </div>
+              {rejectedDocs.length > 0 ? (
+                <p className="text-[13px] text-rose-500 mt-2 line-clamp-1 font-medium bg-rose-50 inline-block px-2 py-0.5 rounded-md">
+                  Verificar: {rejectedDocs[0].customer_name} {rejectedDocs.length > 1 ? `+${rejectedDocs.length - 1}` : ''}
+                </p>
+              ) : (
+                <p className="text-[13px] text-emerald-600 mt-2 flex items-center gap-1.5 font-medium bg-emerald-50 inline-block px-2 py-0.5 rounded-md">
+                  <Check className="w-3.5 h-3.5"/> Tudo em ordem
+                </p>
+              )}
             </div>
-            {rejectedDocs.length > 0 && (
-              <p className="text-[13px] text-red-500 mt-2 line-clamp-1">
-                Atenção em: {rejectedDocs.map(p => p.customer_name).join(', ')}
-              </p>
-            )}
-            {rejectedDocs.length === 0 && (
-              <p className="text-[13px] text-green-600 mt-2 flex items-center gap-1"><Check className="w-3 h-3"/> Tudo em ordem</p>
-            )}
           </div>
 
           {/* Card 4: Atrasos / Prazos Apertados */}
-          <div className="soft-card p-5 border-l-4 border-l-orange-500 hover:-translate-y-1 transition-all">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="font-semibold text-slate-700 text-sm">Prazos e Atrasos</h3>
-              <div className="p-2 bg-orange-50 rounded-lg text-orange-600"><Clock className="w-4 h-4" /></div>
+          <div className="bg-white rounded-[22px] px-6 py-6 shadow-[0_2px_12px_rgba(0,0,0,0.04)] border border-slate-100/80 flex flex-col justify-between hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] transition-all duration-300 group relative overflow-hidden">
+            <div className="absolute -right-4 -top-4 w-24 h-24 bg-amber-50/50 rounded-full blur-2xl group-hover:bg-amber-100/50 transition-colors" />
+            <div className="flex items-start justify-between mb-4 relative z-10">
+              <div className="p-3 bg-amber-50 rounded-xl text-amber-600 group-hover:scale-110 transition-transform">
+                <Clock className="w-5 h-5" />
+              </div>
+              <h3 className="font-semibold text-slate-500 text-[13px] uppercase tracking-wider">Atrasos</h3>
             </div>
-            {atRiskProjects.length > 0 ? (
-              <div className="space-y-2">
-                {atRiskProjects.slice(0, 3).map(p => {
-                  const daysDiff = Math.ceil((new Date(p.expected_delivery_date!).getTime() - today.getTime()) / (1000 * 3600 * 24))
-                  const isLate = daysDiff < 0
-                  return (
-                    <Link href={`/projects/${p.id}`} key={p.id} className="flex justify-between items-center text-[13px] group">
-                      <span className="text-slate-600 truncate mr-2 group-hover:text-orange-600">{p.customer_name}</span>
-                      <span className={`font-semibold px-2 py-0.5 rounded-full ${isLate ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
-                        {isLate ? 'Atrasado' : `${daysDiff} dias`}
-                      </span>
-                    </Link>
-                  )
-                })}
-              </div>
-            ) : (
-              <div className="flex flex-col items-start gap-1">
-                <span className="text-3xl font-bold text-slate-800">0</span>
-                <span className="text-[13px] text-green-600 flex items-center gap-1"><Check className="w-3 h-3"/> Entregas sob controle</span>
-              </div>
-            )}
+            <div className="relative z-10 flex-1 flex flex-col justify-end">
+              {atRiskProjects.length > 0 ? (
+                <div className="space-y-2.5">
+                  {atRiskProjects.slice(0, 3).map(p => {
+                    const daysDiff = Math.ceil((new Date(p.expected_delivery_date!).getTime() - today.getTime()) / (1000 * 3600 * 24))
+                    const isLate = daysDiff < 0
+                    return (
+                      <Link href={`/projects/${p.id}`} key={p.id} className="flex justify-between items-center text-[13px] group/item">
+                        <span className="text-slate-600 font-medium truncate mr-2 group-hover/item:text-amber-600 transition-colors">{p.customer_name}</span>
+                        <span className={`font-bold px-2 py-0.5 rounded-md ${isLate ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'}`}>
+                          {isLate ? 'Atrasado' : `${daysDiff} dias`}
+                        </span>
+                      </Link>
+                    )
+                  })}
+                </div>
+              ) : (
+                <div className="flex flex-col items-start gap-1">
+                  <span className="text-4xl font-black text-slate-800 tracking-tight">0</span>
+                  <span className="text-[13px] text-emerald-600 flex items-center gap-1.5 font-medium bg-emerald-50 inline-block px-2 py-0.5 rounded-md">
+                    <Check className="w-3.5 h-3.5"/> Sob controle
+                  </span>
+                </div>
+              )}
+            </div>
           </div>
 
         </div>
@@ -158,11 +183,11 @@ export default async function ProjectsPage() {
 
       {/* PROJECT LIST */}
       <div>
-        <h2 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-2">
-          <Car className="w-5 h-5 text-indigo-500" /> Lista de Veículos
+        <h2 className="text-lg font-bold text-slate-800 mb-5 flex items-center gap-2">
+          <Car className="w-5 h-5 text-indigo-500" /> Veículos em Execução
         </h2>
         {safeProjects.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {safeProjects.map((p) => {
               const status = statusLabels[p.status] || { label: p.status, class: 'bg-slate-100 text-slate-600' }
               
@@ -176,83 +201,107 @@ export default async function ProjectsPage() {
                 <Link
                   key={p.id}
                   href={`/projects/${p.id}`}
-                  className={`soft-card p-5 block group hover:-translate-y-1 transition-all relative overflow-hidden ${
-                    hasAlert ? 'border-l-4 border-l-red-400' : ''
+                  className={`bg-white rounded-[22px] p-6 shadow-[0_2px_12px_rgba(0,0,0,0.03)] border block group hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)] hover:-translate-y-1 transition-all relative overflow-hidden ${
+                    hasAlert ? 'border-rose-200/60' : 'border-slate-100/80'
                   }`}
                 >
-                  {/* Optional top gradient for alert feel - kept very subtle */}
-                  {hasAlert && <div className="absolute top-0 right-0 w-16 h-16 bg-red-50 rounded-bl-full -z-10 opacity-50" />}
+                  {/* Subtle alert gradient */}
+                  {hasAlert && <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50/40 rounded-bl-[100px] -z-10 transition-opacity group-hover:opacity-100 opacity-50" />}
                   
-                  <div className="flex justify-between items-start mb-3">
-                    <div>
-                      <h3 className="font-bold text-slate-800 group-hover:text-green-600 transition-colors flex items-center gap-1.5">
+                  <div className="flex justify-between items-start mb-4 relative z-10">
+                    <div className="pr-4">
+                      <h3 className="font-bold text-slate-800 text-[16px] group-hover:text-indigo-600 transition-colors flex items-center gap-1.5 leading-tight">
                         {p.customer_name}
                       </h3>
-                      <div className="flex flex-wrap items-center gap-1.5 mt-1">
-                        <p className="text-sm text-slate-500">{p.vehicle_model || 'Veículo'} · {p.plate || 'Sem placa'}</p>
-                        
-                        {/* Status Badges for Issues */}
-                        {hasRejectedDocs && (
-                          <span className="flex items-center gap-0.5 text-[13px] font-medium text-red-600 bg-red-50 border border-red-100 px-1.5 py-0.5 rounded">
-                            <FileWarning className="w-3 h-3"/> Docs Rejeitados
-                          </span>
-                        )}
-                        {isPendenteSicovab && (
-                          <span className="flex items-center gap-0.5 text-[13px] font-medium text-purple-600 bg-purple-50 border border-purple-100 px-1.5 py-0.5 rounded">
-                            <ShieldAlert className="w-3 h-3"/> Pendente SICOVAB
-                          </span>
-                        )}
-                        {isLate && (
-                          <span className="flex items-center gap-0.5 text-[13px] font-medium text-orange-600 bg-orange-50 border border-orange-100 px-1.5 py-0.5 rounded">
-                            <Clock className="w-3 h-3"/> Atrasado
+                      <div className="flex flex-wrap items-center gap-2 mt-2">
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-[12px] font-medium text-slate-500 border border-slate-100">
+                           <Car className="w-3.5 h-3.5 text-slate-400" /> {p.vehicle_model || 'Veículo'}
+                        </span>
+                        {p.plate && (
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 text-[12px] font-bold text-slate-600 border border-slate-100 uppercase tracking-widest">
+                            {p.plate}
                           </span>
                         )}
                       </div>
-                      
-                      {/* Datas de Docs */}
-                      {(p.auth_req_date || p.auth_app_date) && (
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          {p.auth_req_date && (
-                             <span className="text-[13px] text-slate-400 font-medium whitespace-nowrap">
-                               Auth. Solic: {new Date(p.auth_req_date).toLocaleDateString('pt-BR')}
-                             </span>
-                          )}
-                          {p.auth_app_date && (
-                             <span className="text-[13px] text-green-600 font-medium whitespace-nowrap">
-                               Auth. Aprov: {new Date(p.auth_app_date).toLocaleDateString('pt-BR')}
-                             </span>
-                          )}
-                        </div>
+                    </div>
+                    <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap ${status.class}`}>{status.label}</span>
+                  </div>
+
+                  {/* Status Badges for Issues */}
+                  {hasAlert && (
+                    <div className="flex flex-wrap gap-2 mb-4">
+                      {hasRejectedDocs && (
+                        <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-tight text-rose-600 bg-rose-50 border border-rose-100/50 px-2 py-1 rounded-md">
+                          <FileWarning className="w-3 h-3"/> Docs Rejeitados
+                        </span>
+                      )}
+                      {isPendenteSicovab && (
+                        <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-tight text-purple-600 bg-purple-50 border border-purple-100/50 px-2 py-1 rounded-md">
+                          <ShieldAlert className="w-3 h-3"/> SICOVAB Pend.
+                        </span>
+                      )}
+                      {isLate && (
+                        <span className="flex items-center gap-1 text-[11px] font-bold uppercase tracking-tight text-amber-600 bg-amber-50 border border-amber-100/50 px-2 py-1 rounded-md">
+                          <Clock className="w-3 h-3"/> Atrasado
+                        </span>
                       )}
                     </div>
-                    <span className={`stage-badge ${status.class}`}>{status.label}</span>
+                  )}
+
+                  {/* Datas de Docs */}
+                  {(p.auth_req_date || p.auth_app_date) && (
+                    <div className="flex flex-wrap gap-2 mb-4 bg-slate-50 p-2.5 rounded-xl border border-slate-100/50">
+                      {p.auth_req_date && (
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Solicitado Exército</span>
+                            <span className="text-[13px] text-slate-600 font-medium">
+                              {new Date(p.auth_req_date).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
+                      )}
+                      {p.auth_req_date && p.auth_app_date && <div className="w-[1px] bg-slate-200 mx-1" />}
+                      {p.auth_app_date && (
+                          <div className="flex flex-col">
+                            <span className="text-[10px] font-bold text-emerald-500 uppercase tracking-wider">Autorizado Exército</span>
+                            <span className="text-[13px] text-emerald-700 font-bold">
+                              {new Date(p.auth_app_date).toLocaleDateString('pt-BR')}
+                            </span>
+                          </div>
+                      )}
+                    </div>
+                  )}
+
+                  <div className="mb-4">
+                    <div className="flex justify-between text-[12px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+                      <span>Progresso Geral</span>
+                      <span className="text-indigo-600">{p.overall_progress}%</span>
+                    </div>
+                    <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                      <div className={`h-full rounded-full transition-all duration-1000 ${hasAlert && p.overall_progress < 100 ? 'bg-amber-500' : 'bg-indigo-500'}`} style={{ width: `${p.overall_progress}%` }} />
+                    </div>
                   </div>
 
-                  <div className="mb-3">
-                    <div className="flex justify-between text-[13px] text-slate-500 mb-1">
-                      <span>Progresso</span>
-                      <span className="font-semibold">{p.overall_progress}%</span>
-                    </div>
-                    <div className="progress-bar">
-                      <div className={`progress-bar-fill ${hasAlert ? 'bg-red-500' : ''}`} style={{ width: `${p.overall_progress}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between items-center mt-4 pt-4 border-t border-slate-50">
-                    <span className="text-[13px] text-slate-400 font-medium">
+                  <div className="flex justify-between items-center mt-5 pt-4 border-t border-slate-100">
+                    <span className="text-[14px] font-black tracking-tight text-slate-800">
                       {p.contract_value
                         ? `R$ ${Number(p.contract_value).toLocaleString('pt-BR')}`
-                        : 'Valor a definir'}
+                        : <span className="text-slate-400 font-medium text-[13px]">Valor a definir</span>}
                     </span>
-                    <ArrowRight className={`w-4 h-4 transition-colors ${hasAlert ? 'text-red-300 group-hover:text-red-500' : 'text-slate-300 group-hover:text-green-500'}`} />
+                    <div className={`w-8 h-8 rounded-full flex items-center justify-center transition-colors ${hasAlert ? 'bg-rose-50 text-rose-500 group-hover:bg-rose-500 group-hover:text-white' : 'bg-indigo-50 text-indigo-500 group-hover:bg-indigo-500 group-hover:text-white'}`}>
+                      <ArrowRight className="w-4 h-4" />
+                    </div>
                   </div>
                 </Link>
               )
             })}
           </div>
         ) : (
-          <div className="soft-card p-12 text-center border-dashed">
-            <p className="text-slate-400 mb-4">A oficina está vazia. Nenhum projeto ainda.</p>
+          <div className="bg-white rounded-[22px] p-12 text-center border-2 border-dashed border-slate-200">
+            <div className="w-16 h-16 bg-slate-50 rounded-2xl flex items-center justify-center mx-auto mb-4 text-slate-400">
+              <Car className="w-8 h-8" />
+            </div>
+            <h3 className="text-lg font-bold text-slate-800 mb-2">Nenhum veículo na oficina</h3>
+            <p className="text-slate-500 mb-6 max-w-sm mx-auto">A oficina está vazia no momento. Cadastre seu primeiro projeto para iniciar o acompanhamento.</p>
             <Link href="/projects/new" className="btn-primary inline-flex">
               <Plus className="w-4 h-4" /> Cadastrar Primeiro Veículo
             </Link>

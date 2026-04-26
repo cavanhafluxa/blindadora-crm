@@ -11,7 +11,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import { createClient } from '@/utils/supabase/client'
-import { Car, Phone, DollarSign, Plus, X, Shield, Wrench, BarChart2, Filter } from 'lucide-react'
+import { Car, Phone, DollarSign, Plus, X, Shield, Wrench, BarChart2, Filter, Zap, Edit2 } from 'lucide-react'
 
 type Lead = {
   id: string
@@ -50,7 +50,7 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
   const assignee = teamMembers.find(t => t.id === lead.assigned_to)
 
   if (isDragging) {
-    return <div ref={setNodeRef} style={style} className="h-28 rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/30" />
+    return <div ref={setNodeRef} style={style} className="h-32 rounded-2xl border-2 border-dashed border-indigo-200 bg-indigo-50/30" />
   }
 
   const isBlindagem = lead.type === 'blindagem' || !lead.type
@@ -60,65 +60,99 @@ function LeadCard({ lead, isOverlay, onClick, teamMembers }: { lead: Lead; isOve
     <div
       ref={setNodeRef}
       style={style}
-      {...attributes}
-      {...listeners}
-      onClick={onClick}
-      className={`bg-white rounded-2xl p-4 shadow-sm border border-slate-200/60 border-l-4 ${borderColor} cursor-grab active:cursor-grabbing hover:shadow-md hover:border-r-slate-300 transition-all group relative overflow-hidden ${isOverlay ? 'rotate-2 shadow-2xl scale-105' : ''}`}
+      className={`bg-white rounded-[22px] p-5 shadow-[0_4px_12px_rgba(0,0,0,0.03)] border border-slate-200/50 border-l-[6px] ${borderColor} cursor-grab active:cursor-grabbing hover:shadow-lg hover:border-slate-300 transition-all group relative overflow-hidden ${isOverlay ? 'rotate-2 shadow-2xl scale-105' : ''}`}
     >
-      <div className="absolute top-3 right-3 opacity-20 group-hover:opacity-40 transition-opacity">
-        {isBlindagem ? <Shield className="w-8 h-8 text-indigo-600" /> : <Wrench className="w-8 h-8 text-amber-500" />}
+      {/* Botão de Edição Superior Direto */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.();
+        }}
+        className="absolute top-4 right-4 z-20 w-8 h-8 rounded-full bg-slate-50 text-slate-400 flex items-center justify-center hover:bg-slate-100 hover:text-indigo-600 transition-all opacity-0 group-hover:opacity-100 shadow-sm border border-slate-100"
+      >
+        <Edit2 className="w-3.5 h-3.5" />
+      </button>
+
+      {/* Background Icon Watermark */}
+      <div className="absolute -right-4 -top-4 opacity-[0.03] group-hover:opacity-[0.06] transition-opacity">
+        {isBlindagem ? <Shield className="w-24 h-24 text-indigo-900" /> : <Wrench className="w-24 h-24 text-amber-900" />}
       </div>
 
-      <div className="flex justify-between items-start mb-3 relative z-10">
-        <p className="font-semibold text-slate-800 text-sm truncate flex-1 group-hover:text-indigo-600 transition-colors">{lead.customer_name}</p>
-        {lead.qualification_score !== undefined && lead.qualification_score !== null && (
-          <span title={`Score: ${lead.qualification_score}`} className="text-[13px] font-bold px-2 py-1 rounded-full flex-shrink-0 ml-2 shadow-sm border" style={{
-            backgroundColor: lead.qualification_score > 70 ? '#fef2f2' : lead.qualification_score > 30 ? '#fefce8' : '#f8fafc',
-            borderColor: lead.qualification_score > 70 ? '#fca5a5' : lead.qualification_score > 30 ? '#fde047' : '#e2e8f0',
-            color: lead.qualification_score > 70 ? '#ef4444' : lead.qualification_score > 30 ? '#eab308' : '#64748b'
-          }}>
-            {lead.qualification_score > 70 ? 'Quente' : lead.qualification_score > 30 ? 'Morno' : 'Frio'}
-          </span>
-        )}
-      </div>
-      
-      <div className="space-y-1.5 mb-3 relative z-10">
-        {lead.vehicle_model && (
-          <div className="flex items-center gap-2 text-[13px] text-slate-500">
-            <Car className="w-3.5 h-3.5 opacity-70" />
-            <span className="truncate">{lead.vehicle_model} {lead.armor_type ? `(${lead.armor_type})` : ''}</span>
+      <div className="relative z-10" {...attributes} {...listeners}>
+        <div className="flex flex-col gap-1 mb-4">
+          <h4 className="font-bold text-slate-800 text-[15px] leading-tight group-hover:text-indigo-600 transition-colors">
+            {lead.customer_name}
+          </h4>
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-500 border border-indigo-100/50">
+              {lead.source || 'Tráfego Direto'}
+            </span>
           </div>
-        )}
-        {lead.customer_phone && (
-          <div className="flex items-center gap-2 text-[13px] text-slate-500">
-            <Phone className="w-3.5 h-3.5 opacity-70" />
-            <span>{lead.customer_phone}</span>
-          </div>
-        )}
-        {lead.created_at && (
-          <div className="text-[13px] text-slate-400 mt-2 border-t pt-1 border-slate-100">
-            Criado em {new Date(lead.created_at).toLocaleDateString('pt-BR')}
-          </div>
-        )}
-      </div>
-
-      <div className="flex items-center justify-between pt-3 border-t border-slate-100 relative z-10">
-        <div className="flex items-center gap-1.5">
-          <div className="w-5 h-5 rounded-full bg-white text-[13px] font-bold text-slate-800 flex items-center justify-center premium-avatar">
-            {assignee ? assignee.full_name.charAt(0).toUpperCase() : '?'}
-          </div>
-          <span className="text-[13px] font-medium text-slate-500 truncate max-w-[80px]">
-            {assignee ? assignee.full_name.split(' ')[0] : 'Indefinido'}
-          </span>
         </div>
         
-        {lead.quoted_value ? (
-          <div className="text-[13px] font-bold text-emerald-600">
-            R$ {Number(lead.quoted_value).toLocaleString('pt-BR')}
+        <div className="space-y-2 mb-4">
+          {lead.vehicle_model && (
+            <div className="flex items-center gap-2.5 text-[13px] text-slate-500">
+              <div className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center">
+                <Car className="w-3.5 h-3.5 text-slate-400" />
+              </div>
+              <span className="font-medium truncate">{lead.vehicle_model} {lead.armor_type ? `(${lead.armor_type})` : ''}</span>
+            </div>
+          )}
+          {lead.customer_phone && (
+            <div className="flex items-center gap-2.5 text-[13px] text-slate-500">
+              <div className="w-6 h-6 rounded-lg bg-slate-50 flex items-center justify-center">
+                <Phone className="w-3.5 h-3.5 text-slate-400" />
+              </div>
+              <span className="font-medium tracking-tight">{lead.customer_phone}</span>
+            </div>
+          )}
+        </div>
+
+        <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
+          <div className="flex flex-col gap-0.5">
+             {lead.quoted_value ? (
+                <span className="text-base font-black text-slate-900 leading-none">
+                  R$ {Number(lead.quoted_value).toLocaleString('pt-BR')}
+                </span>
+             ) : (
+                <span className="text-[13px] font-semibold text-slate-400">A orçar</span>
+             )}
+             {lead.created_at && (
+               <span className="text-[11px] font-medium text-slate-400">
+                 {new Date(lead.created_at).toLocaleDateString('pt-BR')}
+               </span>
+             )}
           </div>
-        ) : (
-          <div className="text-[13px] text-slate-400 font-medium">Sem valor</div>
-        )}
+
+          {lead.qualification_score !== undefined && lead.qualification_score !== null && (
+            <div 
+              title={`Score: ${lead.qualification_score}`}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border shadow-sm transition-all ${
+                lead.qualification_score > 70 
+                  ? 'bg-rose-50 border-rose-200 text-rose-600' 
+                  : lead.qualification_score > 30 
+                    ? 'bg-amber-50 border-amber-200 text-amber-600 shadow-amber-100/50' 
+                    : 'bg-slate-50 border-slate-200 text-slate-500'
+              }`}
+            >
+              <Zap className={`w-3 h-3 fill-current ${lead.qualification_score > 70 ? 'animate-pulse' : ''}`} />
+              <span className="text-[11px] font-bold uppercase tracking-tight">
+                {lead.qualification_score > 70 ? 'Quente' : lead.qualification_score > 30 ? 'Morno' : 'Frio'}
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Atribuição (Avatar mini) */}
+        <div className="mt-3 flex items-center gap-2">
+            <div className="w-5 h-5 rounded-full bg-slate-100 border border-white shadow-sm flex items-center justify-center text-[10px] font-bold text-slate-600">
+              {assignee ? assignee.full_name.charAt(0).toUpperCase() : '?'}
+            </div>
+            <span className="text-[11px] font-bold text-slate-400 uppercase tracking-tighter">
+              {assignee ? assignee.full_name.split(' ')[0] : 'S/ Resp'}
+            </span>
+        </div>
       </div>
     </div>
   )
