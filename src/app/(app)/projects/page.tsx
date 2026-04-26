@@ -208,34 +208,38 @@ export default async function ProjectsPage() {
                   {/* Subtle alert gradient */}
                   {hasAlert && <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50/40 rounded-bl-[100px] -z-10 transition-opacity group-hover:opacity-100 opacity-50" />}
                   
-                  <div className="flex justify-between items-start mb-4 relative z-10 gap-3">
-                    <div className="flex-1 min-w-0 pr-2">
-                      <h3 className="font-bold text-slate-800 text-[16px] group-hover:text-indigo-600 transition-colors flex items-center gap-1.5 leading-tight truncate">
-                        {p.customer_name}
-                      </h3>
-                      <div className="flex flex-wrap items-center gap-2 mt-2">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-slate-50 text-[12px] font-medium text-slate-500 border border-slate-100">
-                           <Car className="w-3.5 h-3.5 text-slate-400" /> {p.vehicle_model || 'Veículo'}
-                        </span>
-                        {p.plate && (
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-md bg-slate-50 text-[12px] font-bold text-slate-600 border border-slate-100 uppercase tracking-widest">
-                            {p.plate}
-                          </span>
+                  <div className="flex justify-between items-start mb-4 relative z-10 gap-4">
+                    <div className="flex gap-4 items-center flex-1 min-w-0 pr-2">
+                      {/* Vehicle Image Thumbnail */}
+                      <div className="w-[68px] h-[68px] rounded-[18px] bg-slate-50 overflow-hidden border-2 border-slate-50 flex items-center justify-center shadow-[0_2px_8px_rgba(0,0,0,0.06)] shrink-0">
+                        {p.vehicle_image ? (
+                          <img src={p.vehicle_image} alt={p.vehicle_model || 'Veículo'} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                        ) : (
+                          <Car className="w-6 h-6 text-slate-300" />
                         )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-bold text-slate-800 text-[17px] group-hover:text-indigo-600 transition-colors flex items-center gap-1.5 leading-tight truncate">
+                          {p.customer_name}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-2 mt-2.5">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-50/80 text-[12.5px] font-medium text-slate-500 border border-slate-100/80">
+                             <Car className="w-4 h-4 text-slate-400" /> {p.vehicle_model || 'Veículo'}
+                          </span>
+                          {p.plate && (
+                            <span className="inline-flex items-center px-3 py-1.5 rounded-lg bg-slate-50/80 text-[12.5px] font-bold text-slate-600 border border-slate-100/80 uppercase tracking-widest">
+                              {p.plate}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <div className="flex flex-col items-end gap-2 shrink-0">
-                      <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap ${status.class}`}>
+                    
+                    <div className="flex flex-col items-end shrink-0">
+                      <span className={`text-[11px] font-bold uppercase tracking-wider px-3 py-1.5 rounded-full whitespace-nowrap ${status.class}`}>
                         {status.label}
                       </span>
-                      {/* Vehicle Image Thumbnail */}
-                      <div className="w-12 h-12 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 flex items-center justify-center shadow-sm">
-                        {p.vehicle_image ? (
-                          <img src={p.vehicle_image} alt={p.vehicle_model || 'Veículo'} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
-                        ) : (
-                          <Car className="w-5 h-5 text-slate-300" />
-                        )}
-                      </div>
                     </div>
                   </div>
 
