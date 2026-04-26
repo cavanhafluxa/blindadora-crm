@@ -208,9 +208,9 @@ export default async function ProjectsPage() {
                   {/* Subtle alert gradient */}
                   {hasAlert && <div className="absolute top-0 right-0 w-32 h-32 bg-rose-50/40 rounded-bl-[100px] -z-10 transition-opacity group-hover:opacity-100 opacity-50" />}
                   
-                  <div className="flex justify-between items-start mb-4 relative z-10">
-                    <div className="pr-4">
-                      <h3 className="font-bold text-slate-800 text-[16px] group-hover:text-indigo-600 transition-colors flex items-center gap-1.5 leading-tight">
+                  <div className="flex justify-between items-start mb-4 relative z-10 gap-3">
+                    <div className="flex-1 min-w-0 pr-2">
+                      <h3 className="font-bold text-slate-800 text-[16px] group-hover:text-indigo-600 transition-colors flex items-center gap-1.5 leading-tight truncate">
                         {p.customer_name}
                       </h3>
                       <div className="flex flex-wrap items-center gap-2 mt-2">
@@ -224,7 +224,19 @@ export default async function ProjectsPage() {
                         )}
                       </div>
                     </div>
-                    <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap ${status.class}`}>{status.label}</span>
+                    <div className="flex flex-col items-end gap-2 shrink-0">
+                      <span className={`text-[11px] font-bold uppercase tracking-wider px-2.5 py-1 rounded-full whitespace-nowrap ${status.class}`}>
+                        {status.label}
+                      </span>
+                      {/* Vehicle Image Thumbnail */}
+                      <div className="w-12 h-12 rounded-xl bg-slate-50 overflow-hidden border border-slate-100 flex items-center justify-center shadow-sm">
+                        {p.vehicle_image ? (
+                          <img src={p.vehicle_image} alt={p.vehicle_model || 'Veículo'} className="w-full h-full object-cover transition-transform group-hover:scale-110" />
+                        ) : (
+                          <Car className="w-5 h-5 text-slate-300" />
+                        )}
+                      </div>
+                    </div>
                   </div>
 
                   {/* Status Badges for Issues */}
