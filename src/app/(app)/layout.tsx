@@ -34,7 +34,7 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <main
         className="flex flex-col min-h-screen overflow-y-auto relative custom-scrollbar"
         style={{
-          paddingLeft: '108px',   /* sidebar 68px + 20px left + 20px gap */
+          paddingLeft: '112px',   /* left 16px + sidebar 72px + 24px gap */
           paddingRight: '24px',
           paddingTop: '24px',
           paddingBottom: '24px',

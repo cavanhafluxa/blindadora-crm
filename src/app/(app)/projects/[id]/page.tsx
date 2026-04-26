@@ -37,7 +37,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
     supabase.from('projects').select('*').eq('id', id).single(),
     supabase.from('production_stages').select('*').eq('project_id', id).order('stage_order'),
     supabase.from('project_materials').select('*, materials(name)').eq('project_id', id),
-    supabase.from('materials').select('id, name, quantity_in_stock').order('name'),
+    supabase.from('materials').select('id, name, quantity_in_stock, unit_price').order('name'),
     supabase.from('profiles').select('id, full_name').order('full_name'),
     supabase.from('documents').select('*').eq('project_id', id).order('uploaded_at', { ascending: false }),
     supabase.from('project_purchases').select('*').eq('project_id', id).order('purchase_date', { ascending: false }),
@@ -238,7 +238,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
               <PDFDownloadButton
                 document={<ContractPDF project={project} />}
                 fileName={`Contrato_${(project.customer_name || 'Cliente').replace(/\s+/g, '_')}.pdf`}
-                className="h-[38px] px-4 bg-[#111111] text-white hover:bg-black rounded-xl flex items-center gap-2 text-xs font-semibold transition-all shadow-sm"
+                className="h-[38px] px-4 bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-[#111111] rounded-xl flex items-center gap-2 text-xs font-semibold transition-all shadow-sm"
               >
                 <FileSignature className="w-3.5 h-3.5" /> Contrato
               </PDFDownloadButton>
@@ -292,6 +292,7 @@ export default async function ProjectDetailPage({ params }: { params: Promise<{ 
         <div className="flex flex-col gap-6">
           <ProjectMaterials
             projectId={project.id}
+            organizationId={project.organization_id}
             initialProjectMaterials={projectMaterials as any || []}
             allMaterials={allMaterials as any || []}
           />

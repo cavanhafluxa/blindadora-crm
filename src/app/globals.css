@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  --font-sans: 'DM Sans', var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
 }
 
 /* ============================================================
@@ -12,7 +12,7 @@
 @layer base {
   :root {
     /* Core */
-    --color-background:         #F8F8F8;       /* Off-white respiro */
+    --color-background:         #F4F4F5;       /* Cinza claro neutro sem tom azulado */
     --color-foreground:         #222222;       /* Cinza carvão */
     --color-muted:              #888888;       /* Texto de suporte */
     --color-muted-light:        #BBBBBB;
@@ -23,13 +23,13 @@
     --color-card-shadow:        rgba(0,0,0,0.04);
     --color-card-shadow-hover:  rgba(0,0,0,0.10);
 
-    /* Sidebar — dark pill */
-    --color-sidebar-bg:         #111111;
-    --color-sidebar-border:     rgba(255,255,255,0.06);
-    --color-sidebar-hover:      rgba(255,255,255,0.07);
+    /* Sidebar — sleek black style */
+    --color-sidebar-bg:         #000000;
+    --color-sidebar-border:     rgba(255,255,255,0.08);
+    --color-sidebar-hover:      rgba(39,39,42,0.8);    /* Zinc 800/80 */
     --color-sidebar-active-bg:  #FFFFFF;
-    --color-sidebar-active-text:#111111;
-    --color-sidebar-text:       rgba(255,255,255,0.48);
+    --color-sidebar-active-text:#000000;
+    --color-sidebar-text:       #A1A1AA;               /* Zinc 400 */
 
     /* Actions */
     --color-primary:            #111111;
@@ -85,11 +85,41 @@
 html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
 
 body {
-  font-family: 'DM Sans', ui-sans-serif, system-ui, sans-serif;
+  font-family: 'DM Sans', var(--font-dm-sans), ui-sans-serif, system-ui, sans-serif;
   background-color: var(--color-background);
   color: var(--color-foreground);
   transition: background-color 0.3s ease, color 0.3s ease;
   line-height: 1.55;
+  font-weight: 400;
+  letter-spacing: -0.01em;
+}
+
+/* ─── Global Typography Normalization ─── */
+/* Soften all headings to avoid heavy/aggressive appearance */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+/* Table headers — use regular weight, uppercase tracking */
+th, thead td {
+  font-weight: 500;
+  letter-spacing: 0.04em;
+}
+
+/* Labels and small caps */
+label {
+  font-weight: 400;
+}
+
+/* Buttons — medium weight feels cleaner */
+button, [role="button"] {
+  font-weight: 500;
+}
+
+/* Badge text */
+.badge, [class*="badge"] {
+  font-weight: 500;
 }
 
 /* ============================================================

@@ -528,10 +528,10 @@ export default function FinancialClient({ initialData }: { initialData: Financia
                           <>
                             <span className="w-1 h-1 rounded-full bg-slate-200"></span>
                             <a 
-                              href={`https://ncfozqgrdfkbaexixzta.supabase.co/storage/v1/object/public/documents/${r.invoice_url}`} 
+                              href={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/documents/${r.invoice_url}`} 
                               target="_blank" 
                               rel="noreferrer"
-                              className="inline-flex items-center gap-1 text-[13px] font-bold text-indigo-500 hover:text-indigo-700 transition-colors bg-indigo-50 px-2 py-0.5 rounded-full"
+                              className="inline-flex items-center gap-1 text-[13px] font-medium text-indigo-500 hover:text-indigo-700 transition-colors bg-indigo-50 px-2 py-0.5 rounded-full"
                             >
                               <Paperclip className="w-3 h-3" />
                               NOTA FISCAL

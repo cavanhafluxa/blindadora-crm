@@ -4,15 +4,17 @@ import { useState } from 'react'
 import { createClient } from '@/utils/supabase/client'
 import { Package, Plus, Trash2 } from 'lucide-react'
 
-type Material = { id: string; name: string; quantity_in_stock: number }
+type Material = { id: string; name: string; quantity_in_stock: number; unit_price: number | null }
 type ProjectMaterial = { id: string; quantity_used: number; materials: { name: string } | null }
 
 export default function ProjectMaterials({
   projectId,
+  organizationId,
   initialProjectMaterials,
   allMaterials
 }: {
   projectId: string
+  organizationId: string
   initialProjectMaterials: ProjectMaterial[]
   allMaterials: Material[]
 }) {
@@ -51,6 +53,18 @@ export default function ProjectMaterials({
     await supabase.from('materials').update({
       quantity_in_stock: mat.quantity_in_stock - qty
     }).eq('id', selectedMaterial)
+
+    // 3. Register movement in history
+    const { data: { user } } = await supabase.auth.getUser()
+    await supabase.from('stock_movements').insert({
+      organization_id: organizationId,
+      material_id: selectedMaterial,
+      movement_type: 'out',
+      quantity: qty,
+      project_id: projectId,
+      user_id: user?.id,
+      unit_cost: mat.unit_price ? Number(mat.unit_price) : null
+    })
 
     // Update local state and parent reference stock
     if (newUsage) {

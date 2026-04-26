@@ -4,9 +4,12 @@ import { createClient } from '@supabase/supabase-js'
 export const dynamic = 'force-dynamic'
 
 export async function GET(req: Request) {
-  // 1. [NOVO] Verificação Estrita de Token Oculto/Cron
+  // Allow internal calls (from NotificationBell) OR cron calls with secret
   const authHeader = req.headers.get('authorization')
-  if (authHeader !== `Bearer ${process.env.CRON_SECRET}`) {
+  const isInternalCall = req.headers.get('x-internal-call') === '1'
+  const isCronCall = authHeader === `Bearer ${process.env.CRON_SECRET}`
+
+  if (!isInternalCall && !isCronCall) {
     return NextResponse.json({ error: 'Unauthorized Access' }, { status: 401 })
   }
 
@@ -16,78 +19,142 @@ export async function GET(req: Request) {
   )
 
   const today = new Date()
-  today.setHours(0,0,0,0)
+  today.setHours(0, 0, 0, 0)
+
+  const next3Days = new Date(today)
+  next3Days.setDate(next3Days.getDate() + 3)
+
   const next7Days = new Date(today)
   next7Days.setDate(next7Days.getDate() + 7)
 
-  // 1. Revisões Atrasadas ou na Semana
+  const newNotifs: any[] = []
+
+  // ─────────────────────────────────────────────────────────────
+  // 1. FINANCEIRO — Pagamentos vencidos (não pagos, data no passado)
+  // ─────────────────────────────────────────────────────────────
+  const { data: financials } = await supabase
+    .from('financials')
+    .select('id, description, amount, due_date, type, category, organization_id')
+    .eq('paid', false)
+    .not('due_date', 'is', null)
+
+  financials?.forEach(f => {
+    if (!f.due_date) return
+    const dueDate = new Date(f.due_date)
+    dueDate.setHours(0, 0, 0, 0)
+
+    const amountFmt = Number(f.amount).toLocaleString('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    })
+
+    const desc = f.description || (f.type === 'income' ? 'Receita' : 'Despesa')
+    const daysDiff = Math.round((dueDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))
+
+    if (dueDate < today) {
+      // Vencido
+      const daysLate = Math.abs(daysDiff)
+      newNotifs.push({
+        organization_id: f.organization_id,
+        type: f.type === 'income' ? 'payment_overdue_income' : 'payment_overdue_expense',
+        title: f.type === 'income' ? '⚠️ Recebível Vencido' : '🔴 Pagamento Vencido',
+        body: `"${desc}" — ${amountFmt} está vencido há ${daysLate} dia${daysLate !== 1 ? 's' : ''}.`,
+        link: '/financial',
+      })
+    } else if (dueDate <= next3Days) {
+      // Vence em até 3 dias — urgente
+      newNotifs.push({
+        organization_id: f.organization_id,
+        type: f.type === 'income' ? 'payment_due_soon_income' : 'payment_due_soon_expense',
+        title: f.type === 'income' ? '📅 Recebível Urgente' : '📅 Pagamento Urgente',
+        body: `"${desc}" — ${amountFmt} vence em ${daysDiff === 0 ? 'hoje' : `${daysDiff} dia${daysDiff !== 1 ? 's' : ''}`}.`,
+        link: '/financial',
+      })
+    } else if (dueDate <= next7Days) {
+      // Vence em até 7 dias — alerta
+      newNotifs.push({
+        organization_id: f.organization_id,
+        type: f.type === 'income' ? 'payment_due_week_income' : 'payment_due_week_expense',
+        title: f.type === 'income' ? '📬 Recebível Próximo' : '📬 Pagamento Próximo',
+        body: `"${desc}" — ${amountFmt} vence em ${daysDiff} dias (${dueDate.toLocaleDateString('pt-BR')}).`,
+        link: '/financial',
+      })
+    }
+  })
+
+  // ─────────────────────────────────────────────────────────────
+  // 2. PÓS-VENDA — Revisões atrasadas ou próximas
+  // ─────────────────────────────────────────────────────────────
   const { data: maintenance } = await supabase
     .from('maintenance_orders')
-    .select('*')
+    .select('id, type, vehicle_model, scheduled_date, organization_id')
     .eq('status', 'scheduled')
-
-  const newNotifs: any[] = []
 
   maintenance?.forEach(m => {
     if (!m.scheduled_date) return
     const sd = new Date(m.scheduled_date)
+    sd.setHours(0, 0, 0, 0)
+
     if (sd < today) {
       newNotifs.push({
         organization_id: m.organization_id,
         type: 'revision_due',
-        title: 'Revisão Atrasada',
-        body: `A revisão (${m.type}) de ${m.vehicle_model || 'Veículo'} está atrasada.`,
-        link: '/maintenance'
+        title: '🔧 Revisão Atrasada',
+        body: `Revisão (${m.type}) de ${m.vehicle_model || 'Veículo'} está atrasada desde ${sd.toLocaleDateString('pt-BR')}.`,
+        link: '/maintenance',
       })
     } else if (sd <= next7Days) {
       newNotifs.push({
         organization_id: m.organization_id,
         type: 'revision_due',
-        title: 'Revisão Próxima',
-        body: `A revisão (${m.type}) de ${m.vehicle_model || 'Veículo'} será dia ${sd.toLocaleDateString('pt-BR')}.`,
-        link: '/maintenance'
+        title: '🔧 Revisão Próxima',
+        body: `Revisão (${m.type}) de ${m.vehicle_model || 'Veículo'} agendada para ${sd.toLocaleDateString('pt-BR')}.`,
+        link: '/maintenance',
       })
     }
   })
 
-  // 2. Projetos pendentes de SICOVAB
+  // ─────────────────────────────────────────────────────────────
+  // 3. PROJETOS — SICOVAB pendente
+  // ─────────────────────────────────────────────────────────────
   const { data: projects } = await supabase
     .from('projects')
-    .select('*')
+    .select('id, customer_name, vehicle_model, expected_delivery_date, sicovab_status, organization_id')
     .neq('status', 'concluido')
-    .eq('sicovab_status', 'pending')
 
   projects?.forEach(p => {
-    newNotifs.push({
-      organization_id: p.organization_id,
-      type: 'pending_sicovab',
-      title: 'SICOVAB Pendente',
-      body: `O projeto de ${p.customer_name} (${p.vehicle_model || 'Sem modelo'}) precisa do protocolo do Exército.`,
-      link: `/projects/${p.id}`
-    })
-  })
+    // SICOVAB pendente
+    if (p.sicovab_status === 'pending') {
+      newNotifs.push({
+        organization_id: p.organization_id,
+        type: 'pending_sicovab',
+        title: '🛡️ SICOVAB Pendente',
+        body: `Projeto de ${p.customer_name} (${p.vehicle_model || 'Sem modelo'}) aguarda protocolo do Exército.`,
+        link: `/projects/${p.id}`,
+      })
+    }
 
-  // 3. Projetos Atrasados (Delivery)
-  projects?.forEach(p => {
+    // Entrega atrasada
     if (p.expected_delivery_date) {
       const ed = new Date(p.expected_delivery_date)
+      ed.setHours(0, 0, 0, 0)
       if (ed < today) {
         newNotifs.push({
           organization_id: p.organization_id,
           type: 'overdue_project',
-          title: 'Entrega Atrasada',
-          body: `O projeto de ${p.customer_name} deveria ter sido entregue em ${ed.toLocaleDateString('pt-BR')}.`,
-          link: `/projects/${p.id}`
+          title: '🚗 Entrega Atrasada',
+          body: `Projeto de ${p.customer_name} deveria ter sido entregue em ${ed.toLocaleDateString('pt-BR')}.`,
+          link: `/projects/${p.id}`,
         })
       }
     }
   })
 
-  // Inserir ignorando duplicatas exatas no mesmo dia (usaremos title + body match para simplificar)
-  // Como não temos uma unique constraint com data e body, para não floodar na API GET, vamos apagar as não lidas de "hoje" ou simplesmente limpar e recriar.
-  // Abordagem limpa: limpar notificações geradas por sistema não lidas e recriá-las.
+  // ─────────────────────────────────────────────────────────────
+  // Recriar: apaga não lidas geradas por sistema e insere novas
+  // ─────────────────────────────────────────────────────────────
   await supabase.from('notifications').delete().eq('read', false)
-  
+
   if (newNotifs.length > 0) {
     await supabase.from('notifications').insert(newNotifs)
   }

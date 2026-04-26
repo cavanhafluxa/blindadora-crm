@@ -15,6 +15,7 @@ import {
   Users,
   LifeBuoy,
   FileText,
+  ClipboardList,
   LogOut,
 } from 'lucide-react'
 import { createClient } from '@/utils/supabase/client'
@@ -32,7 +33,7 @@ const navItems = [
   { href: '/financial',   label: 'Financeiro',      icon: Wallet },
   { href: '/maintenance', label: 'Pós-Venda',       icon: Wrench },
   { href: '/team',        label: 'Colaboradores',   icon: Users },
-  { href: '/audit',       label: 'Histórico',       icon: FileText },
+  { href: '/audit',       label: 'Histórico',       icon: ClipboardList },
   { href: '/settings',    label: 'Configurações',   icon: Settings },
 ]
 
@@ -96,73 +97,63 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
 
   return (
     <aside
-      className="fixed left-4 top-4 bottom-4 z-50 flex flex-col"
+      className="fixed left-4 top-4 bottom-4 z-[150] flex flex-col"
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
       style={{
-        width: expanded ? '216px' : '64px',
-        transition: 'width 0.32s cubic-bezier(0.34, 1.2, 0.64, 1)',
+        width: expanded ? '240px' : '72px',
+        transition: 'width 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
       }}
     >
-      {/* ── Rectangular dark pill ── */}
+      {/* ── Main Sidebar Container (Floating Pill) ── */}
       <div
-        className="flex flex-col h-full overflow-hidden"
+        className="flex flex-col h-full overflow-hidden bg-black items-center"
         style={{
-          backgroundColor: '#111111',
-          borderRadius: '10px',                          /* Less round than before */
-          padding: '18px 10px',
-          boxShadow: '0 4px 20px rgba(0,0,0,0.28), 0 1px 4px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.04)',
+          borderRadius: '24px',
+          padding: '24px 0',
+          boxShadow: '0 8px 32px rgba(0,0,0,0.3)',
+          border: '1px solid rgba(255,255,255,0.08)',
         }}
       >
-        {/* Logo / Wordmark */}
+        {/* Logo / Brand */}
         <div
-          className="flex items-center mb-7 flex-shrink-0 overflow-hidden"
-          style={{ minHeight: '34px' }}
+          className="flex items-center mb-10 flex-shrink-0 w-full"
+          style={{ minHeight: '40px' }}
         >
-          {/* Icon mark — white, no orange */}
-          <div
-            className="flex-shrink-0 flex items-center justify-center overflow-hidden premium-logo-container"
-            style={{
-              width:       '34px',
-              height:      '34px',
-              minWidth:    '34px',
-              background:  '#FFFFFF',
-              borderRadius:'7px',
-            }}
-          >
-            {orgLogo ? (
-              <img src={orgLogo} alt="Logo" className="w-full h-full object-cover" />
-            ) : (
-              <ShieldCheck className="w-[18px] h-[18px] text-[#111111]" strokeWidth={2.5} />
-            )}
-          </div>
-
-          {/* Brand name */}
-          <div
-            className="ml-3 overflow-hidden flex-shrink-0"
-            style={{
-              width:   expanded ? '140px' : '0px',
-              opacity: expanded ? 1 : 0,
-              transition: 'width 0.28s ease, opacity 0.22s ease',
-            }}
-          >
-            <span
-              className="font-black text-[16px] tracking-tight whitespace-nowrap"
+          <div className="w-[72px] flex-shrink-0 flex items-center justify-center">
+            <div
+              className="flex-shrink-0 flex items-center justify-center bg-white rounded-xl shadow-lg"
               style={{
-                color:       '#FFFFFF',
-                fontFamily:  "'DM Sans', sans-serif",
-                letterSpacing: '-0.03em',
+                width: '40px',
+                height: '40px',
               }}
             >
-              {userName}
+              {orgLogo ? (
+                <img src={orgLogo} alt="Logo" className="w-full h-full object-cover rounded-xl" />
+              ) : (
+                <ShieldCheck className="w-5 h-5 text-black" strokeWidth={2.5} />
+              )}
+            </div>
+          </div>
+
+          <div
+            className="overflow-hidden"
+            style={{
+              width: expanded ? '140px' : '0px',
+              opacity: expanded ? 1 : 0,
+              transition: 'width 0.3s ease, opacity 0.2s ease',
+              marginLeft: expanded ? '4px' : '0px',
+            }}
+          >
+            <span className="font-bold text-[15px] tracking-tight text-white whitespace-nowrap">
+              {orgName}
             </span>
           </div>
         </div>
 
-
         {/* ── Navigation ── */}
         <nav
-          className="flex flex-col gap-0.5 flex-1 overflow-y-auto overflow-x-hidden"
+          className="flex flex-col gap-1.5 flex-1 overflow-y-auto overflow-x-hidden custom-scrollbar w-full px-2"
           style={{ scrollbarWidth: 'none' }}
         >
           {navItems.map(({ href, label, icon: Icon }, idx) => {
@@ -174,37 +165,26 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
                 href={href}
                 prefetch={true}
                 title={!expanded ? label : undefined}
-                className={`sidebar-link group ${isActive ? 'active' : ''}`}
-                style={{
-                  transitionDelay: `${idx * STAGGER}s`,
-                  borderRadius:    '7px',
-                  minHeight:       '40px',
-                  justifyContent:  expanded ? 'flex-start' : 'center',
-                }}
+                className={`
+                  flex items-center h-[44px] rounded-[20px] transition-all duration-200 group w-full
+                  ${isActive ? 'bg-white text-black shadow-[0_4px_12px_rgba(255,255,255,0.15)]' : 'text-zinc-500 hover:text-white hover:bg-zinc-800/60'}
+                `}
               >
-                {/* Icon */}
-                <Icon
-                  className="sidebar-icon flex-shrink-0"
-                  style={{
-                    width:    '17px',
-                    height:   '17px',
-                    minWidth: '17px',
-                    color: isActive ? '#111111' : 'rgba(255,255,255,0.50)',
-                  }}
-                  strokeWidth={isActive ? 2.2 : 1.8}
-                />
+                <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '52px', minWidth: '52px' }}>
+                  <Icon
+                    className={`flex-shrink-0 transition-transform duration-200 ${!isActive ? 'group-hover:scale-110' : ''}`}
+                    style={{ width: '19px', height: '19px' }}
+                    strokeWidth={isActive ? 2.5 : 2}
+                  />
+                </div>
 
-                {/* Label */}
                 <span
-                  className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
+                  className="overflow-hidden whitespace-nowrap text-[13px] font-medium"
                   style={{
-                    maxWidth:   expanded ? '160px' : '0px',
-                    opacity:    expanded ? 1 : 0,
-                    transition: 'max-width 0.26s ease, opacity 0.20s ease',
-                    marginLeft: expanded ? '10px' : '0px',
-                    fontFamily: "'DM Sans', sans-serif",
-                    letterSpacing: '0.01em',
-                    color: isActive ? '#111111' : 'rgba(255,255,255,0.72)',
+                    maxWidth: expanded ? '160px' : '0px',
+                    opacity: expanded ? 1 : 0,
+                    transition: 'max-width 0.35s ease, opacity 0.2s ease',
+                    marginLeft: 0,
                   }}
                 >
                   {label}
@@ -214,80 +194,53 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
           })}
         </nav>
 
-        {/* ── Bottom: User + Theme + Logout ── */}
+        {/* ── Bottom Section ── */}
         <div
-          className="flex flex-col gap-0.5 flex-shrink-0 mt-4 pt-4 overflow-hidden"
-          style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}
+          className="flex flex-col gap-1.5 flex-shrink-0 mt-6 pt-6 w-full px-2"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
         >
-          {/* User avatar row */}
+          {/* User Profile */}
           <div
-            className="flex items-center gap-3 px-2 py-2 overflow-hidden"
-            style={{ minHeight: '42px' }}
+            className={`flex items-center h-[48px] rounded-[20px] transition-all duration-200 w-full ${expanded ? 'bg-zinc-900/40' : ''}`}
           >
-            {/* Avatar — white circle with dark initials */}
-            <div
-              className="flex-shrink-0 rounded-full flex items-center justify-center text-[13px] font-black premium-avatar"
-              style={{
-                width:      '30px',
-                height:     '30px',
-                minWidth:   '30px',
-                background: '#FFFFFF',
-                color:      '#111111',
-                fontFamily: "'DM Sans', sans-serif",
-              }}
-            >
-              {initials}
+            <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '52px', minWidth: '52px' }}>
+              <div
+                className="flex-shrink-0 rounded-full bg-white text-black flex items-center justify-center text-[12px] font-bold shadow-sm"
+                style={{ width: '32px', height: '32px' }}
+              >
+                {initials}
+              </div>
             </div>
 
-            {/* Name */}
             <div
-              className="overflow-hidden flex-shrink-0"
+              className="overflow-hidden flex flex-col"
               style={{
-                width:      expanded ? '120px' : '0px',
-                opacity:    expanded ? 1 : 0,
-                transition: 'width 0.26s ease, opacity 0.20s ease',
+                width: expanded ? '130px' : '0px',
+                opacity: expanded ? 1 : 0,
+                transition: 'width 0.35s ease, opacity 0.2s ease',
               }}
             >
-              <p
-                className="text-white text-[13px] font-bold whitespace-nowrap truncate"
-                style={{ fontFamily: "'DM Sans', sans-serif" }}
-              >
+              <span className="text-white text-[13px] font-semibold truncate">
                 {userName || userEmail.split('@')[0]}
-              </p>
-              <p
-                className="text-[13px] whitespace-nowrap truncate"
-                style={{ color: 'rgba(255,255,255,0.38)' }}
-              >
-                Gestor
-              </p>
+              </span>
+              <span className="text-zinc-500 text-[11px] font-medium">Gestor</span>
             </div>
           </div>
 
-          {/* Support Link */}
+          {/* Support */}
           <Link
             href="/support"
-            className="sidebar-link group"
-            title={!expanded ? 'Suporte' : undefined}
-            style={{
-              borderRadius:   '7px',
-              minHeight:      '38px',
-              justifyContent: expanded ? 'flex-start' : 'center',
-            }}
+            className="flex items-center h-[44px] rounded-[20px] text-zinc-500 hover:text-white hover:bg-zinc-800/60 transition-all duration-200 w-full"
           >
-            <LifeBuoy
-              className="flex-shrink-0"
-              style={{ width: '16px', height: '16px', minWidth: '16px', color: 'rgba(255,255,255,0.50)' }}
-              strokeWidth={1.8}
-            />
+            <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '52px', minWidth: '52px' }}>
+              <LifeBuoy className="w-5 h-5 flex-shrink-0" />
+            </div>
             <span
-              className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
+              className="overflow-hidden whitespace-nowrap text-[14px] font-medium"
               style={{
-                maxWidth:   expanded ? '140px' : '0px',
-                opacity:    expanded ? 1 : 0,
-                transition: 'max-width 0.26s ease, opacity 0.20s ease',
-                marginLeft: expanded ? '10px' : '0px',
-                fontFamily: "'DM Sans', sans-serif",
-                color:      'rgba(255,255,255,0.60)',
+                maxWidth: expanded ? '160px' : '0px',
+                opacity: expanded ? 1 : 0,
+                transition: 'max-width 0.35s ease, opacity 0.2s ease',
               }}
             >
               Suporte
@@ -297,34 +250,24 @@ export default function Sidebar({ userEmail, userId }: { userEmail: string; user
           {/* Logout */}
           <button
             onClick={handleLogout}
-            className="sidebar-link group"
-            title={!expanded ? 'Sair' : undefined}
-            style={{
-              borderRadius:   '7px',
-              minHeight:      '38px',
-              justifyContent: expanded ? 'flex-start' : 'center',
-            }}
+            className="flex items-center h-[44px] rounded-[20px] text-zinc-500 hover:text-red-400 hover:bg-red-500/10 transition-all duration-200 w-full"
           >
-            <LogOut
-              className="flex-shrink-0"
-              style={{ width: '16px', height: '16px', minWidth: '16px', color: 'rgba(255,255,255,0.38)' }}
-              strokeWidth={1.8}
-            />
+            <div className="flex-shrink-0 flex items-center justify-center" style={{ width: '52px', minWidth: '52px' }}>
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+            </div>
             <span
-              className="overflow-hidden whitespace-nowrap text-[13px] font-semibold flex-shrink-0"
+              className="overflow-hidden whitespace-nowrap text-[14px] font-medium"
               style={{
-                maxWidth:   expanded ? '140px' : '0px',
-                opacity:    expanded ? 1 : 0,
-                transition: 'max-width 0.26s ease, opacity 0.20s ease',
-                marginLeft: expanded ? '10px' : '0px',
-                fontFamily: "'DM Sans', sans-serif",
-                color:      'rgba(255,255,255,0.50)',
+                maxWidth: expanded ? '160px' : '0px',
+                opacity: expanded ? 1 : 0,
+                transition: 'max-width 0.35s ease, opacity 0.2s ease',
               }}
             >
-              Sair da conta
+              Sair
             </span>
           </button>
         </div>
+
       </div>
     </aside>
   )

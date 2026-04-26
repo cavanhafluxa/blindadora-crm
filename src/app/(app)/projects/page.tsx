@@ -55,7 +55,7 @@ export default async function ProjectsPage() {
   return (
     <div className="px-6 py-6 space-y-8">
       {/* Header */}
-      <div className="flex justify-between items-start">
+      <div className="flex justify-between items-start pr-16">
         <div>
           <h1 className="text-2xl font-bold text-slate-800">Projetos de Blindagem</h1>
           <p className="text-slate-500 text-sm mt-1">{safeProjects.length} projetos no total</p>
